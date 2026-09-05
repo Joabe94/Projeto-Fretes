@@ -187,9 +187,11 @@ class Col:
     """Definicao de uma coluna de uma aba de dados."""
 
     def __init__(self, h, w, kind="in", key=None, formula=None, fmt=None, dv=None,
-                 conv=None):
+                 conv=None, dvnum=None):
         self.h, self.w, self.kind = h, w, kind
         self.key, self.formula, self.fmt, self.dv, self.conv = key, formula, fmt, dv, conv
+        # dvnum = (tipo, minimo, maximo) -> validacao numerica, ex: ("whole", 1, 31)
+        self.dvnum = dvnum
 
 
 def esqueleto(L, nome, tit, cols, cor, nlin, aviso=AVISO):
@@ -236,8 +238,26 @@ def preencher(ws, cols, registros, nlin, prefixo_id=None):
             if col.fmt:
                 cel.number_format = col.fmt
     for j, col in enumerate(cols, start=1):
+        ref = f"{CL(j)}{DAT}:{CL(j)}{DAT + nlin - 1}"
         if col.dv:
-            dv_lista(ws, col.dv, f"{CL(j)}{DAT}:{CL(j)}{DAT + nlin - 1}")
+            if col.dv.startswith("="):
+                dv = DataValidation(type="list", formula1=col.dv, allow_blank=True,
+                                    showDropDown=False, errorStyle="warning")
+                dv.error = ("Valor fora da lista. Escolha primeiro a categoria, ou cadastre "
+                            "a subcategoria em CAD_Subcategorias.")
+                dv.errorTitle = "Valor nao cadastrado"
+                ws.add_data_validation(dv)
+                dv.add(ref)
+            else:
+                dv_lista(ws, col.dv, ref)
+        if col.dvnum:
+            tipo, mn, mx = col.dvnum
+            dvn = DataValidation(type=tipo, operator="between", formula1=str(mn),
+                                 formula2=str(mx), allow_blank=True, errorStyle="stop")
+            dvn.error = f"Informe um numero inteiro entre {mn} e {mx}."
+            dvn.errorTitle = "Valor invalido"
+            ws.add_data_validation(dvn)
+            dvn.add(ref)
 
 
 # ---------------------------------------------------------------------------
@@ -349,6 +369,9 @@ def aba_cfg_listas(L):
         ("TIPO_MOV_META", K.TIPOS_MOV_META, "LST_TIPOMOV", 23),
         ("SINAL_MOV_META", [K.SINAL_MOV_META[t] for t in K.TIPOS_MOV_META], "MAP_SINALMOV", 16),
         ("SIM_NAO", K.SIM_NAO, "LST_SIMNAO", 10),
+        ("TIPO_INSTITUICAO", K.TIPOS_INSTITUICAO, "LST_TIPOINST", 19),
+        ("TIPO_CATEGORIA", K.TIPOS_CATEGORIA, "LST_TIPOCAT", 17),
+        ("TIPO_BEM", K.TIPOS_BEM, "LST_TIPOBEM", 21),
         ("DESTINO_RETIRADA_META", K.DESTINOS_RETIRADA, "LST_DESTRET", 22),
         ("MES_NOME", ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho",
                       "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
@@ -459,7 +482,7 @@ def abas_cadastros(L):
     cols = [
         Col("ID_Instituicao", 15, "auto"),
         Col("Nome", 32, "in", conv=lambda x: x[1]),
-        Col("Tipo", 16, "in", conv=lambda x: x[2]),
+        Col("Tipo", 16, "in", conv=lambda x: x[2], dv="LST_TIPOINST"),
         Col("Qtd_Contas", 12, "calc", formula='=IF($A{r}="","",COUNTIF(CAD_Contas!$D${d}:$D${f},$A{r}))'.replace("{d}", str(DAT)).replace("{f}", str(DAT + n - 1)), fmt="0"),
         Col("Qtd_Cartoes", 12, "calc", formula='=IF($A{r}="","",COUNTIF(CAD_Cartoes!$D${d}:$D${f},$A{r}))'.replace("{d}", str(DAT)).replace("{f}", str(DAT + n - 1)), fmt="0"),
         Col("Qtd_Investimentos", 16, "calc", formula='=IF($A{r}="","",COUNTIF(CAD_Investimentos!$D${d}:$D${f},$A{r}))'.replace("{d}", str(DAT)).replace("{f}", str(DAT + n - 1)), fmt="0"),
@@ -510,8 +533,8 @@ def abas_cadastros(L):
         Col("Limite", 16, "in", conv=lambda x: x[3], fmt=K.FMT_GS),
         Col("Divida_Inicial", 16, "in", conv=lambda x: x[4], fmt=K.FMT_GS),
         Col("Data_Divida_Inicial", 16, "in", conv=lambda x: x[5], fmt=K.FMT_DATA),
-        Col("Dia_Fechamento", 14, "in", conv=lambda x: x[6], fmt="0"),
-        Col("Dia_Vencimento", 14, "in", conv=lambda x: x[7], fmt="0"),
+        Col("Dia_Fechamento", 14, "in", conv=lambda x: x[6], fmt="0", dvnum=("whole", 1, 31)),
+        Col("Dia_Vencimento", 14, "in", conv=lambda x: x[7], fmt="0", dvnum=("whole", 1, 31)),
         Col("Compras_Realizadas", 18, "calc", fmt=K.FMT_GS,
             formula='=IF($A{r}="",0,SUMIFS(L_Valor,L_OrigTipo,"CARTAO",L_OrigID,$A{r},L_Status,"REALIZADO"))'),
         Col("Pagamentos_Realizados", 19, "calc", fmt=K.FMT_GS,
@@ -595,7 +618,7 @@ def abas_cadastros(L):
     cols = [
         Col("ID_Categoria", 14, "auto"),
         Col("Nome", 30, "in", conv=lambda x: x[1]),
-        Col("Tipo_Padrao", 14, "in", conv=lambda x: x[2]),
+        Col("Tipo_Padrao", 14, "in", conv=lambda x: x[2], dv="LST_TIPOCAT"),
         Col("Qtd_Subcategorias", 16, "calc", fmt="0",
             formula='=IF($A{r}="","",COUNTIF(SUB_CATID,$A{r}))'),
         Col("Realizado_Ano", 17, "calc", fmt=K.FMT_GS,
@@ -640,14 +663,15 @@ def abas_cadastros(L):
         Col("Categoria", 24, "in", conv=lambda x: CAT_NOME[x["cat"]], dv="LST_CATEGORIAS"),
         Col("ID_Categoria", 13, "calc",
             formula='=IF($B{r}="","",IFERROR(INDEX(CAT_ID,MATCH($C{r},CAT_NOME,0)),"?"))'),
-        Col("Subcategoria", 24, "in", conv=lambda x: SUB_NOME[x["sub"]]),
+        Col("Subcategoria", 24, "in", conv=lambda x: SUB_NOME[x["sub"]],
+            dv='=INDIRECT("SUB_"&SUBSTITUTE($D' + str(DAT) + ',"-","_"))'),
         Col("ID_Subcategoria", 14, "calc",
             formula='=IF($E{r}="","",IFERROR(INDEX(SUB_ID,MATCH(1,INDEX((SUB_NOME=$E{r})*(SUB_CATID=$D{r}),0),0)),"?"))'),
         Col("Qtd_Parcelas", 13, "in", conv=lambda x: x["qtd"], fmt="0"),
         Col("Valor_Parcela", 16, "in", conv=lambda x: x["valor"], fmt=K.FMT_GS),
         Col("Valor_Total", 17, "calc", fmt=K.FMT_GS, formula='=IF($A{r}="","",$G{r}*$H{r})'),
         Col("Data_Primeira_Parcela", 17, "in", conv=lambda x: x["primeira"], fmt=K.FMT_DATA),
-        Col("Dia_Vencimento", 13, "in", conv=lambda x: x["dia"], fmt="0"),
+        Col("Dia_Vencimento", 13, "in", conv=lambda x: x["dia"], fmt="0", dvnum=("whole", 1, 31)),
         Col("Periodicidade", 14, "in", conv=lambda x: x["period"], dv="LST_PERIOD"),
         Col("Parcelas_Pagas_Antes", 17, "in", conv=lambda x: x["pagas_antes"], fmt="0"),
         Col("Entidade_Tipo", 14, "in", conv=lambda x: x["ent_tipo"], dv="LST_ENT_TIPO"),
@@ -718,7 +742,7 @@ def abas_cadastros(L):
         Col("Tipo_Operacao", 18, "in", conv=lambda x: x["tipo"], dv="MAP_TIPO"),
         Col("Valor", 16, "in", conv=lambda x: x["valor"], fmt=K.FMT_GS),
         Col("Periodicidade", 14, "in", conv=lambda x: x["period"], dv="LST_PERIOD"),
-        Col("Dia", 7, "in", conv=lambda x: x["dia"], fmt="0"),
+        Col("Dia", 7, "in", conv=lambda x: x["dia"], fmt="0", dvnum=("whole", 1, 31)),
         Col("Data_Inicio", 13, "in", conv=lambda x: x["inicio"], fmt=K.FMT_DATA),
         Col("Qtd_Ocorrencias", 15, "in", conv=lambda x: x["ocorr"], fmt="0"),
         Col("Data_Fim_Prevista", 16, "calc", fmt=K.FMT_DATA,
@@ -731,7 +755,7 @@ def abas_cadastros(L):
         Col("Destino_Tipo", 13, "in", conv=lambda x: x["d_tipo"], dv="LST_ENT_TIPO"),
         Col("Destino_ID", 13, "in", conv=lambda x: x["d_id"], dv="ENT_ID"),
         Col("Forma_Pagamento", 16, "in", conv=lambda x: x["forma"], dv="LST_FORMA"),
-        Col("Status", 12, "in", conv=lambda x: x["status"]),
+        Col("Status", 12, "in", conv=lambda x: x["status"], dv="LST_STCAD"),
         Col("Lanc_Gerados", 13, "calc", fmt="0",
             formula='=IF($A{r}="",0,COUNTIFS(L_RecID,$A{r}))'),
         Col("Lanc_Realizados", 15, "calc", fmt="0",
@@ -749,7 +773,7 @@ def abas_cadastros(L):
     cols = [
         Col("ID_Bem", 12, "auto"),
         Col("Nome", 34, "in", conv=lambda x: x[1]),
-        Col("Tipo", 16, "in", conv=lambda x: x[2]),
+        Col("Tipo", 16, "in", conv=lambda x: x[2], dv="LST_TIPOBEM"),
         Col("Valor_Atual", 18, "in", conv=lambda x: x[3], fmt=K.FMT_GS),
         Col("Data_Aquisicao", 15, "in", conv=lambda x: x[4], fmt=K.FMT_DATA),
         Col("ID_Compromisso_Vinculado", 20, "in", conv=lambda x: x[5], dv="CM_ID"),
@@ -873,7 +897,7 @@ def aba_lancamentos(L):
         Col("Subcategoria_ID", 15, "in", key="sub", dv="SUB_ID"),
         Col("Forma_Pagamento", 17, "in", key="forma", dv="LST_FORMA"),
         Col("ID_Compromisso", 15, "in", key="cmp", dv="CM_ID"),
-        Col("ID_Parcela", 12, "in", key="parcela"),
+        Col("ID_Parcela", 12, "in", key="parcela", dv="P_ID"),
         Col("ID_Meta", 11, "in", key="meta", dv="M_ID"),
         Col("ID_Recorrencia", 15, "in", key="rec", dv="R_ID"),
         Col("ID_Relacionado", 15, "in", key="rel"),

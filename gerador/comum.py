@@ -121,6 +121,11 @@ TIPOS_MOV_META = ["RESERVA", "RETIRADA", "TRANSF_ENTRADA", "TRANSF_SAIDA",
 SINAL_MOV_META = {"RESERVA": 1, "TRANSF_ENTRADA": 1, "RETIRADA": -1,
                   "TRANSF_SAIDA": -1, "LIBERACAO_CONCLUSAO": -1,
                   "LIBERACAO_CANCELAMENTO": -1}
+TIPOS_INSTITUICAO = ["Banco", "Financeira", "Cooperativa", "Casa de cambio",
+                     "Billetera/Fintech", "Corretora", "Nao aplica", "Outra"]
+TIPOS_CATEGORIA = ["RECEITA", "DESPESA", "NEUTRO"]
+TIPOS_BEM = ["Imovel", "Veiculo", "Equipamento", "Participacao societaria",
+             "Semovente", "Outro"]
 SIM_NAO = ["SIM", "NAO"]
 DESTINOS_RETIRADA = ["Saldo disponivel", "Outra meta", "Investimento", "Despesa",
                      "Outra conta", "Outro"]

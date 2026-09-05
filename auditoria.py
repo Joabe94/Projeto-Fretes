@@ -16,7 +16,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "ger
 
 import openpyxl
 
-from comum import ANO_BASE, DATA_INICIO, HOJE, LINHA_DADOS as DAT, gs
+from comum import (ANO_BASE, DATA_INICIO, HOJE, LINHA_DADOS as DAT,
+                   LINHA_HDR as HDR, gs)
 import dados as D
 import motor as M
 
@@ -445,6 +446,54 @@ def auditar(caminho):
     cmp("LANCAR resolveu a conta de origem", True, str(linha[6]).startswith("CON-"), fmt=str)
     cmp("LANCAR resolveu a categoria", True, str(linha[9]).startswith("CAT-"), fmt=str)
     cmp("LANCAR resolveu a subcategoria", True, str(linha[10]).startswith("SUB-"), fmt=str)
+
+    # -------------------------------------- 14b. COBERTURA DAS LISTAS SUSPENSAS
+    print("\n[14b] Listas suspensas nas colunas de dominio")
+    from openpyxl.utils import get_column_letter as _CL
+    esperadas = {
+        "CAD_Instituicoes": ["Tipo"],
+        "CAD_Contas": ["Instituicao", "Tipo", "Status"],
+        "CAD_Cartoes": ["Instituicao", "Dia_Fechamento", "Dia_Vencimento", "Status"],
+        "CAD_Investimentos": ["Instituicao", "Tipo", "Base_Rendimento", "Status"],
+        "CAD_Categorias": ["Tipo_Padrao", "Status"],
+        "CAD_Subcategorias": ["Categoria", "Status"],
+        "CAD_Compromissos": ["Categoria", "Subcategoria", "Dia_Vencimento",
+                             "Periodicidade", "Entidade_Tipo", "Entidade_ID", "Status"],
+        "CAD_Metas": ["Conta_Vinculada_ID", "Investimento_Vinculado_ID",
+                      "Considerar_No_Fluxo", "Status"],
+        "CAD_Recorrencias": ["Tipo_Operacao", "Periodicidade", "Dia", "Categoria_ID",
+                             "Subcategoria_ID", "Origem_Tipo", "Origem_ID",
+                             "Destino_Tipo", "Destino_ID", "Forma_Pagamento", "Status"],
+        "CAD_Bens": ["Tipo", "ID_Compromisso_Vinculado", "Status"],
+        "LANCAMENTOS": ["Tipo_Operacao", "Status", "Origem_Tipo", "Origem_ID",
+                        "Destino_Tipo", "Destino_ID", "Categoria_ID", "Subcategoria_ID",
+                        "Forma_Pagamento", "ID_Compromisso", "ID_Parcela", "ID_Meta",
+                        "ID_Recorrencia"],
+        "PARCELAS": ["ID_Compromisso"],
+        "MOV_METAS": ["ID_Meta", "Tipo_Movimento", "Destino_Retirada", "ID_Meta_Destino"],
+    }
+    sem_lista = []
+    total_dv = 0
+    for aba, colunas in esperadas.items():
+        w = wbf[aba]
+        cobertas = set()
+        for dvv in w.data_validations.dataValidation:
+            total_dv += 1
+            for rng in dvv.sqref.ranges:
+                for cc in range(rng.min_col, rng.max_col + 1):
+                    cobertas.add(cc)
+        for h in colunas:
+            col = next((c for c in range(1, w.max_column + 1)
+                        if w.cell(HDR, c).value == h), None)
+            if col is None:
+                sem_lista.append(f"{aba}!{h} (coluna inexistente)")
+            elif col not in cobertas:
+                sem_lista.append(f"{aba}!{_CL(col)} {h}")
+    cmp("Toda coluna de dominio tem lista suspensa", 0, len(sem_lista), fmt=str)
+    if sem_lista:
+        FALHAS.append(f"Colunas sem lista: {sem_lista}")
+    print(f"    {sum(len(v) for v in esperadas.values())} colunas de dominio verificadas, "
+          f"{len(sem_lista)} sem lista, {total_dv} regras de validacao")
 
     # ------------------------------------------------ 15. INTEGRIDADE ESTRUTURAL
     print("\n[15] Integridade estrutural")

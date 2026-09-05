@@ -89,7 +89,8 @@ python3 testes_mutacao.py                               # 14 cenários de erro e
 |---|---|
 | Células de erro de fórmula (ambos os arquivos) | 0 de 40.226 |
 | Bateria interna (aba `TESTES`) | 53 testes no exemplo, 0 falhas |
-| Auditoria independente do exemplo | 421 verificações, 0 falhas |
+| Auditoria independente do exemplo | 422 verificações, 0 falhas |
+| Cobertura das listas suspensas | 59 colunas de domínio, 0 sem lista |
 | Conferência do arquivo limpo | 29 verificações, 0 falhas |
 | Primeiro uso a partir do arquivo limpo | 29 verificações, 0 falhas |
 | Cenários de mutação | 14 de 14 com o comportamento esperado |
