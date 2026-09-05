@@ -4,8 +4,19 @@ Sistema completo de controle financeiro pessoal em Excel, sem macros, com moeda
 **Guaraní paraguaio (Gs.)**. Todo o cálculo é feito por fórmulas nativas; o
 arquivo abre em qualquer Excel ou LibreOffice sem aviso de segurança.
 
-**Entregável:** `SISTEMA_FINANCEIRO_PESSOAL_V1.xlsx` — 29 abas, 40.226 fórmulas,
-285 intervalos nomeados.
+**Entregáveis** — 29 abas, 40.226 fórmulas, 285 intervalos nomeados cada:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `SISTEMA_FINANCEIRO_PESSOAL_V1_LIMPO.xlsx` | Vazio. Só as 13 categorias e 54 subcategorias padrão. É por onde se começa. |
+| `SISTEMA_FINANCEIRO_PESSOAL_V1_EXEMPLO.xlsx` | 602 lançamentos fictícios de jan/2026 a jan/2028, para ver o sistema funcionando. |
+
+> **Nunca use "Excluir linha" nem classifique (sort) as abas de dados.** Os IDs são
+> gerados pela posição da linha, então excluir uma linha desloca todos os IDs
+> abaixo dela e os lançamentos passam a apontar para o registro errado, sem aviso.
+> Para apagar um registro, selecione as células **amarelas** e pressione **Delete**
+> (limpar conteúdo). Para anular um lançamento sem perder o histórico, use
+> `Status = CANCELADO`.
 
 ## Como o sistema funciona
 
@@ -47,10 +58,12 @@ IDs automáticos por prefixo: `LAN`, `CON`, `CAR`, `INV`, `CMP`, `PAR`, `MET`,
 
 ```bash
 pip install openpyxl                                    # dependência única
-python3 build.py                                        # gera o .xlsx
-python3 gerador/recalc_lo.py SISTEMA_FINANCEIRO_PESSOAL_V1.xlsx 900   # recalcula (LibreOffice)
-python3 auditoria.py                                    # auditoria independente
-python3 testes_mutacao.py                               # simulação de uso real
+python3 build.py                                        # gera os dois arquivos
+python3 gerador/recalc_lo.py SISTEMA_FINANCEIRO_PESSOAL_V1_EXEMPLO.xlsx 900   # recalcula
+python3 auditoria.py                                    # auditoria do arquivo de exemplo
+python3 auditoria_limpo.py                              # confere o arquivo vazio
+python3 teste_primeiro_uso.py                           # preenche o vazio do zero
+python3 testes_mutacao.py                               # 14 cenários de erro e duplicidade
 ```
 
 `recalc_lo.py` exige `libreoffice-calc` instalado.
@@ -66,15 +79,19 @@ python3 testes_mutacao.py                               # simulação de uso rea
 | `gerador/motor.py` | Reimplementação das regras em Python (referência de auditoria) |
 | `gerador/recalc_lo.py` | Recalcula o arquivo e reporta células de erro |
 | `auditoria.py` | Compara o que o Excel calculou contra o motor Python |
+| `auditoria_limpo.py` | Confere que o arquivo vazio está zerado e sem erro |
+| `teste_primeiro_uso.py` | Preenche o arquivo vazio do zero e confere cada número |
 | `testes_mutacao.py` | 14 cenários de edição, cancelamento, erro e duplicidade |
 
 ## Resultado da validação
 
 | Verificação | Resultado |
 |---|---|
-| Células de erro de fórmula | 0 de 40.226 |
-| Bateria interna (aba `TESTES`) | 53 testes, 0 falhas |
-| Auditoria independente | 421 verificações, 0 falhas |
+| Células de erro de fórmula (ambos os arquivos) | 0 de 40.226 |
+| Bateria interna (aba `TESTES`) | 53 testes no exemplo, 0 falhas |
+| Auditoria independente do exemplo | 421 verificações, 0 falhas |
+| Conferência do arquivo limpo | 29 verificações, 0 falhas |
+| Primeiro uso a partir do arquivo limpo | 29 verificações, 0 falhas |
 | Cenários de mutação | 14 de 14 com o comportamento esperado |
 
 ## Limites da V1

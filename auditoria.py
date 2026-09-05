@@ -481,5 +481,5 @@ def auditar(caminho):
 
 
 if __name__ == "__main__":
-    arq = sys.argv[1] if len(sys.argv) > 1 else "SISTEMA_FINANCEIRO_PESSOAL_V1.xlsx"
+    arq = sys.argv[1] if len(sys.argv) > 1 else "SISTEMA_FINANCEIRO_PESSOAL_V1_EXEMPLO.xlsx"
     sys.exit(1 if auditar(arq) else 0)

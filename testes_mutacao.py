@@ -20,7 +20,7 @@ from comum import LINHA_DADOS as DAT, gs
 import dados as D
 from recalc_lo import recalc
 
-ORIG = "SISTEMA_FINANCEIRO_PESSOAL_V1.xlsx"
+ORIG = "SISTEMA_FINANCEIRO_PESSOAL_V1_EXEMPLO.xlsx"
 TMP = "/tmp/mut.xlsx"
 RES: list[tuple[str, bool, str]] = []
 

@@ -167,9 +167,20 @@ def dv_lista(ws, nome_range, ref_celulas, titulo_msg="Selecione um valor"):
 
 HDR = K.LINHA_HDR       # 4
 DAT = K.LINHA_DADOS     # 5
-AVISO = ("ATENCAO: nunca EXCLUA nem CLASSIFIQUE (sort) linhas desta aba - os IDs sao gerados "
-         "pela posicao da linha e os vinculos seriam quebrados. Para anular um registro use o "
-         "campo Status (CANCELADO / Inativo). Use os filtros do cabecalho para pesquisar.")
+
+# Quando MODO_LIMPO e True o arquivo sai sem nenhum registro de exemplo:
+# apenas as categorias e subcategorias padrao, que servem de ponto de partida.
+MODO_LIMPO = False
+
+
+def regs(lista, manter_no_limpo=False):
+    """Devolve os registros de exemplo, ou nada quando o arquivo e o limpo."""
+    return lista if (manter_no_limpo or not MODO_LIMPO) else []
+AVISO = ("PARA APAGAR UM REGISTRO: selecione as celulas AMARELAS da linha e pressione DELETE "
+         "(limpar conteudo). NUNCA use 'Excluir linha' nem classifique (sort) esta aba: os IDs "
+         "sao gerados pela posicao da linha e os vinculos seriam quebrados em silencio. "
+         "Para anular um lancamento sem perder o historico use o campo Status "
+         "(CANCELADO / Inativo). Para pesquisar use os filtros do cabecalho.")
 
 
 class Col:
@@ -455,7 +466,7 @@ def abas_cadastros(L):
         Col("Observacao", 46, "in", conv=lambda x: x[3]),
     ]
     ws = esqueleto(L, "CAD_Instituicoes", "CAD_INSTITUICOES - BANCOS E EMISSORES", cols, "2E5C8A", n)
-    preencher(ws, cols, D.INSTITUICOES, n, "INS")
+    preencher(ws, cols, regs(D.INSTITUICOES), n, "INS")
 
     # ---------------- CONTAS ----------------
     cols = [
@@ -486,7 +497,7 @@ def abas_cadastros(L):
         Col("Observacao", 40, "in", conv=lambda x: x[7]),
     ]
     ws = esqueleto(L, "CAD_Contas", "CAD_CONTAS - CONTAS BANCARIAS E DINHEIRO FISICO", cols, "2E5C8A", n)
-    preencher(ws, cols, D.CONTAS, n, "CON")
+    preencher(ws, cols, regs(D.CONTAS), n, "CON")
 
     # ---------------- CARTOES ----------------
     base_ini = ('DATE(YEAR(CFG_HOJE),MONTH(CFG_HOJE)+IF(DAY(CFG_HOJE)>$H{r},1,0),1)')
@@ -529,7 +540,7 @@ def abas_cadastros(L):
         Col("Observacao", 36, "in", conv=lambda x: x[9]),
     ]
     ws = esqueleto(L, "CAD_Cartoes", "CAD_CARTOES - CARTOES DE CREDITO", cols, "2E5C8A", n)
-    preencher(ws, cols, D.CARTOES, n, "CAR")
+    preencher(ws, cols, regs(D.CARTOES), n, "CAR")
 
     # ---------------- INVESTIMENTOS ----------------
     cols = [
@@ -573,7 +584,7 @@ def abas_cadastros(L):
         Col("Observacao", 46, "in", conv=lambda x: x[10]),
     ]
     ws = esqueleto(L, "CAD_Investimentos", "CAD_INVESTIMENTOS - FONDOS MUTUOS, AHORRO A PLAZO E OUTROS", cols, "2E5C8A", n)
-    preencher(ws, cols, D.INVESTIMENTOS, n, "INV")
+    preencher(ws, cols, regs(D.INVESTIMENTOS), n, "INV")
 
     # ---------------- CATEGORIAS ----------------
     def _tot(col_val, status):
@@ -595,7 +606,7 @@ def abas_cadastros(L):
         Col("Observacao", 34, "in", conv=lambda x: ""),
     ]
     ws = esqueleto(L, "CAD_Categorias", "CAD_CATEGORIAS - CLASSIFICACAO DE RECEITAS E DESPESAS", cols, "2E5C8A", n)
-    preencher(ws, cols, D.CATEGORIAS, n, "CAT")
+    preencher(ws, cols, regs(D.CATEGORIAS, True), n, "CAT")
 
     # ---------------- SUBCATEGORIAS ----------------
     def _tots(status):
@@ -620,7 +631,7 @@ def abas_cadastros(L):
         Col("Observacao", 30, "in", conv=lambda x: ""),
     ]
     ws = esqueleto(L, "CAD_Subcategorias", "CAD_SUBCATEGORIAS - DETALHAMENTO DAS CATEGORIAS", cols, "2E5C8A", ns)
-    preencher(ws, cols, D.SUBCATEGORIAS, ns, "SUB")
+    preencher(ws, cols, regs(D.SUBCATEGORIAS, True), ns, "SUB")
 
     # ---------------- COMPROMISSOS ----------------
     cols = [
@@ -663,7 +674,7 @@ def abas_cadastros(L):
         Col("Observacao", 56, "in", conv=lambda x: x["obs"]),
     ]
     ws = esqueleto(L, "CAD_Compromissos", "CAD_COMPROMISSOS - PARCELAMENTOS E FINANCIAMENTOS", cols, "2E5C8A", n)
-    preencher(ws, cols, D.COMPROMISSOS, n, "CMP")
+    preencher(ws, cols, regs(D.COMPROMISSOS), n, "CMP")
 
     # ---------------- METAS ----------------
     cols = [
@@ -695,7 +706,7 @@ def abas_cadastros(L):
         Col("Observacao", 56, "in", conv=lambda x: x["obs"]),
     ]
     ws = esqueleto(L, "CAD_Metas", "CAD_METAS - METAS FINANCEIRAS (RESERVA LOGICA)", cols, "2E5C8A", n)
-    preencher(ws, cols, D.METAS, n, "MET")
+    preencher(ws, cols, regs(D.METAS), n, "MET")
 
     # ---------------- RECORRENCIAS ----------------
     passo = ('IF($E{r}="Mensal",1,IF($E{r}="Bimestral",2,IF($E{r}="Trimestral",3,'
@@ -732,7 +743,7 @@ def abas_cadastros(L):
         Col("Observacao", 30, "in", conv=lambda x: ""),
     ]
     ws = esqueleto(L, "CAD_Recorrencias", "CAD_RECORRENCIAS - LANCAMENTOS REPETITIVOS", cols, "2E5C8A", n)
-    preencher(ws, cols, D.RECORRENCIAS, n, "REC")
+    preencher(ws, cols, regs(D.RECORRENCIAS), n, "REC")
 
     # ---------------- BENS ----------------
     cols = [
@@ -750,7 +761,7 @@ def abas_cadastros(L):
         Col("Observacao", 52, "in", conv=lambda x: x[6]),
     ]
     ws = esqueleto(L, "CAD_Bens", "CAD_BENS - ATIVOS NAO FINANCEIROS (COMPLEMENTO DO PATRIMONIO)", cols, "2E5C8A", n)
-    preencher(ws, cols, D.BENS, n, "BEM")
+    preencher(ws, cols, regs(D.BENS), n, "BEM")
     L.nome("LST_CATEGORIAS", f"CAD_Categorias!$B${DAT}:$B${DAT + n - 1}")
     L.nome("LST_COMPROMISSOS", f"CAD_Compromissos!$B${DAT}:$B${DAT + n - 1}")
     L.nome("LST_METAS_NOME", f"CAD_Metas!$B${DAT}:$B${DAT + n - 1}")
@@ -904,7 +915,7 @@ def aba_lancamentos(L):
              "lancamento troque o Status para CANCELADO (o historico permanece e o efeito "
              "financeiro desaparece).")
     ws = esqueleto(L, "LANCAMENTOS", "LANCAMENTOS - LIVRO UNICO DE OPERACOES", cols, "C00000", n, aviso)
-    preencher(ws, cols, D.LANCAMENTOS, nf, "LAN")
+    preencher(ws, cols, regs(D.LANCAMENTOS), nf, "LAN")
     # formatacao condicional
     fim = DAT + nf - 1
     ws.conditional_formatting.add(f"E{DAT}:E{fim}", CellIsRule(
@@ -958,7 +969,7 @@ def aba_parcelas(L):
              "GERADOR para produzir o cronograma de um novo compromisso e cole o resultado "
              "(colunas B ate E) no fim desta lista.")
     ws = esqueleto(L, "PARCELAS", "PARCELAS - CRONOGRAMA DE TODOS OS COMPROMISSOS", cols, "C00000", n, aviso)
-    preencher(ws, cols, D.PARCELAS, nf, "PAR")
+    preencher(ws, cols, regs(D.PARCELAS), nf, "PAR")
     fim = DAT + nf - 1
     for st, fill in [("PAGA", K.FILL_OK), ("ATRASADA", K.FILL_ERRO), ("ABERTA", K.FILL_ALERTA)]:
         ws.conditional_formatting.add(f"O{DAT}:O{fim}", CellIsRule(
@@ -998,7 +1009,7 @@ def aba_mov_metas(L):
     aviso = (AVISO + "  Esta aba registra apenas RESERVAS LOGICAS. O dinheiro continua na "
              "conta; nenhuma linha daqui altera o saldo bancario.")
     ws = esqueleto(L, "MOV_METAS", "MOV_METAS - MOVIMENTACAO DAS RESERVAS DE METAS", cols, "C00000", n, aviso)
-    preencher(ws, cols, D.MOV_METAS, nf, "MOV")
+    preencher(ws, cols, regs(D.MOV_METAS), nf, "MOV")
     return ws
 
 
@@ -2024,7 +2035,7 @@ def aba_lancar(L):
         ("Status", "REALIZADO", None, "LST_STATUS"),
         ("Valor (Gs.)", 250000, K.FMT_GS, None),
         ("Origem - tipo", "CONTA", None, "LST_ENT_TIPO"),
-        ("Origem - nome", "Cuenta Corriente Ueno", None, "IND_ORIGEM"),
+        ("Origem - nome", ("" if MODO_LIMPO else "Cuenta Corriente Ueno"), None, "IND_ORIGEM"),
         ("Destino - tipo", "EXTERNO", None, "LST_ENT_TIPO"),
         ("Destino - nome", "(Externo)", None, "IND_DESTINO"),
         ("Categoria", "Alimentacao", None, "LST_CATEGORIAS"),
@@ -2140,8 +2151,8 @@ def aba_lancar(L):
                     "(lancamento 2). Se o rendimento ja foi lancado mes a mes, informe 0 no campo "
                     "Rendimento apurado e use apenas o lancamento 2.", 20)
     rg = r
-    for lab, val, fmt, dv in [("Investimento (nome)", "Fondo Mutuo Atlas Renta", None, "LST_NOMES_INVESTIMENTO"),
-                              ("Conta de destino (nome)", "Cuenta Corriente Ueno", None, "LST_NOMES_CONTA"),
+    for lab, val, fmt, dv in [("Investimento (nome)", ("" if MODO_LIMPO else "Fondo Mutuo Atlas Renta"), None, "LST_NOMES_INVESTIMENTO"),
+                              ("Conta de destino (nome)", ("" if MODO_LIMPO else "Cuenta Corriente Ueno"), None, "LST_NOMES_CONTA"),
                               ("Data do resgate", K.HOJE, K.FMT_DATA, None),
                               ("Valor total resgatado", 3000000, K.FMT_GS, None),
                               ("Rendimento apurado ainda nao lancado", 0, K.FMT_GS, None)]:
@@ -2187,7 +2198,7 @@ def aba_lancar(L):
 
     r = secao(ws, r, "ASSISTENTE DE MOVIMENTO DE META (COLE EM MOV_METAS, COLUNAS B ATE H)", 20)
     rm = r
-    for lab, val, fmt, dv in [("Meta (nome)", "Comprar auto", None, "LST_METAS_NOME"),
+    for lab, val, fmt, dv in [("Meta (nome)", ("" if MODO_LIMPO else "Comprar auto"), None, "LST_METAS_NOME"),
                               ("Tipo de movimento", "RESERVA", None, "LST_TIPOMOV"),
                               ("Data", K.HOJE, K.FMT_DATA, None),
                               ("Valor", 1500000, K.FMT_GS, None),
@@ -2238,7 +2249,7 @@ def aba_gerador(L):
     r = secao(ws, r, "1. CRONOGRAMA DE PARCELAS (COLE EM PARCELAS, COLUNAS B ATE E)", 20)
     rc = r
     rotulo(ws, r, 1, "Compromisso")
-    c = valor(ws, r, 2, "Terreno Santa Rita", None, entrada=True)
+    c = valor(ws, r, 2, ("" if MODO_LIMPO else "Terreno Santa Rita"), None, entrada=True)
     c.alignment = K.AL_L
     dv_lista(ws, "LST_COMPROMISSOS", f"B{r}")
     ws.cell(r, 3, "ID").font = K.F_PEQ
@@ -2264,7 +2275,7 @@ def aba_gerador(L):
                           ("Valor_Parcela", 16)])
     for i in range(NP):
         rr = r + i
-        cond = f'IF({i + 1}>$B${rq},"",'
+        cond = f'IF(OR({i + 1}>N($B${rq}),NOT(ISNUMBER($B${rp}))),"",'
         vals = [
             (1, f'={cond}$D${rc})', None),
             (2, f'={cond}{i + 1})', "0"),
@@ -2284,7 +2295,7 @@ def aba_gerador(L):
     r = secao(ws, r, "2. OCORRENCIAS DE UMA RECORRENCIA (COLE EM LANCAMENTOS, COLUNAS B ATE S)", 20)
     rr0 = r
     rotulo(ws, r, 1, "Recorrencia (ID)")
-    c = valor(ws, r, 2, "REC-000001", None, entrada=True)
+    c = valor(ws, r, 2, ("" if MODO_LIMPO else "REC-000001"), None, entrada=True)
     c.alignment = K.AL_L
     dv_lista(ws, "R_ID", f"B{r}")
     ws.cell(r, 3, "Descricao").font = K.F_PEQ
@@ -2320,7 +2331,7 @@ def aba_gerador(L):
     r = cabecalho(ws, r, [(h, 17) for h in hdr])
     for i in range(NR):
         rr = r + i
-        cond = f'IF({i + 1}>$B${LR["Qtd de ocorrencias"]},"",'
+        cond = (f'IF(OR({i + 1}>N($B${LR["Qtd de ocorrencias"]}),NOT(ISNUMBER($B${LR["Data de inicio"]}))),"",')
         data = (f'IF({passo2}>0,EDATE($B${LR["Data de inicio"]},{i}*{passo2}),'
                 f'$B${LR["Data de inicio"]}+{i}*{dias2})')
         vals = [
@@ -2493,8 +2504,10 @@ def aba_testes(L):
          "=SUM(C_SALDO)",
          '=SUM(C_SALDOINI)+SUMPRODUCT((L_DestTipo="CONTA")*L_Valor)-SUMPRODUCT((L_OrigTipo="CONTA")*L_Valor)'
          '-SUMPRODUCT((L_Status<>"REALIZADO")*((L_DestTipo="CONTA")-(L_OrigTipo="CONTA"))*L_Valor)', K.FMT_GS),
-        ("Realizado x projetado", "Existe pelo menos um lancamento CANCELADO no historico",
-         "=1", '=MIN(1,COUNTIF(L_Status,"CANCELADO"))', "0"),
+        ("Realizado x projetado", "Todo lancamento tem um status valido (realizado+projetado+cancelado)",
+         "=SUM(L_Valor)",
+         '=SUMIFS(L_Valor,L_Status,"REALIZADO")+SUMIFS(L_Valor,L_Status,"PROJETADO")'
+         '+SUMIFS(L_Valor,L_Status,"CANCELADO")', K.FMT_GS),
         ("Patrimonio", "Ativos - passivos = patrimonio liquido total",
          "=PAT_ATIVOS-PAT_PASSIVOS", "=PAT_PL_TOTAL", K.FMT_GS),
         ("Patrimonio", "Patrimonio financeiro = patrimonio total - bens",
@@ -2620,6 +2633,15 @@ def _texto(L, nome, tit, subtitulo, secoes, cor, larg=(4, 46, 110)):
 
 def aba_manual(L):
     secoes = [
+        ("0. PRIMEIROS PASSOS (LEIA ANTES DE MEXER)", [
+            ("Se voce recebeu o arquivo LIMPO", "Ele ja vem sem nenhum registro: so as categorias e subcategorias padrao. Comece cadastrando suas contas em CAD_Contas, depois cartoes, investimentos, compromissos e metas. So entao comece a lancar."),
+            ("Se voce recebeu o arquivo EXEMPLO", "Ele vem com dados ficticios para voce ver o sistema funcionando. Para comeca-lo do zero, siga a instrucao abaixo - NAO apague linha por linha."),
+            ("COMO APAGAR OS DADOS DE EXEMPLO", "Em cada aba de dados, selecione o intervalo das celulas AMARELAS (a primeira linha de dados ate a ultima preenchida) e pressione DELETE. Isso limpa o conteudo e mantem as formulas e os IDs no lugar."),
+            ("O QUE NUNCA FAZER", "Nunca use 'Excluir linha' (botao direito > Excluir) nem classifique (sort) as abas de dados. Os IDs sao gerados pela posicao da linha: excluir uma linha faz todos os IDs abaixo dela mudarem, e os lancamentos passam a apontar para o registro errado sem nenhum aviso."),
+            ("Ordem para limpar", "Limpe primeiro LANCAMENTOS, depois PARCELAS e MOV_METAS, e so por ultimo os cadastros. Assim nenhum lancamento fica apontando para um cadastro que ja sumiu."),
+            ("Como saber se algo quebrou", "Abra a aba TESTES: se TESTES COM FALHA estiver diferente de zero, algum calculo esta inconsistente. A aba ALERTAS tambem acusa lancamentos com erro de validacao."),
+            ("Se ja quebrou", "Nao tente consertar celula por celula. Pegue uma copia nova do arquivo e recomece: leva menos tempo e nao deixa erro escondido."),
+        ]),
         ("1. COMO O SISTEMA FUNCIONA", [
             ("Ideia central", "Existe UM unico livro de operacoes (aba LANCAMENTOS). Todo o resto - saldos, dividas, parcelas, metas, fluxo, relatorios e patrimonio - e calculado a partir dele. Nenhum numero e digitado duas vezes."),
             ("Como um lancamento move dinheiro", "Cada linha tem uma ORIGEM e um DESTINO. Se o destino e uma CONTA, entra dinheiro nela; se a origem e uma CONTA, sai. EXTERNO representa o mundo fora do seu controle (empregador, supermercado)."),
@@ -2742,7 +2764,9 @@ def aba_arquitetura(L):
 # ---------------------------------------------------------------------------
 # MONTAGEM
 # ---------------------------------------------------------------------------
-def construir(caminho):
+def construir(caminho, limpo=False):
+    global MODO_LIMPO
+    MODO_LIMPO = limpo
     L = Livro()
     aba_dashboard(L)
     aba_lancar(L)
