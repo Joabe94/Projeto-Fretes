@@ -1,0 +1,85 @@
+# Sistema Financeiro Pessoal V1 — Excel (Guaraní, Paraguai)
+
+Sistema completo de controle financeiro pessoal em Excel, sem macros, com moeda
+**Guaraní paraguaio (Gs.)**. Todo o cálculo é feito por fórmulas nativas; o
+arquivo abre em qualquer Excel ou LibreOffice sem aviso de segurança.
+
+**Entregável:** `SISTEMA_FINANCEIRO_PESSOAL_V1.xlsx` — 29 abas, 40.226 fórmulas,
+285 intervalos nomeados.
+
+## Como o sistema funciona
+
+Existe **um único livro de operações** (aba `LANCAMENTOS`). Saldos, dívidas,
+parcelas, metas, fluxo de caixa, relatórios e patrimônio são todos derivados dele.
+Nenhum número é digitado duas vezes.
+
+Cada lançamento tem uma **origem** e um **destino**, cada um sendo `CONTA`,
+`CARTAO`, `INVESTIMENTO` ou `EXTERNO`. Essa única regra elimina a duplicidade:
+
+| Operação | Origem → Destino | Receita/Despesa | Caixa |
+|---|---|---|---|
+| Receita | EXTERNO → CONTA | Receita | Entrada |
+| Despesa | CONTA → EXTERNO | Despesa | Saída |
+| Transferência | CONTA → CONTA | Neutro | Não afeta |
+| Compra no cartão | CARTAO → EXTERNO | Despesa | Não afeta |
+| Pagamento de fatura | CONTA → CARTAO | Neutro | Saída |
+| Aporte | CONTA → INVESTIMENTO | Neutro | Saída |
+| Resgate | INVESTIMENTO → CONTA | Neutro | Entrada |
+| Rendimento | EXTERNO → INVESTIMENTO | Receita financeira | Não afeta |
+
+Metas são **reserva lógica**: registradas em `MOV_METAS`, reduzem o
+*Saldo_Disponivel* da conta vinculada sem tocar no saldo bancário.
+
+## Estrutura das abas
+
+| Camada | Abas |
+|---|---|
+| Painel e entrada | `DASHBOARD`, `LANCAR`, `GERADOR` |
+| Operações | `LANCAMENTOS`, `PARCELAS`, `MOV_METAS` |
+| Cadastros | `CAD_Instituicoes`, `CAD_Contas`, `CAD_Cartoes`, `CAD_Investimentos`, `CAD_Categorias`, `CAD_Subcategorias`, `CAD_Compromissos`, `CAD_Metas`, `CAD_Recorrencias`, `CAD_Bens` |
+| Análise | `FLUXO_CAIXA`, `PROJECAO`, `REL_Mensal`, `REL_Anual`, `PATRIMONIO`, `INDICADORES`, `ALERTAS` |
+| Controle e docs | `TESTES`, `MANUAL`, `ARQUITETURA`, `CFG_Sistema`, `CFG_Listas`, `AUX` |
+
+IDs automáticos por prefixo: `LAN`, `CON`, `CAR`, `INV`, `CMP`, `PAR`, `MET`,
+`CAT`, `SUB`, `INS`, `REC`, `MOV`, `BEM`. O usuário nunca digita um ID.
+
+## Regenerar e testar
+
+```bash
+pip install openpyxl                                    # dependência única
+python3 build.py                                        # gera o .xlsx
+python3 gerador/recalc_lo.py SISTEMA_FINANCEIRO_PESSOAL_V1.xlsx 900   # recalcula (LibreOffice)
+python3 auditoria.py                                    # auditoria independente
+python3 testes_mutacao.py                               # simulação de uso real
+```
+
+`recalc_lo.py` exige `libreoffice-calc` instalado.
+
+## Arquivos
+
+| Arquivo | Papel |
+|---|---|
+| `build.py` | Orquestra a geração do arquivo |
+| `gerador/comum.py` | Constantes, estilos, formatos e domínios |
+| `gerador/dados.py` | Dataset fictício determinístico (602 lançamentos) |
+| `gerador/planilha.py` | Construção das 29 abas |
+| `gerador/motor.py` | Reimplementação das regras em Python (referência de auditoria) |
+| `gerador/recalc_lo.py` | Recalcula o arquivo e reporta células de erro |
+| `auditoria.py` | Compara o que o Excel calculou contra o motor Python |
+| `testes_mutacao.py` | 14 cenários de edição, cancelamento, erro e duplicidade |
+
+## Resultado da validação
+
+| Verificação | Resultado |
+|---|---|
+| Células de erro de fórmula | 0 de 40.226 |
+| Bateria interna (aba `TESTES`) | 53 testes, 0 falhas |
+| Auditoria independente | 421 verificações, 0 falhas |
+| Cenários de mutação | 14 de 14 com o comportamento esperado |
+
+## Limites da V1
+
+Sem macros: gerar cronogramas e ocorrências é copiar blocos prontos da aba
+`GERADOR`. As fórmulas cobrem 3.000 lançamentos, 1.200 parcelas, 600 movimentos
+de meta e 40 registros por cadastro. Não classifique (sort) nem exclua linhas das
+abas de dados — os IDs derivam da posição da linha; use `Status = CANCELADO`.
