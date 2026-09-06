@@ -1,0 +1,2715 @@
+<title>Caja Guaraní</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#F3F2F8; --surface:#FFFFFF; --surface-2:#FAFAFD; --surface-3:#F0EEF7;
+  --line:#E3E1ED; --line-2:#CDCADE;
+  --ink:#1A1826; --ink-2:#565273; --ink-3:#87839F;
+  --accent:#4B3F8F; --accent-2:#6152C4; --accent-soft:#EBE9F7; --accent-ink:#FFFFFF;
+  --bom:#1F7A4D; --bom-soft:#E3F1E9;
+  --aviso:#8F6200; --aviso-soft:#FAF0D9;
+  --grave:#A8322A; --grave-soft:#F9E6E4;
+  --s1:#5B4BB8; --s2:#0E8C77; --s3:#C4711A; --s4:#B0446E; --s5:#3E7FC1; --s6:#7E8E1F;
+  --sh-1:0 1px 2px rgba(26,24,38,.06);
+  --sh-2:0 8px 24px -12px rgba(26,24,38,.28);
+  --r:10px; --r-sm:6px;
+  --sans:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#111019; --surface:#191826; --surface-2:#1F1E2E; --surface-3:#262439;
+  --line:#2E2C42; --line-2:#413E5C;
+  --ink:#EDEBF5; --ink-2:#A8A4C2; --ink-3:#7A7699;
+  --accent:#9186E8; --accent-2:#A79CF2; --accent-soft:#262340; --accent-ink:#12111C;
+  --bom:#4FB280; --bom-soft:#16281F;
+  --aviso:#D6A63F; --aviso-soft:#2A2415;
+  --grave:#E1786E; --grave-soft:#2E1A18;
+  --s1:#8B7EE6; --s2:#17A188; --s3:#C87A26; --s4:#CC5580; --s5:#4189C9; --s6:#8B9A22;
+  --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 8px 24px -12px rgba(0,0,0,.7);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --ground:#111019; --surface:#191826; --surface-2:#1F1E2E; --surface-3:#262439;
+  --line:#2E2C42; --line-2:#413E5C;
+  --ink:#EDEBF5; --ink-2:#A8A4C2; --ink-3:#7A7699;
+  --accent:#9186E8; --accent-2:#A79CF2; --accent-soft:#262340; --accent-ink:#12111C;
+  --bom:#4FB280; --bom-soft:#16281F;
+  --aviso:#D6A63F; --aviso-soft:#2A2415;
+  --grave:#E1786E; --grave-soft:#2E1A18;
+  --s1:#8B7EE6; --s2:#17A188; --s3:#C87A26; --s4:#CC5580; --s5:#4189C9; --s6:#8B9A22;
+  --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 8px 24px -12px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;text-wrap:balance;font-weight:700;letter-spacing:-.015em}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---------- shell ---------- */
+.app{display:grid;grid-template-columns:224px 1fr;min-height:100vh}
+.side{background:var(--surface);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden}
+.brand{padding:16px 16px 12px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.brand-mark{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);
+  display:grid;place-items:center;font-weight:800;font-size:15px;flex:none;letter-spacing:-.04em}
+.brand-name{font-weight:800;font-size:15px;letter-spacing:-.03em;line-height:1.1}
+.brand-sub{font-size:10.5px;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.nav{overflow-y:auto;padding:10px 8px 20px;flex:1}
+.nav-group{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:700;padding:14px 10px 6px}
+.nav-item{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:7px 10px;
+  border-radius:var(--r-sm);border:0;background:none;cursor:pointer;color:var(--ink-2);
+  font-size:13.5px;font-weight:500}
+.nav-item:hover{background:var(--surface-3);color:var(--ink)}
+.nav-item[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item .ico{width:16px;text-align:center;flex:none;opacity:.85}
+.nav-badge{margin-left:auto;background:var(--grave);color:#fff;border-radius:20px;
+  padding:0 6px;font-size:10.5px;font-weight:700;min-width:18px;text-align:center}
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);
+  padding:10px 22px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.topbar .sp{flex:1}
+.page{padding:22px;display:flex;flex-direction:column;gap:18px;max-width:1500px;width:100%}
+.page-head{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.page-head h1{font-size:23px}
+.page-head p{margin:2px 0 0;color:var(--ink-2);font-size:13px;max-width:70ch}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .nav{display:flex;gap:6px;overflow-x:auto;padding:8px 10px}
+  .nav-group{display:none}
+  .nav-item{white-space:nowrap;width:auto}
+  .page{padding:14px}
+}
+
+/* ---------- primitivas ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh-1)}
+.card-h{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.card-h h3{font-size:14px;letter-spacing:-.01em}
+.card-h .sp{flex:1}
+.card-b{padding:16px}
+.card-b.flush{padding:0}
+.hint{color:var(--ink-3);font-size:12px;margin:0}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(206px,1fr))}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--r-sm);
+  border:1px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer;
+  font-size:13px;font-weight:600;white-space:nowrap}
+.btn:hover{background:var(--surface-3)}
+.btn-pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn-pri:hover{background:var(--accent-2);border-color:var(--accent-2)}
+.btn-danger{color:var(--grave);border-color:var(--grave)}
+.btn-danger:hover{background:var(--grave-soft)}
+.btn-sm{padding:4px 9px;font-size:12px;font-weight:600}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field>label{font-size:11px;font-weight:700;color:var(--ink-2);letter-spacing:.03em}
+.inp{padding:7px 9px;border:1px solid var(--line-2);border-radius:var(--r-sm);
+  background:var(--surface);width:100%;min-width:0}
+.inp:disabled{background:var(--surface-3);color:var(--ink-3)}
+select.inp{cursor:pointer}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.tag{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:.02em;border:1px solid transparent;white-space:nowrap}
+.t-bom{background:var(--bom-soft);color:var(--bom)}
+.t-aviso{background:var(--aviso-soft);color:var(--aviso)}
+.t-grave{background:var(--grave-soft);color:var(--grave)}
+.t-neutro{background:var(--surface-3);color:var(--ink-2)}
+.t-acc{background:var(--accent-soft);color:var(--accent)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:700;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;
+  background:var(--surface-2);position:sticky;top:0;z-index:1}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+th.num{text-align:right}
+.tfoot td{font-weight:700;background:var(--surface-2);border-top:1px solid var(--line-2)}
+.neg{color:var(--grave)}
+.pos{color:var(--bom)}
+.empty{padding:34px 18px;text-align:center;color:var(--ink-3)}
+.empty strong{display:block;color:var(--ink-2);margin-bottom:4px;font-size:14px}
+
+/* KPI */
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;
+  display:flex;flex-direction:column;gap:3px;box-shadow:var(--sh-1)}
+.kpi .k-l{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:700;min-height:24px}
+.kpi .k-v{font-family:var(--mono);font-size:17px;font-weight:600;letter-spacing:-.035em;
+  font-variant-numeric:tabular-nums;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .k-s{font-size:11.5px;color:var(--ink-2)}
+.kpi.lead{border-left:3px solid var(--accent)}
+.kpi.warn{border-left:3px solid var(--aviso)}
+.kpi.bad{border-left:3px solid var(--grave)}
+.kpi.good{border-left:3px solid var(--bom)}
+
+/* barra de progresso */
+.bar{height:7px;border-radius:20px;background:var(--surface-3);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:20px;background:var(--accent)}
+
+/* modal */
+.ovl{position:fixed;inset:0;background:rgba(16,14,26,.55);display:grid;place-items:center;
+  z-index:100;padding:16px;overflow-y:auto}
+.modal{background:var(--surface);border-radius:12px;box-shadow:var(--sh-2);width:min(860px,100%);
+  max-height:92vh;display:flex;flex-direction:column;border:1px solid var(--line)}
+.modal-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.modal-h h3{font-size:15px}
+.modal-b{padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.modal-f{padding:13px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;
+  flex-wrap:wrap;background:var(--surface-2);border-radius:0 0 12px 12px}
+.fgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.fgrid .full{grid-column:1/-1}
+.aviso-box{padding:9px 12px;border-radius:var(--r-sm);font-size:12.5px;border:1px solid}
+.aviso-box.a{background:var(--aviso-soft);border-color:var(--aviso);color:var(--aviso)}
+.aviso-box.e{background:var(--grave-soft);border-color:var(--grave);color:var(--grave)}
+.aviso-box.i{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+
+/* toast */
+.toasts{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--ink);color:var(--ground);padding:10px 14px;border-radius:var(--r-sm);
+  box-shadow:var(--sh-2);font-size:13px;font-weight:500;max-width:340px}
+.toast.err{background:var(--grave);color:#fff}
+
+/* onboarding */
+.onb{min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--ground)}
+.onb-card{width:min(720px,100%);background:var(--surface);border:1px solid var(--line);
+  border-radius:14px;box-shadow:var(--sh-2);overflow:hidden}
+.onb-top{padding:26px 28px 20px;border-bottom:1px solid var(--line)}
+.onb-top h1{font-size:26px;letter-spacing:-.03em}
+.onb-top p{color:var(--ink-2);margin:6px 0 0;max-width:56ch}
+.onb-b{padding:22px 28px 26px;display:flex;flex-direction:column;gap:14px}
+.choice{display:flex;gap:13px;align-items:flex-start;padding:14px;border:1px solid var(--line-2);
+  border-radius:var(--r);cursor:pointer;background:var(--surface);text-align:left;width:100%}
+.choice:hover{border-color:var(--accent);background:var(--accent-soft)}
+.choice .ci{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none;
+  background:var(--accent-soft);color:var(--accent);font-size:17px}
+.choice b{display:block;font-size:14.5px}
+.choice span{color:var(--ink-2);font-size:12.5px}
+.perfil-lista{display:flex;flex-direction:column;gap:8px}
+.perfil-item{display:flex;gap:10px;align-items:center;padding:10px 13px;border:1px solid var(--line);
+  border-radius:var(--r);background:var(--surface-2)}
+.perfil-item b{flex:1}
+
+/* graficos */
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-family:var(--sans);fill:var(--ink-2)}
+.lgd{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);padding:0 2px 4px}
+.lgd i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r-sm);overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:5px 11px;cursor:pointer;font-size:12.5px;
+  font-weight:600;color:var(--ink-2);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.split{display:grid;gap:14px;grid-template-columns:1.6fr 1fr}
+@media (max-width:1050px){.split{grid-template-columns:1fr}}
+.list-lines{display:flex;flex-direction:column}
+.line-item{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.line-item:last-child{border-bottom:0}
+.line-item .li-m{flex:1;min-width:0}
+.line-item .li-m b{display:block;font-size:13px;font-weight:600}
+.line-item .li-m span{font-size:11.5px;color:var(--ink-3)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+<div id="app"><div class="onb"><div class="onb-card"><div class="onb-top">
+<h1>Caja Guaraní</h1><p>Carregando o sistema…</p></div></div></div></div>
+<div class="toasts" id="toasts"></div>
+<script>
+"use strict";
+/* =====================================================================
+   Caja Guaraní - controle financeiro pessoal em Guaraníes
+   Mesmo modelo do sistema Excel V1: um livro unico de lancamentos com
+   origem e destino, do qual derivam saldos, dividas, parcelas, metas,
+   fluxo, projecao, patrimonio, indicadores e alertas.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------- util */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const uid = (p) => p + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const sum = (a, f) => a.reduce((t, x) => t + (f ? f(x) : x) || 0, 0);
+const by = (a, k) => { const m = new Map(); for (const x of a) m.set(x[k], x); return m; };
+const groupBy = (a, f) => { const m = new Map();
+  for (const x of a) { const k = f(x); if (!m.has(k)) m.set(k, []); m.get(k).push(x); } return m; };
+const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+const Fmt = {
+  gs(n, sinal) {
+    if (n === "" || n === null || n === undefined || Number.isNaN(n)) return "—";
+    const v = Math.round(n);
+    const s = Math.abs(v).toLocaleString("de-DE");
+    const pre = v < 0 ? "-Gs. " : (sinal && v > 0 ? "+Gs. " : "Gs. ");
+    return pre + s;
+  },
+  gsCurto(n) {
+    const v = Math.round(n || 0), a = Math.abs(v), sg = v < 0 ? "-" : "";
+    if (a >= 1e9) return sg + (a / 1e9).toFixed(1).replace(".", ",") + " bi";
+    if (a >= 1e6) return sg + (a / 1e6).toFixed(1).replace(".", ",") + " mi";
+    if (a >= 1e3) return sg + Math.round(a / 1e3) + " mil";
+    return sg + a;
+  },
+  num(n, d = 0) { return (n ?? 0).toLocaleString("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d }); },
+  pct(n, d = 1) { return ((n || 0) * 100).toFixed(d).replace(".", ",") + "%"; },
+  data(iso) { if (!iso) return "—"; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y}`; },
+  dataCurta(iso) { if (!iso) return "—"; const [, m, d] = iso.split("-"); return `${d}/${m}`; },
+  mesAno(iso) { if (!iso) return "—"; const [y, m] = iso.split("-"); return `${m}/${y}`; },
+  compet(n) { return String(n).slice(4) + "/" + String(n).slice(0, 4); },
+};
+
+const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho",
+  "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+const MESES_C = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+const Dt = {
+  hojeISO() { const d = new Date(); return Dt.iso(d.getFullYear(), d.getMonth() + 1, d.getDate()); },
+  iso(y, m, d) { return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`; },
+  parts(iso) { const [y, m, d] = iso.split("-").map(Number); return { y, m, d }; },
+  diasNoMes(y, m) { return new Date(Date.UTC(y, m, 0)).getUTCDate(); },
+  diaMes(y, m, dia) { const yy = y + Math.floor((m - 1) / 12), mm = ((m - 1) % 12 + 12) % 12 + 1;
+    return Dt.iso(yy, mm, Math.min(dia, Dt.diasNoMes(yy, mm))); },
+  addMeses(iso, n) { const { y, m, d } = Dt.parts(iso); const t = (y * 12 + (m - 1)) + n;
+    const yy = Math.floor(t / 12), mm = t % 12 + 1;
+    return Dt.iso(yy, mm, Math.min(d, Dt.diasNoMes(yy, mm))); },
+  addDias(iso, n) { const { y, m, d } = Dt.parts(iso);
+    const t = new Date(Date.UTC(y, m - 1, d + n));
+    return Dt.iso(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate()); },
+  iniMes(iso) { const { y, m } = Dt.parts(iso); return Dt.iso(y, m, 1); },
+  fimMes(iso) { const { y, m } = Dt.parts(iso); return Dt.iso(y, m, Dt.diasNoMes(y, m)); },
+  iniAno(iso) { return Dt.parts(iso).y + "-01-01"; },
+  fimAno(iso) { return Dt.parts(iso).y + "-12-31"; },
+  diffDias(a, b) { const A = Dt.parts(a), B = Dt.parts(b);
+    return Math.round((Date.UTC(A.y, A.m - 1, A.d) - Date.UTC(B.y, B.m - 1, B.d)) / 864e5); },
+  diffMeses(a, b) { const A = Dt.parts(a), B = Dt.parts(b);
+    return (A.y - B.y) * 12 + (A.m - B.m); },
+  compet(iso) { const { y, m } = Dt.parts(iso); return y * 100 + m; },
+  diaSemana(iso) { const { y, m, d } = Dt.parts(iso); return new Date(Date.UTC(y, m - 1, d)).getUTCDay(); },
+  segundaDaSemana(iso) { const w = Dt.diaSemana(iso); return Dt.addDias(iso, w === 0 ? -6 : 1 - w); },
+};
+
+/* ------------------------------------------------------------- dominio */
+const TIPOS_OP = ["RECEITA", "DESPESA", "TRANSFERENCIA", "COMPRA_CARTAO", "PAGAMENTO_CARTAO",
+  "APORTE", "RESGATE", "RENDIMENTO", "PAGAMENTO_PARCELA", "AJUSTE_SALDO"];
+const CLASSIF = {
+  RECEITA: "RECEITA", RENDIMENTO: "RECEITA_FINANCEIRA", DESPESA: "DESPESA",
+  COMPRA_CARTAO: "DESPESA", PAGAMENTO_PARCELA: "DESPESA", TRANSFERENCIA: "NEUTRO",
+  PAGAMENTO_CARTAO: "NEUTRO", APORTE: "NEUTRO", RESGATE: "NEUTRO", AJUSTE_SALDO: "NEUTRO",
+};
+const ROTULO_OP = {
+  RECEITA: "Receita", DESPESA: "Despesa", TRANSFERENCIA: "Transferência",
+  COMPRA_CARTAO: "Compra no cartão", PAGAMENTO_CARTAO: "Pagamento de fatura",
+  APORTE: "Aporte", RESGATE: "Resgate", RENDIMENTO: "Rendimento",
+  PAGAMENTO_PARCELA: "Pagamento de parcela", AJUSTE_SALDO: "Ajuste de saldo",
+};
+/* origem e destino esperados por tipo de operacao (guia da tela de lancamento) */
+const FLUXO_OP = {
+  RECEITA: ["EXTERNO", "CONTA"], DESPESA: ["CONTA", "EXTERNO"],
+  TRANSFERENCIA: ["CONTA", "CONTA"], COMPRA_CARTAO: ["CARTAO", "EXTERNO"],
+  PAGAMENTO_CARTAO: ["CONTA", "CARTAO"], APORTE: ["CONTA", "INVESTIMENTO"],
+  RESGATE: ["INVESTIMENTO", "CONTA"], RENDIMENTO: ["EXTERNO", "INVESTIMENTO"],
+  PAGAMENTO_PARCELA: ["CONTA", "EXTERNO"], AJUSTE_SALDO: ["EXTERNO", "CONTA"],
+};
+const STATUS_LANC = ["REALIZADO", "PROJETADO", "CANCELADO"];
+const TIPOS_ENT = ["CONTA", "CARTAO", "INVESTIMENTO", "EXTERNO"];
+const TIPOS_CONTA = ["Conta corrente", "Conta poupança", "Carteira/dinheiro", "Outra"];
+const FORMAS_PGTO = ["Dinheiro", "Débito", "Crédito", "Transferência", "Cheque",
+  "Débito automático", "SIPAP/Giros", "Outro"];
+const PERIODICIDADES = ["Diário", "Semanal", "Quinzenal", "Mensal", "Bimestral",
+  "Trimestral", "Semestral", "Anual"];
+const PASSO_MES = { Mensal: 1, Bimestral: 2, Trimestral: 3, Semestral: 6, Anual: 12 };
+const PASSO_DIA = { "Diário": 1, Semanal: 7, Quinzenal: 15 };
+const STATUS_CAD = ["Ativo", "Inativo", "Encerrado"];
+const TIPOS_INV = ["Fondo Mutuo", "Ahorro a Plazo", "CDA", "Ações", "Outro"];
+const BASES_REND = ["Taxa anual", "Taxa mensal", "Valor fixo", "Manual"];
+const STATUS_META = ["Ativa", "Concluída", "Cancelada", "Pausada"];
+const TIPOS_MOV_META = ["RESERVA", "RETIRADA", "TRANSF_ENTRADA", "TRANSF_SAIDA",
+  "LIBERACAO_CONCLUSAO", "LIBERACAO_CANCELAMENTO"];
+const SINAL_MOV = { RESERVA: 1, TRANSF_ENTRADA: 1, RETIRADA: -1, TRANSF_SAIDA: -1,
+  LIBERACAO_CONCLUSAO: -1, LIBERACAO_CANCELAMENTO: -1 };
+const DESTINOS_RET = ["Saldo disponível", "Outra meta", "Investimento", "Despesa",
+  "Outra conta", "Outro"];
+const TIPOS_INST = ["Banco", "Financeira", "Cooperativa", "Casa de câmbio",
+  "Billetera/Fintech", "Corretora", "Não aplica", "Outra"];
+const TIPOS_BEM = ["Imóvel", "Veículo", "Equipamento", "Participação societária",
+  "Semovente", "Outro"];
+
+const CATALOGO_PADRAO = [
+  ["Alimentação", "DESPESA", ["Supermercado", "Restaurante", "Delivery", "Lanches", "Feira"]],
+  ["Transporte", "DESPESA", ["Combustível", "Uber/Taxi", "Ônibus", "Manutenção", "Seguro veicular"]],
+  ["Moradia", "DESPESA", ["Aluguel", "Energia (ANDE)", "Água (ESSAP)", "Internet", "Condomínio", "Manutenção do lar"]],
+  ["Saúde", "DESPESA", ["Plano de saúde", "Farmácia", "Consultas", "Exames", "Odontologia"]],
+  ["Educação", "DESPESA", ["Mensalidade", "Cursos", "Livros", "Material escolar"]],
+  ["Lazer", "DESPESA", ["Viagens", "Streaming", "Eventos", "Bar e café"]],
+  ["Compras", "DESPESA", ["Vestuário", "Eletrônicos", "Casa e decoração", "Presentes"]],
+  ["Dívidas e Financiamentos", "DESPESA", ["Parcela de terreno", "Parcela de empréstimo", "Juros e multas", "Parcela de compra"]],
+  ["Investimentos", "NEUTRO", ["Aporte", "Resgate", "Rendimento"]],
+  ["Receitas", "RECEITA", ["Salário", "Aguinaldo (13º)", "Honorários/Freelance", "Rendimento financeiro", "Reembolso", "Outras receitas"]],
+  ["Impostos e Taxas", "DESPESA", ["IVA", "IRP", "Tarifas bancárias", "Taxas municipais"]],
+  ["Outros", "DESPESA", ["Diversos", "Não classificado"]],
+  ["Transferências", "NEUTRO", ["Entre contas próprias", "Saque/Depósito"]],
+];
+
+const CONFIG_PADRAO = () => ({
+  moeda: "Gs.", dataRef: Dt.hojeISO(), inicio: Dt.iso(Dt.parts(Dt.hojeISO()).y - 1, 12, 31),
+  ano: Dt.parts(Dt.hojeISO()).y, mes: Dt.parts(Dt.hojeISO()).m, horizonte: 16,
+  reservaNoFluxo: "SIM", saldoMin: 4000000, pctCartao: 0.8, diasAlerta: 7,
+  diasInv: 60, pctRenda: 0.4, pctDesp: 0.25,
+});
+
+function catalogoPadrao() {
+  const categorias = [], subcategorias = [];
+  CATALOGO_PADRAO.forEach(([nome, tipo, subs], i) => {
+    const cid = "CAT-" + String(i + 1).padStart(6, "0");
+    categorias.push({ id: cid, nome, tipoPadrao: tipo });
+    subs.forEach((s) => subcategorias.push({
+      id: "SUB-" + String(subcategorias.length + 1).padStart(6, "0"),
+      categoriaId: cid, nome: s,
+    }));
+  });
+  return { categorias, subcategorias };
+}
+
+function dadosVazios() {
+  const { categorias, subcategorias } = catalogoPadrao();
+  return {
+    config: CONFIG_PADRAO(), instituicoes: [], contas: [], cartoes: [], investimentos: [],
+    categorias, subcategorias, compromissos: [], parcelas: [], metas: [], movMetas: [],
+    recorrencias: [], bens: [], lancamentos: [],
+  };
+}
+
+const LISTAS = ["instituicoes", "contas", "cartoes", "investimentos", "categorias",
+  "subcategorias", "compromissos", "parcelas", "metas", "movMetas", "recorrencias",
+  "bens", "lancamentos"];
+const BLOCOS_GRANDES = ["lancamentos", "parcelas", "movMetas"];
+const TAM_BLOCO = 150;
+
+/* ------------------------------------------------------------- storage */
+const Store = {
+  db: null, pid: null, dirty: new Set(), timer: null, salvando: false,
+
+  async init() {
+    try { this.db = await claude.use("db"); } catch (e) { this.db = null; }
+    return this.db != null;
+  },
+  get online() { return this.db != null; },
+
+  /* ---- perfis ---- */
+  async listarPerfis() {
+    if (this.db) {
+      try {
+        const snap = await this.db.collection("perfis").get();
+        return snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => String(a.criadoEm).localeCompare(String(b.criadoEm)));
+      } catch (e) { console.warn("listarPerfis", e); return []; }
+    }
+    const raw = localStorage.getItem("cg.perfis");
+    return raw ? JSON.parse(raw) : [];
+  },
+  async gravarPerfilMeta(meta) {
+    if (this.db) { await this.db.doc("perfis/" + meta.id).set(meta); return; }
+    const lista = await this.listarPerfis();
+    const i = lista.findIndex((p) => p.id === meta.id);
+    if (i >= 0) lista[i] = meta; else lista.push(meta);
+    localStorage.setItem("cg.perfis", JSON.stringify(lista));
+  },
+  async criarPerfil(nome, dados) {
+    const id = uid("perfil");
+    const meta = { id, nome, criadoEm: new Date().toISOString(), atualizadoEm: new Date().toISOString() };
+    await this.gravarPerfilMeta(meta);
+    this.pid = id;
+    await this.salvarTudo(dados);
+    return meta;
+  },
+  async excluirPerfil(id) {
+    if (this.db) {
+      const snap = await this.db.collection(`perfis/${id}/dados`).get();
+      for (const d of snap.docs) await this.db.doc(`perfis/${id}/dados/${d.id}`).delete();
+      await this.db.doc("perfis/" + id).delete();
+    } else {
+      const lista = (await this.listarPerfis()).filter((p) => p.id !== id);
+      localStorage.setItem("cg.perfis", JSON.stringify(lista));
+      localStorage.removeItem("cg.dados." + id);
+    }
+  },
+  async renomearPerfil(id, nome) {
+    const lista = await this.listarPerfis();
+    const meta = lista.find((p) => p.id === id);
+    if (meta) { meta.nome = nome; await this.gravarPerfilMeta(meta); }
+  },
+
+  /* ---- dados ---- */
+  _pequenos(d) {
+    const o = { config: d.config };
+    for (const k of LISTAS) if (!BLOCOS_GRANDES.includes(k)) o[k] = d[k];
+    return o;
+  },
+  async carregar(pid) {
+    this.pid = pid;
+    if (!this.db) {
+      const raw = localStorage.getItem("cg.dados." + pid);
+      return raw ? Object.assign(dadosVazios(), JSON.parse(raw)) : dadosVazios();
+    }
+    const snap = await this.db.collection(`perfis/${pid}/dados`).get();
+    const dados = dadosVazios();
+    const partes = {};
+    for (const doc of snap.docs) {
+      const body = doc.data() || {};
+      if (doc.id === "cadastros") Object.assign(dados, body);
+      else {
+        const m = doc.id.match(/^(.+)_(\d+)$/);
+        if (m) { (partes[m[1]] = partes[m[1]] || []).push([Number(m[2]), body.itens || []]); }
+      }
+    }
+    for (const [k, blocos] of Object.entries(partes)) {
+      blocos.sort((a, b) => a[0] - b[0]);
+      dados[k] = blocos.flatMap((b) => b[1]);
+    }
+    for (const k of LISTAS) if (!Array.isArray(dados[k])) dados[k] = [];
+    dados.config = Object.assign(CONFIG_PADRAO(), dados.config || {});
+    return dados;
+  },
+  async salvarTudo(d) {
+    if (!this.db) { localStorage.setItem("cg.dados." + this.pid, JSON.stringify(d)); return; }
+    await this.db.doc(`perfis/${this.pid}/dados/cadastros`).set(this._pequenos(d));
+    for (const k of BLOCOS_GRANDES) await this._salvarBloco(k, d[k]);
+  },
+  async _salvarBloco(k, itens) {
+    const n = Math.max(1, Math.ceil(itens.length / TAM_BLOCO));
+    for (let i = 0; i < n; i++) {
+      await this.db.doc(`perfis/${this.pid}/dados/${k}_${i}`)
+        .set({ itens: itens.slice(i * TAM_BLOCO, (i + 1) * TAM_BLOCO) });
+    }
+    /* limpa blocos que sobraram de uma versao maior */
+    for (let i = n; i < n + 6; i++) {
+      try { await this.db.doc(`perfis/${this.pid}/dados/${k}_${i}`).delete(); } catch (e) { /* ok */ }
+    }
+  },
+  marcar(...chaves) {
+    for (const c of chaves) this.dirty.add(BLOCOS_GRANDES.includes(c) ? c : "cadastros");
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.flush(), 700);
+  },
+  async flush() {
+    if (!this.pid || this.salvando || !this.dirty.size) return;
+    const alvos = Array.from(this.dirty); this.dirty.clear(); this.salvando = true;
+    App.setSync("salvando");
+    try {
+      if (!this.db) localStorage.setItem("cg.dados." + this.pid, JSON.stringify(App.d));
+      else for (const a of alvos) {
+        if (a === "cadastros") await this.db.doc(`perfis/${this.pid}/dados/cadastros`).set(this._pequenos(App.d));
+        else await this._salvarBloco(a, App.d[a]);
+      }
+      App.setSync("ok");
+    } catch (e) {
+      console.error(e); alvos.forEach((a) => this.dirty.add(a));
+      App.setSync("erro", e && e.code);
+    } finally { this.salvando = false; }
+  },
+};
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  MOTOR DE CALCULO                                                     */
+/*  Reproduz as mesmas regras do sistema Excel V1. Roda uma vez a cada   */
+/*  mudanca de dados; todas as telas leem o resultado.                   */
+/* ==================================================================== */
+const Calc = {
+  derivar(d) {
+    const cfg = d.config, hoje = cfg.dataRef;
+    const idx = {
+      conta: by(d.contas, "id"), cartao: by(d.cartoes, "id"), inv: by(d.investimentos, "id"),
+      cat: by(d.categorias, "id"), sub: by(d.subcategorias, "id"), cmp: by(d.compromissos, "id"),
+      meta: by(d.metas, "id"), parc: by(d.parcelas, "id"), rec: by(d.recorrencias, "id"),
+      inst: by(d.instituicoes, "id"),
+    };
+    const ent = new Map();
+    d.contas.forEach((x) => ent.set(x.id, { tipo: "CONTA", nome: x.nome }));
+    d.cartoes.forEach((x) => ent.set(x.id, { tipo: "CARTAO", nome: x.nome }));
+    d.investimentos.forEach((x) => ent.set(x.id, { tipo: "INVESTIMENTO", nome: x.nome }));
+
+    /* ---------- 1. lancamentos enriquecidos ---------- */
+    const L = d.lancamentos.map((l) => {
+      const cl = CLASSIF[l.tipo] || "TIPO INVALIDO";
+      const oc = l.origemTipo === "CONTA", dc = l.destinoTipo === "CONTA";
+      const e = {
+        ...l, classificacao: cl,
+        categoriaNome: l.categoriaId ? (idx.cat.get(l.categoriaId)?.nome ?? "?") : "",
+        subcategoriaNome: l.subcategoriaId ? (idx.sub.get(l.subcategoriaId)?.nome ?? "?") : "",
+        origemNome: l.origemTipo === "EXTERNO" ? "(Externo)" : (ent.get(l.origemId)?.nome ?? "?"),
+        destinoNome: l.destinoTipo === "EXTERNO" ? "(Externo)" : (ent.get(l.destinoId)?.nome ?? "?"),
+        entradaCaixa: dc && !oc ? l.valor : 0,
+        saidaCaixa: oc && !dc ? l.valor : 0,
+        vRec: cl === "RECEITA" ? l.valor : 0,
+        vDesp: cl === "DESPESA" ? l.valor : 0,
+        vRend: cl === "RECEITA_FINANCEIRA" ? l.valor : 0,
+        efConta: (dc ? l.valor : 0) - (oc ? l.valor : 0),
+        efCartao: (l.origemTipo === "CARTAO" ? l.valor : 0) - (l.destinoTipo === "CARTAO" ? l.valor : 0),
+        efInv: (l.destinoTipo === "INVESTIMENTO" ? l.valor : 0) - (l.origemTipo === "INVESTIMENTO" ? l.valor : 0),
+        compet: Dt.compet(l.data), ano: Dt.parts(l.data).y, mes: Dt.parts(l.data).m,
+      };
+      e.validacao = Calc.validarLanc(e, idx, ent);
+      e.vinculos = [l.compromissoId, l.parcelaId, l.metaId, l.recorrenciaId, l.relacionadoId].filter(Boolean);
+      return e;
+    });
+    const R = L.filter((l) => l.status === "REALIZADO");
+    const P = L.filter((l) => l.status === "PROJETADO");
+    const ativos = L.filter((l) => l.status !== "CANCELADO");
+
+    /* ---------- 2. parcelas ---------- */
+    const pagoPorParcela = new Map(), qtdRealParc = new Map(), qtdProjParc = new Map(),
+      dataPagParc = new Map();
+    for (const l of L) {
+      if (!l.parcelaId) continue;
+      if (l.status === "REALIZADO") {
+        pagoPorParcela.set(l.parcelaId, (pagoPorParcela.get(l.parcelaId) || 0) + l.valor);
+        qtdRealParc.set(l.parcelaId, (qtdRealParc.get(l.parcelaId) || 0) + 1);
+        const at = dataPagParc.get(l.parcelaId);
+        if (!at || l.data < at) dataPagParc.set(l.parcelaId, l.data);
+      } else if (l.status === "PROJETADO") {
+        qtdProjParc.set(l.parcelaId, (qtdProjParc.get(l.parcelaId) || 0) + 1);
+      }
+    }
+    const fimMesHoje = Dt.fimMes(hoje);
+    const parcelas = d.parcelas.map((p) => {
+      const c = idx.cmp.get(p.compromissoId);
+      const antes = c && p.num <= (c.pagasAntes || 0);
+      const pago = pagoPorParcela.get(p.id) || 0;
+      let st;
+      if (antes || (qtdRealParc.get(p.id) || 0) > 0) st = "PAGA";
+      else if (p.vencimento < hoje) st = "ATRASADA";
+      else if (p.vencimento <= fimMesHoje) st = "ABERTA";
+      else st = "PROJETADA";
+      return { ...p, compromissoNome: c?.nome ?? "?", total: c?.qtd ?? 0,
+        rotulo: `${p.num}/${c?.qtd ?? "?"}`, pagoAntes: antes ? "SIM" : "NAO",
+        pagoRealizado: pago, dataPagamento: dataPagParc.get(p.id) || "",
+        qtdReal: qtdRealParc.get(p.id) || 0, qtdProj: qtdProjParc.get(p.id) || 0,
+        status: st, diasAtraso: st === "ATRASADA" ? Dt.diffDias(hoje, p.vencimento) : 0,
+        diferenca: st === "PAGA" && !antes ? pago - p.valor : 0 };
+    });
+    const parcPorCmp = groupBy(parcelas, (p) => p.compromissoId);
+
+    /* ---------- 3. compromissos ---------- */
+    const compromissos = d.compromissos.map((c) => {
+      const ps = (parcPorCmp.get(c.id) || []).slice().sort((a, b) => a.num - b.num);
+      const cont = (s) => ps.filter((p) => p.status === s).length;
+      const pagas = cont("PAGA");
+      const prox = ps.find((p) => p.status !== "PAGA" && p.status !== "CANCELADA");
+      const total = c.qtd * c.valorParcela;
+      const valorPago = sum(ps.filter((p) => p.status === "PAGA"), (p) => p.valor);
+      return { ...c, valorTotal: total, parcelas: ps, pagas, abertas: cont("ABERTA"),
+        atrasadas: cont("ATRASADA"), projetadas: cont("PROJETADA"), restantes: c.qtd - pagas,
+        valorPago, devedor: total - valorPago, atual: `${Math.min(c.qtd, pagas + 1)}/${c.qtd}`,
+        proximoVencimento: prox?.vencimento || "", entidadeNome: ent.get(c.entidadeId)?.nome ?? "—",
+        categoriaNome: idx.cat.get(c.categoriaId)?.nome ?? "" };
+    });
+
+    /* ---------- 4. metas e reservas ---------- */
+    const reservaMeta = new Map(), reservaConta = new Map();
+    for (const m of d.movMetas) {
+      const s = (SINAL_MOV[m.tipo] || 0) * m.valor;
+      reservaMeta.set(m.metaId, (reservaMeta.get(m.metaId) || 0) + s);
+      const meta = idx.meta.get(m.metaId);
+      if (meta && meta.contaId) reservaConta.set(meta.contaId, (reservaConta.get(meta.contaId) || 0) + s);
+    }
+    const metas = d.metas.map((m) => {
+      const res = reservaMeta.get(m.id) || 0;
+      const falta = Math.max(0, m.objetivo - res);
+      const mesesRest = m.prazo ? Math.max(0, Dt.diffMeses(m.prazo, hoje)) : 0;
+      let situacao;
+      if (m.status === "Cancelada") situacao = "CANCELADA";
+      else if (m.status === "Concluída") situacao = "CONCLUÍDA";
+      else if (res >= m.objetivo) situacao = "OBJETIVO ATINGIDO";
+      else if (m.prazo && m.prazo < hoje) situacao = "PRAZO VENCIDO";
+      else if (mesesRest <= 3) situacao = "EM RISCO";
+      else situacao = "EM DIA";
+      return { ...m, reservado: res, pct: m.objetivo ? res / m.objetivo : 0, faltante: falta,
+        mesesRestantes: mesesRest, aporteMensal: mesesRest > 0 ? Math.round(falta / mesesRest) : falta,
+        situacao, contaNome: m.contaId ? (idx.conta.get(m.contaId)?.nome ?? "?") : "" };
+    });
+
+    /* ---------- 5. contas ---------- */
+    const contas = d.contas.map((c) => {
+      const eR = sum(R.filter((l) => l.destinoTipo === "CONTA" && l.destinoId === c.id), (l) => l.valor);
+      const sR = sum(R.filter((l) => l.origemTipo === "CONTA" && l.origemId === c.id), (l) => l.valor);
+      const eP = sum(P.filter((l) => l.destinoTipo === "CONTA" && l.destinoId === c.id), (l) => l.valor);
+      const sP = sum(P.filter((l) => l.origemTipo === "CONTA" && l.origemId === c.id), (l) => l.valor);
+      const saldo = c.saldoInicial + eR - sR, res = reservaConta.get(c.id) || 0;
+      return { ...c, entradas: eR, saidas: sR, saldo, reservado: res, disponivel: saldo - res,
+        entradasProj: eP, saidasProj: sP, projetado: saldo + eP - sP,
+        instituicaoNome: idx.inst.get(c.instituicaoId)?.nome ?? "" };
+    });
+
+    /* ---------- 6. cartoes ---------- */
+    const cartoes = d.cartoes.map((k) => {
+      const compras = sum(R.filter((l) => l.origemTipo === "CARTAO" && l.origemId === k.id), (l) => l.valor);
+      const pagtos = sum(R.filter((l) => l.destinoTipo === "CARTAO" && l.destinoId === k.id), (l) => l.valor);
+      const divida = k.dividaInicial + compras - pagtos;
+      const { y, m, d: dia } = Dt.parts(hoje);
+      const fech = Dt.diaMes(y, m + (dia > k.diaFechamento ? 1 : 0), k.diaFechamento);
+      const ini = Dt.addDias(Dt.addMeses(fech, -1), 1);
+      const fp = Dt.parts(fech);
+      const venc = Dt.diaMes(fp.y, fp.m + (k.diaVencimento > k.diaFechamento ? 0 : 1), k.diaVencimento);
+      const noCiclo = (l) => l.origemTipo === "CARTAO" && l.origemId === k.id && l.data >= ini && l.data <= fech;
+      const fatura = sum(ativos.filter(noCiclo), (l) => l.valor);
+      const futuras = sum(P.filter((l) => l.origemTipo === "CARTAO" && l.origemId === k.id && l.data > fech), (l) => l.valor);
+      const parcFut = sum(P.filter((l) => l.origemTipo === "CARTAO" && l.origemId === k.id && l.parcelaId), (l) => l.valor);
+      return { ...k, compras, pagamentos: pagtos, divida, pctLimite: k.limite ? divida / k.limite : 0,
+        disponivel: k.limite - divida, fechamento: fech, inicioCiclo: ini, vencimento: venc,
+        fatura, futuras, parcelasFuturas: parcFut, comprometimento: divida + futuras,
+        diasParaVencer: Dt.diffDias(venc, hoje),
+        instituicaoNome: idx.inst.get(k.instituicaoId)?.nome ?? "" };
+    });
+
+    /* ---------- 7. investimentos ---------- */
+    const investimentos = d.investimentos.map((i) => {
+      const f = (lista, tipo) => sum(lista.filter((l) => l.destinoTipo === "INVESTIMENTO"
+        && l.destinoId === i.id && (!tipo || l.tipo === tipo)), (l) => l.valor);
+      const aportes = f(R, "APORTE"), rend = f(R, "RENDIMENTO");
+      const resg = sum(R.filter((l) => l.origemTipo === "INVESTIMENTO" && l.origemId === i.id), (l) => l.valor);
+      const saldo = i.valorInicial + aportes + rend - resg;
+      const principal = Math.max(0, i.valorInicial + aportes - resg);
+      const venc = i.prazoMeses > 0 && i.dataInicial ? Dt.addMeses(i.dataInicial, i.prazoMeses) : "";
+      const meses = venc ? Math.max(0, Dt.diffMeses(venc, hoje)) : 12;
+      let estim = 0;
+      if (i.baseRendimento === "Taxa anual") estim = Math.round(saldo * (Math.pow(1 + i.taxa, meses / 12) - 1));
+      else if (i.baseRendimento === "Taxa mensal") estim = Math.round(saldo * (Math.pow(1 + i.taxa, meses) - 1));
+      else if (i.baseRendimento === "Valor fixo") estim = i.taxa;
+      const rendProj = f(P, "RENDIMENTO"), aporteProj = f(P, "APORTE");
+      const resgProj = sum(P.filter((l) => l.origemTipo === "INVESTIMENTO" && l.origemId === i.id), (l) => l.valor);
+      return { ...i, aportes, resgates: resg, rendimento: rend, saldo, principal,
+        rendNoSaldo: saldo - principal, vencimento: venc, mesesAteVenc: meses,
+        rendProjetado: rendProj, rendEstimadoTaxa: estim,
+        valorEstimado: saldo + rendProj + aporteProj - resgProj,
+        aportesProj: aporteProj, resgatesProj: resgProj,
+        diasParaVencer: venc ? Dt.diffDias(venc, hoje) : null,
+        instituicaoNome: idx.inst.get(i.instituicaoId)?.nome ?? "" };
+    });
+
+    /* ---------- 8. fluxo de caixa ---------- */
+    const somaPer = (lista, campo, ini, fim) =>
+      sum(lista.filter((l) => l.data >= ini && l.data <= fim), (l) => l[campo]);
+    const saldoIniTotal = sum(d.contas, (c) => c.saldoInicial);
+    const saldoAte = (limiteExcl) => saldoIniTotal
+      + sum(ativos.filter((l) => l.data < limiteExcl), (l) => l.entradaCaixa - l.saidaCaixa);
+    const baseGrade = d.contas.length
+      ? Dt.addDias(Dt.fimMes(d.contas.reduce((a, c) => c.dataSaldoInicial < a ? c.dataSaldoInicial : a,
+        d.contas[0].dataSaldoInicial)), 1)
+      : Dt.iniMes(hoje);
+    const N_MES = 30;
+    const reservaFluxo = cfg.reservaNoFluxo === "SIM"
+      ? sum(metas.filter((m) => m.considerarFluxo === "SIM" && m.status === "Ativa"), (m) => m.reservado) : 0;
+    const fluxo = [];
+    let acc = saldoAte(baseGrade);
+    for (let i = 0; i < N_MES; i++) {
+      const ini = Dt.addMeses(baseGrade, i), fim = Dt.fimMes(ini);
+      const eR = somaPer(R, "entradaCaixa", ini, fim), sR = somaPer(R, "saidaCaixa", ini, fim);
+      const eP = somaPer(P, "entradaCaixa", ini, fim), sP = somaPer(P, "saidaCaixa", ini, fim);
+      const ini_ = acc; acc = acc + eR - sR + eP - sP;
+      fluxo.push({ compet: Dt.compet(ini), ini, fim, saldoIni: ini_, entR: eR, saiR: sR,
+        entP: eP, saiP: sP, liqR: eR - sR, liqP: eP - sP, saldoFim: acc,
+        reservado: reservaFluxo, livre: acc - reservaFluxo });
+    }
+    const diario = []; let accD = saldoAte(Dt.addDias(hoje, -15));
+    for (let i = 0; i < 60; i++) {
+      const dia = Dt.addDias(hoje, -15 + i);
+      const e = somaPer(ativos, "entradaCaixa", dia, dia), s = somaPer(ativos, "saidaCaixa", dia, dia);
+      accD += e - s;
+      diario.push({ data: dia, ent: e, sai: s, liq: e - s, saldo: accD,
+        futuro: dia > hoje, hoje: dia === hoje });
+    }
+    const semanal = []; const seg0 = Dt.addDias(Dt.segundaDaSemana(hoje), -14);
+    let accS = saldoAte(seg0);
+    for (let i = 0; i < 30; i++) {
+      const ini = Dt.addDias(seg0, i * 7), fim = Dt.addDias(ini, 6);
+      const e = somaPer(ativos, "entradaCaixa", ini, fim), s = somaPer(ativos, "saidaCaixa", ini, fim);
+      accS += e - s;
+      semanal.push({ ini, fim, ent: e, sai: s, liq: e - s, saldo: accS });
+    }
+    const anos = []; const anoIni = Dt.parts(baseGrade).y;
+    for (let i = 0; i < 6; i++) {
+      const a = anoIni + i, ini = a + "-01-01", fim = a + "-12-31";
+      anos.push({ ano: a, entR: somaPer(R, "entradaCaixa", ini, fim), saiR: somaPer(R, "saidaCaixa", ini, fim),
+        entP: somaPer(P, "entradaCaixa", ini, fim), saiP: somaPer(P, "saidaCaixa", ini, fim),
+        saldoFim: saldoAte(Dt.addDias(fim, 1)) });
+    }
+
+    /* ---------- 9. projecao ---------- */
+    const projecao = []; let accP = saldoAte(Dt.iniMes(hoje));
+    for (let i = 0; i < 24; i++) {
+      const ini = Dt.addMeses(Dt.iniMes(hoje), i), fim = Dt.fimMes(ini);
+      const noPer = (l) => l.data >= ini && l.data <= fim;
+      const pr = P.filter(noPer), rr = R.filter(noPer);
+      const liqR = sum(rr, (l) => l.entradaCaixa - l.saidaCaixa);
+      const liqP = sum(pr, (l) => l.entradaCaixa - l.saidaCaixa);
+      accP += liqR + liqP;
+      projecao.push({ compet: Dt.compet(ini), ini, fim,
+        receitas: sum(pr, (l) => l.vRec), rendimentos: sum(pr, (l) => l.vRend),
+        despesas: sum(pr, (l) => l.vDesp),
+        parcelas: sum(pr.filter((l) => l.parcelaId), (l) => l.valor),
+        faturas: sum(pr.filter((l) => l.tipo === "PAGAMENTO_CARTAO"), (l) => l.valor),
+        aportes: sum(pr.filter((l) => l.tipo === "APORTE"), (l) => l.valor),
+        resgates: sum(pr.filter((l) => l.tipo === "RESGATE"), (l) => l.valor),
+        entradas: sum(pr, (l) => l.entradaCaixa), saidas: sum(pr, (l) => l.saidaCaixa),
+        liqR, liqP, saldo: accP });
+    }
+
+    /* ---------- 10. patrimonio ---------- */
+    const totContas = sum(contas, (c) => c.saldo), totInv = sum(investimentos, (i) => i.saldo);
+    const totCart = sum(cartoes, (k) => k.divida), totBens = sum(d.bens, (b) => b.valor);
+    const devedorTotal = sum(parcelas.filter((p) => p.status !== "PAGA"), (p) => p.valor);
+    const patrimonio = { contas: totContas, investimentos: totInv, bens: totBens,
+      cartoes: totCart, compromissos: devedorTotal,
+      ativosFin: totContas + totInv, ativos: totContas + totInv + totBens,
+      passivos: totCart + devedorTotal,
+      plFin: totContas + totInv - totCart - devedorTotal,
+      plTotal: totContas + totInv + totBens - totCart - devedorTotal,
+      reservado: sum(metas, (m) => m.reservado), livre: sum(contas, (c) => c.disponivel) };
+    const evolucao = [];
+    for (let i = 0; i < N_MES; i++) {
+      const fim = Dt.fimMes(Dt.addMeses(baseGrade, i));
+      const ate = ativos.filter((l) => l.data <= fim);
+      const ct = saldoIniTotal + sum(ate, (l) => l.efConta);
+      const iv = sum(d.investimentos, (x) => x.valorInicial) + sum(ate, (l) => l.efInv);
+      const kt = sum(d.cartoes, (x) => x.dividaInicial) + sum(ate, (l) => l.efCartao);
+      const dv = sum(parcelas.filter((p) => p.vencimento > fim
+        || (p.vencimento <= fim && p.status === "ATRASADA")), (p) => p.valor);
+      const plF = ct + iv - kt - dv;
+      evolucao.push({ compet: Dt.compet(fim), fim, contas: ct, investimentos: iv, bens: totBens,
+        cartoes: kt, compromissos: dv, plFin: plF, plTotal: plF + totBens });
+    }
+    evolucao.forEach((e, i) => { e.variacao = i ? e.plTotal - evolucao[i - 1].plTotal : 0; });
+
+    return { dRaw: d, cfg, hoje, idx, ent, L, R, P, ativos, contas, cartoes, investimentos, metas,
+      parcelas, compromissos, fluxo, diario, semanal, anos, projecao, patrimonio, evolucao,
+      reservaFluxo, baseGrade, saldoAte, somaPer,
+      indicadores: null, alertas: null, testes: null };
+  },
+
+  validarLanc(l, idx, ent) {
+    if (!(l.valor > 0)) return "Valor deve ser maior que zero";
+    if (!CLASSIF[l.tipo]) return "Tipo de operação inválido";
+    if (!STATUS_LANC.includes(l.status)) return "Status inválido";
+    if (l.origemTipo === "EXTERNO" && l.destinoTipo === "EXTERNO") return "Origem e destino externos";
+    if (l.origemTipo !== "EXTERNO") {
+      const e = ent.get(l.origemId);
+      if (!e || e.tipo !== l.origemTipo) return "Origem inexistente";
+    }
+    if (l.destinoTipo !== "EXTERNO") {
+      const e = ent.get(l.destinoId);
+      if (!e || e.tipo !== l.destinoTipo) return "Destino inexistente";
+    }
+    if (l.categoriaId && !idx.cat.has(l.categoriaId)) return "Categoria inexistente";
+    if (l.subcategoriaId) {
+      const s = idx.sub.get(l.subcategoriaId);
+      if (!s) return "Subcategoria inexistente";
+      if (l.categoriaId && s.categoriaId !== l.categoriaId) return "Subcategoria não pertence à categoria";
+    }
+    if (l.parcelaId && !idx.parc.has(l.parcelaId)) return "Parcela inexistente";
+    if (l.compromissoId && !idx.cmp.has(l.compromissoId)) return "Compromisso inexistente";
+    return "OK";
+  },
+};
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  INDICADORES, ALERTAS E BATERIA DE TESTES                             */
+/* ==================================================================== */
+Calc.indicadores = function (v) {
+  const { hoje, cfg, R, P, contas, cartoes, investimentos, metas, parcelas,
+    projecao, patrimonio, evolucao } = v;
+  const per = (lista, campo, ini, fim) =>
+    sum(lista.filter((l) => l.data >= ini && l.data <= fim), (l) => l[campo]);
+  const ini6 = Dt.addMeses(hoje, -6), iniMes = Dt.iniMes(hoje), fimMes = Dt.fimMes(hoje);
+  const recMedia = per(R, "vRec", ini6, hoje) / 6;
+  const despMedia = per(R, "vDesp", ini6, Dt.addDias(iniMes, -1)) / 6;
+  const despMes = per(R, "vDesp", iniMes, fimMes);
+  const recMes = per(R, "vRec", iniMes, fimMes), rendMes = per(R, "vRend", iniMes, fimMes);
+  const desp6 = per(R, "vDesp", ini6, hoje) / 6;
+  const lim12 = Dt.addMeses(hoje, 12);
+  const compr12 = sum(P.filter((l) => l.data > hoje && l.data <= lim12
+    && (l.parcelaId || l.tipo === "PAGAMENTO_CARTAO")), (l) => l.valor);
+  /* gastos por categoria no mes e no ano */
+  const porCat = (lista, ini, fim) => {
+    const m = new Map();
+    for (const l of lista) if (l.data >= ini && l.data <= fim && l.vDesp)
+      m.set(l.categoriaNome || "Sem categoria", (m.get(l.categoriaNome || "Sem categoria") || 0) + l.vDesp);
+    return Array.from(m, ([nome, valor]) => ({ nome, valor })).sort((a, b) => b.valor - a.valor);
+  };
+  const catMes = porCat(R, iniMes, fimMes);
+  const catAno = porCat([...R, ...P], Dt.iniAno(hoje), Dt.fimAno(hoje));
+  const menorProj = projecao.reduce((a, p) => (p.saldo < a.saldo ? p : a), projecao[0] || { saldo: 0 });
+  const maiorSaida = projecao.reduce((a, p) => (p.saidas > a.saidas ? p : a), projecao[0] || { saidas: 0 });
+  const evHoje = evolucao.find((e) => e.compet === Dt.compet(hoje));
+  const ev6 = evolucao.find((e) => e.compet === Dt.compet(Dt.addMeses(hoje, -6)));
+  const varPat = (evHoje?.plTotal ?? 0) - (ev6?.plTotal ?? 0);
+  return {
+    recMedia, despMedia, despMes, recMes, rendMes, desp6,
+    variacaoDesp: despMedia ? despMes / despMedia - 1 : 0,
+    taxaPoupanca: recMedia ? 1 - desp6 / recMedia : 0,
+    compr12, pctRenda: recMedia ? compr12 / (recMedia * 12) : 0,
+    parcelasAbertas: sum(parcelas.filter((p) => p.status !== "PAGA"), (p) => p.valor),
+    catMes, catAno, maiorCatMes: catMes[0] || null, maiorCatAno: catAno[0] || null,
+    menorProj, maiorSaida, varPat,
+    tendencia: varPat > 0 ? "CRESCENTE" : varPat < 0 ? "DECRESCENTE" : "ESTÁVEL",
+    investVencendo: investimentos.filter((i) => i.diasParaVencer !== null
+      && i.diasParaVencer >= 0 && i.diasParaVencer <= cfg.diasInv),
+    metasQuase: metas.filter((m) => m.status === "Ativa" && m.pct >= 0.8),
+    metasAtivas: metas.filter((m) => m.status === "Ativa"),
+    resultadoMes: recMes + rendMes - despMes,
+  };
+};
+
+Calc.alertas = function (v) {
+  const { cfg, hoje, contas, cartoes, investimentos, metas, parcelas, L, projecao, fluxo } = v;
+  const ind = v.indicadores, a = [];
+  const add = (grupo, titulo, detalhe, valor, nivel) => a.push({ grupo, titulo, detalhe, valor, nivel });
+  for (const c of contas.filter((c) => c.status !== "Encerrado"))
+    if (c.disponivel < cfg.saldoMin)
+      add("Contas", c.nome, `Disponível abaixo do mínimo de ${Fmt.gs(cfg.saldoMin)}`, c.disponivel, "grave");
+  for (const k of cartoes.filter((k) => k.status !== "Encerrado")) {
+    if (k.pctLimite >= cfg.pctCartao)
+      add("Cartões", k.nome, `Uso do limite em ${Fmt.pct(k.pctLimite)}`, k.divida, "grave");
+    if (k.diasParaVencer >= 0 && k.diasParaVencer <= cfg.diasAlerta)
+      add("Cartões", k.nome, `Fatura vence em ${k.diasParaVencer} dia(s), em ${Fmt.data(k.vencimento)}`, k.fatura, "aviso");
+  }
+  const atras = parcelas.filter((p) => p.status === "ATRASADA");
+  if (atras.length) add("Parcelas", `${atras.length} parcela(s) atrasada(s)`,
+    atras.slice(0, 3).map((p) => `${p.compromissoNome} ${p.rotulo}`).join(" · ")
+    + (atras.length > 3 ? " …" : ""), sum(atras, (p) => p.valor), "grave");
+  const vencendo = parcelas.filter((p) => p.status === "ABERTA"
+    && Dt.diffDias(p.vencimento, hoje) <= cfg.diasAlerta && p.vencimento >= hoje);
+  if (vencendo.length) add("Parcelas", `${vencendo.length} parcela(s) vencendo em até ${cfg.diasAlerta} dias`,
+    vencendo.slice(0, 3).map((p) => `${p.compromissoNome} ${p.rotulo} em ${Fmt.data(p.vencimento)}`).join(" · "),
+    sum(vencendo, (p) => p.valor), "aviso");
+  for (const i of ind.investVencendo)
+    add("Investimentos", i.nome, `Vence em ${i.diasParaVencer} dia(s), em ${Fmt.data(i.vencimento)}`, i.saldo, "aviso");
+  for (const m of metas.filter((m) => m.situacao === "PRAZO VENCIDO" || m.situacao === "EM RISCO"))
+    add("Metas", m.nome, `${m.situacao.toLowerCase()} — ${Fmt.pct(m.pct)} concluído, faltam ${Fmt.gs(m.faltante)}`,
+      m.faltante, m.situacao === "PRAZO VENCIDO" ? "grave" : "aviso");
+  if (ind.menorProj && ind.menorProj.saldo < 0)
+    add("Fluxo", "Saldo projetado fica negativo", `Menor saldo em ${Fmt.compet(ind.menorProj.compet)}`,
+      ind.menorProj.saldo, "grave");
+  if (ind.pctRenda > cfg.pctRenda)
+    add("Fluxo", "Renda muito comprometida",
+      `${Fmt.pct(ind.pctRenda)} da renda dos próximos 12 meses já está comprometida (limite ${Fmt.pct(cfg.pctRenda)})`,
+      ind.compr12, "aviso");
+  if (ind.variacaoDesp > cfg.pctDesp && ind.despMedia > 0)
+    add("Fluxo", "Despesa acima do padrão",
+      `${Fmt.pct(ind.variacaoDesp)} acima da média dos 6 meses anteriores`, ind.despMes, "aviso");
+  const erros = L.filter((l) => l.validacao !== "OK");
+  if (erros.length) add("Integridade", `${erros.length} lançamento(s) com erro`,
+    erros.slice(0, 3).map((l) => `${l.descricao}: ${l.validacao}`).join(" · "), null, "grave");
+  const dup = parcelas.filter((p) => p.qtdReal > 1);
+  if (dup.length) add("Integridade", `${dup.length} parcela(s) com pagamento duplicado`,
+    dup.map((p) => `${p.compromissoNome} ${p.rotulo}`).join(" · "), null, "grave");
+  const pend = parcelas.filter((p) => p.qtdReal > 0 && p.qtdProj > 0);
+  if (pend.length) add("Integridade", `${pend.length} parcela(s) paga(s) com lançamento projetado sobrando`,
+    pend.map((p) => `${p.compromissoNome} ${p.rotulo}`).join(" · "), null, "aviso");
+  return a;
+};
+
+Calc.testes = function (v) {
+  const { d, L, R, P, contas, cartoes, investimentos, metas, parcelas, compromissos,
+    patrimonio, fluxo, projecao, hoje } = v;
+  const t = [], TOL = 0.5;
+  const add = (grupo, nome, esperado, obtido, unidade) =>
+    t.push({ grupo, nome, esperado, obtido, dif: (obtido || 0) - (esperado || 0),
+      ok: Math.abs((obtido || 0) - (esperado || 0)) <= TOL, unidade: unidade || "gs" });
+  const somaSe = (lista, f, campo) => sum(lista.filter(f), (l) => l[campo]);
+
+  for (const c of contas) add("Saldo de conta", `Saldo inicial + entradas − saídas: ${c.nome}`,
+    c.saldoInicial + somaSe(R, (l) => l.destinoTipo === "CONTA" && l.destinoId === c.id, "valor")
+      - somaSe(R, (l) => l.origemTipo === "CONTA" && l.origemId === c.id, "valor"), c.saldo);
+  for (const k of cartoes) add("Dívida de cartão", `Dívida inicial + compras − pagamentos: ${k.nome}`,
+    k.dividaInicial + somaSe(R, (l) => l.origemTipo === "CARTAO" && l.origemId === k.id, "valor")
+      - somaSe(R, (l) => l.destinoTipo === "CARTAO" && l.destinoId === k.id, "valor"), k.divida);
+  for (const i of investimentos) {
+    add("Investimento", `Aplicado + aportes + rendimentos − resgates: ${i.nome}`,
+      i.valorInicial + somaSe(R, (l) => l.destinoTipo === "INVESTIMENTO" && l.destinoId === i.id, "valor")
+        - somaSe(R, (l) => l.origemTipo === "INVESTIMENTO" && l.origemId === i.id, "valor"), i.saldo);
+    add("Investimento", `Principal + rendimento = saldo: ${i.nome}`, i.saldo, i.principal + i.rendNoSaldo);
+  }
+  for (const m of metas) add("Meta", `Reservas − retiradas = acumulado: ${m.nome}`,
+    sum(v.dRaw.movMetas.filter((x) => x.metaId === m.id), (x) => (SINAL_MOV[x.tipo] || 0) * x.valor),
+    m.reservado);
+  for (const c of compromissos) add("Compromisso", `Pago + devedor = total: ${c.nome}`,
+    c.valorTotal, c.valorPago + c.devedor);
+
+  add("Integridade", "Transferência não vira receita", 0, sum(L.filter((l) => l.tipo === "TRANSFERENCIA"), (l) => l.vRec));
+  add("Integridade", "Transferência não vira despesa", 0, sum(L.filter((l) => l.tipo === "TRANSFERENCIA"), (l) => l.vDesp));
+  add("Integridade", "Aporte não é despesa", 0, sum(L.filter((l) => l.tipo === "APORTE"), (l) => l.vDesp));
+  add("Integridade", "Resgate não é receita", 0, sum(L.filter((l) => l.tipo === "RESGATE"), (l) => l.vRec));
+  add("Integridade", "Pagamento de fatura não é despesa", 0, sum(L.filter((l) => l.tipo === "PAGAMENTO_CARTAO"), (l) => l.vDesp));
+  add("Integridade", "Compra no cartão é integralmente despesa",
+    sum(L.filter((l) => l.tipo === "COMPRA_CARTAO"), (l) => l.valor),
+    sum(L.filter((l) => l.tipo === "COMPRA_CARTAO"), (l) => l.vDesp));
+  add("Integridade", "Rendimento é integralmente receita financeira",
+    sum(L.filter((l) => l.tipo === "RENDIMENTO"), (l) => l.valor),
+    sum(L.filter((l) => l.tipo === "RENDIMENTO"), (l) => l.vRend));
+  add("Integridade", "Transferência entre contas fica fora do fluxo de caixa", 0,
+    sum(L.filter((l) => l.origemTipo === "CONTA" && l.destinoTipo === "CONTA"),
+      (l) => l.entradaCaixa + l.saidaCaixa));
+  add("Realizado x projetado", "Saldo das contas usa apenas lançamentos realizados",
+    sum(contas, (c) => c.saldoInicial) + sum(R, (l) => l.efConta), sum(contas, (c) => c.saldo));
+  add("Realizado x projetado", "Saldo projetado = realizado + projetados",
+    sum(contas, (c) => c.saldo) + sum(P, (l) => l.efConta), sum(contas, (c) => c.projetado));
+  add("Realizado x projetado", "Todo lançamento tem status válido", sum(L, (l) => l.valor),
+    sum(L.filter((l) => STATUS_LANC.includes(l.status)), (l) => l.valor));
+  add("Patrimônio", "Ativos − passivos = patrimônio líquido total",
+    patrimonio.ativos - patrimonio.passivos, patrimonio.plTotal);
+  add("Patrimônio", "Patrimônio financeiro = total − bens",
+    patrimonio.plTotal - patrimonio.bens, patrimonio.plFin);
+  add("Metas", "Reserva de meta não altera o saldo físico da conta",
+    sum(contas, (c) => c.saldoInicial) + sum(R, (l) => l.efConta), sum(contas, (c) => c.saldo));
+  add("Metas", "Disponível = saldo − reservado",
+    sum(contas, (c) => c.saldo) - sum(contas, (c) => c.reservado), sum(contas, (c) => c.disponivel));
+  add("Metas", "Meta cancelada ou concluída fica com reserva zerada", 0,
+    sum(metas.filter((m) => m.status === "Cancelada" || m.status === "Concluída"), (m) => m.reservado));
+  add("Parcelas", "Soma dos status = total de parcelas", parcelas.length,
+    parcelas.filter((p) => ["PAGA", "ABERTA", "ATRASADA", "PROJETADA", "CANCELADA"]
+      .includes(p.status)).length, "qtd");
+  add("Parcelas", "Nenhuma parcela com mais de um pagamento realizado", 0,
+    parcelas.filter((p) => p.qtdReal > 1).length, "qtd");
+  add("Parcelas", "Nenhuma parcela paga mantém lançamento projetado", 0,
+    parcelas.filter((p) => p.qtdReal > 0 && p.qtdProj > 0).length, "qtd");
+  add("Duplicidade", "Nenhum ID de lançamento repetido", L.length, new Set(L.map((l) => l.id)).size, "qtd");
+  add("Duplicidade", "Nenhum ID de parcela repetido", parcelas.length,
+    new Set(parcelas.map((p) => p.id)).size, "qtd");
+  add("Duplicidade", "Nenhum lançamento com erro de validação", 0,
+    L.filter((l) => l.validacao !== "OK").length, "qtd");
+  if (fluxo.length) {
+    add("Fluxo de caixa", "Saldo final da grade = saldo projetado das contas",
+      sum(contas, (c) => c.projetado), fluxo[fluxo.length - 1].saldoFim);
+    add("Fluxo de caixa", "Entradas realizadas da grade = entradas dos lançamentos",
+      sum(R.filter((l) => l.data >= fluxo[0].ini), (l) => l.entradaCaixa),
+      sum(fluxo, (f) => f.entR));
+  }
+  if (projecao.length) add("Projeção", "Último mês projetado = saldo projetado das contas",
+    sum(contas, (c) => c.projetado), projecao[projecao.length - 1].saldo);
+  return t;
+};
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  COMPONENTES E GRAFICOS                                               */
+/* ==================================================================== */
+const SERIES = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)"];
+
+const UI = {
+  card(titulo, corpo, extra = "", flush = false) {
+    return `<section class="card">${titulo ? `<div class="card-h"><h3>${esc(titulo)}</h3><div class="sp"></div>${extra}</div>` : ""}<div class="card-b${flush ? " flush" : ""}">${corpo}</div></section>`;
+  },
+  kpi(label, valor, sub = "", mod = "") {
+    return `<div class="kpi ${mod}"><div class="k-l">${esc(label)}</div>
+      <div class="k-v">${esc(valor)}</div>${sub ? `<div class="k-s">${sub}</div>` : ""}</div>`;
+  },
+  vazio(titulo, msg, botao = "") {
+    return `<div class="empty"><strong>${esc(titulo)}</strong>${esc(msg)}${botao ? `<div style="margin-top:12px">${botao}</div>` : ""}</div>`;
+  },
+  tabela(cols, linhas, opts = {}) {
+    if (!linhas.length) return UI.vazio(opts.vazioTitulo || "Nada por aqui ainda",
+      opts.vazioMsg || "Cadastre o primeiro registro para começar.", opts.vazioBotao || "");
+    const th = cols.map((c) => `<th class="${c.num ? "num" : ""}">${esc(c.t)}</th>`).join("");
+    const tr = linhas.map((l) => `<tr${l._attr || ""}>` + cols.map((c) => {
+      const v = c.f(l);
+      return `<td class="${c.num ? "num" : ""}${c.cls ? " " + c.cls(l) : ""}">${v}</td>`;
+    }).join("") + "</tr>").join("");
+    const tf = opts.rodape ? `<tfoot class="tfoot"><tr>` + cols.map((c) =>
+      `<td class="${c.num ? "num" : ""}">${opts.rodape[c.k] ?? ""}</td>`).join("") + "</tr></tfoot>" : "";
+    return `<div class="tbl-wrap"><table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody>${tf}</table></div>`;
+  },
+  tag(texto, nivel) { return `<span class="tag t-${nivel}"><i class="dot"></i>${esc(texto)}</span>`; },
+  tagStatus(s) {
+    const m = { REALIZADO: "bom", PROJETADO: "aviso", CANCELADO: "neutro", PAGA: "bom",
+      ABERTA: "aviso", ATRASADA: "grave", PROJETADA: "neutro", CANCELADA: "neutro",
+      Ativo: "bom", Ativa: "bom", Inativo: "neutro", Encerrado: "neutro",
+      "Concluída": "acc", Cancelada: "neutro", Pausada: "neutro",
+      "EM DIA": "bom", "EM RISCO": "aviso", "PRAZO VENCIDO": "grave",
+      "OBJETIVO ATINGIDO": "acc", "CONCLUÍDA": "acc", CANCELADA: "neutro" };
+    return UI.tag(s, m[s] || "neutro");
+  },
+  moeda(n, opts = {}) {
+    const cls = n < 0 ? "neg" : (opts.positivo && n > 0 ? "pos" : "");
+    return `<span class="${cls}">${esc(Fmt.gs(n, opts.sinal))}</span>`;
+  },
+  progresso(pct) {
+    return `<div class="bar" title="${Fmt.pct(pct)}"><i style="width:${clamp(pct * 100, 0, 100).toFixed(1)}%"></i></div>`;
+  },
+  opcoes(lista, sel, vazio) {
+    const o = lista.map((x) => {
+      const v = typeof x === "string" ? x : x.v, t = typeof x === "string" ? x : x.t;
+      return `<option value="${esc(v)}"${String(v) === String(sel) ? " selected" : ""}>${esc(t)}</option>`;
+    }).join("");
+    return (vazio ? `<option value=""${!sel ? " selected" : ""}>${esc(vazio)}</option>` : "") + o;
+  },
+  campo(label, inner, full) {
+    return `<div class="field${full ? " full" : ""}"><label>${esc(label)}</label>${inner}</div>`;
+  },
+  sel(nome, label, lista, sel, opts = {}) {
+    return UI.campo(label, `<select class="inp" name="${nome}"${opts.attr || ""}>${UI.opcoes(lista, sel, opts.vazio)}</select>`, opts.full);
+  },
+  txt(nome, label, valor, opts = {}) {
+    return UI.campo(label, `<input class="inp" name="${nome}" type="${opts.tipo || "text"}" value="${esc(valor ?? "")}"${opts.attr || ""}>`, opts.full);
+  },
+  legenda(itens) {
+    return `<div class="lgd">` + itens.map((i, n) =>
+      `<span><i style="background:${i.cor || SERIES[n % 6]}"></i>${esc(i.nome)}</span>`).join("") + `</div>`;
+  },
+};
+
+/* ------------------------------------------------------------ graficos */
+const Chart = {
+  /** barras verticais agrupadas; series = [{nome, cor, val(d)}] */
+  barras(dados, series, opts = {}) {
+    if (!dados.length) return UI.vazio("Sem dados no período", "Registre lançamentos para ver o gráfico.");
+    const W = 720, H = opts.altura || 260, PL = 62, PR = 10, PT = 14, PB = 26;
+    const vals = dados.flatMap((d) => series.map((s) => s.val(d)));
+    const max = Math.max(1, ...vals), min = Math.min(0, ...vals), span = max - min || 1;
+    const iw = W - PL - PR, ih = H - PT - PB;
+    const bw = iw / dados.length, gw = bw * 0.68, sw = gw / series.length;
+    const y = (v) => PT + ih - ((v - min) / span) * ih;
+    const passo = Math.max(1, Math.ceil(dados.length / 14));
+    let g = "";
+    for (const t of new Set([min, min + span / 2, max].map((x) => Math.round(x))))
+      g += `<line x1="${PL}" x2="${W - PR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>
+        <text x="${PL - 8}" y="${(y(t) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="var(--ink-3)">${esc(Fmt.gsCurto(t))}</text>`;
+    let b = "";
+    dados.forEach((d, i) => {
+      series.forEach((s, j) => {
+        const v = s.val(d), x = PL + i * bw + (bw - gw) / 2 + j * sw;
+        const y0 = y(Math.max(0, v)), y1 = y(Math.min(0, v));
+        const h = Math.max(Math.abs(y1 - y0), v ? 2 : 0);
+        if (!h) return;
+        b += `<rect x="${(x + 1).toFixed(1)}" y="${y0.toFixed(1)}" width="${Math.max(2, sw - 2).toFixed(1)}"
+          height="${h.toFixed(1)}" rx="2" fill="${s.cor || SERIES[j % 6]}"><title>${esc(opts.rot(d))} · ${esc(s.nome)}: ${esc(Fmt.gs(Math.abs(v)))}</title></rect>`;
+      });
+      if (i % passo === 0)
+        b += `<text x="${(PL + i * bw + bw / 2).toFixed(1)}" y="${H - 8}" font-size="11"
+          text-anchor="middle" fill="var(--ink-3)">${esc(opts.rot(d))}</text>`;
+    });
+    return `${UI.legenda(series)}<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"
+      role="img" aria-label="${esc(opts.aria || "gráfico de barras")}">${g}
+      <line x1="${PL}" x2="${W - PR}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}" stroke="var(--line-2)" stroke-width="1.5"/>
+      ${b}</svg>`;
+  },
+
+  /** area + linha com destaque no ultimo ponto */
+  area(dados, valor, opts = {}) {
+    if (dados.length < 2) return UI.vazio("Sem dados suficientes", "São necessários ao menos dois períodos.");
+    const W = 720, H = opts.altura || 240, PL = 62, PR = 14, PT = 14, PB = 26;
+    const vs = dados.map(valor);
+    const max = Math.max(...vs, 0), min = Math.min(...vs, 0), span = (max - min) || 1;
+    const iw = W - PL - PR, ih = H - PT - PB;
+    const X = (i) => PL + (i / (dados.length - 1)) * iw;
+    const Y = (v) => PT + ih - ((v - min) / span) * ih;
+    const pts = vs.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+    const base = Y(Math.max(0, min)).toFixed(1);
+    const passo = Math.max(1, Math.ceil(dados.length / 12));
+    let g = "";
+    for (const t of new Set([min, min + span / 2, max].map((x) => Math.round(x))))
+      g += `<line x1="${PL}" x2="${W - PR}" y1="${Y(t).toFixed(1)}" y2="${Y(t).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>
+        <text x="${PL - 8}" y="${(Y(t) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="var(--ink-3)">${esc(Fmt.gsCurto(t))}</text>`;
+    let marks = "";
+    dados.forEach((d, i) => {
+      const ultimo = i === dados.length - 1;
+      marks += `<circle cx="${X(i).toFixed(1)}" cy="${Y(vs[i]).toFixed(1)}" r="${ultimo ? 5 : 3.2}"
+        fill="${ultimo ? "var(--accent)" : "var(--surface)"}" stroke="var(--accent)" stroke-width="2">
+        <title>${esc(opts.rot(d))}: ${esc(Fmt.gs(vs[i]))}</title></circle>`;
+      if (i % passo === 0 || ultimo)
+        marks += `<text x="${X(i).toFixed(1)}" y="${H - 8}" font-size="11" text-anchor="middle" fill="var(--ink-3)">${esc(opts.rot(d))}</text>`;
+    });
+    const zero = min < 0 ? `<line x1="${PL}" x2="${W - PR}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}"
+      stroke="var(--grave)" stroke-width="1.5" stroke-dasharray="5 4"/>` : "";
+    const ult = `<text x="${(W - PR).toFixed(1)}" y="${(Y(vs[vs.length - 1]) - 10).toFixed(1)}" font-size="12"
+      font-weight="700" text-anchor="end" fill="var(--accent)">${esc(Fmt.gsCurto(vs[vs.length - 1]))}</text>`;
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img"
+      aria-label="${esc(opts.aria || "evolução")}">${g}${zero}
+      <polygon points="${PL},${base} ${pts} ${X(dados.length - 1).toFixed(1)},${base}" fill="var(--accent)" opacity=".12"/>
+      <polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${marks}${ult}</svg>`;
+  },
+
+  /** barras horizontais com rotulo direto - ideal para ranking de categorias */
+  ranking(itens, opts = {}) {
+    if (!itens.length) return UI.vazio("Sem gastos no período", "Nada foi classificado neste período.");
+    const max = Math.max(...itens.map((i) => Math.abs(i.valor))) || 1;
+    return `<div class="list-lines">` + itens.slice(0, opts.limite || 8).map((i, n) => `
+      <div class="line-item">
+        <span class="dot" style="background:${SERIES[n % 6]};width:9px;height:9px;border-radius:2px"></span>
+        <div class="li-m"><b>${esc(i.nome)}</b>
+          <div class="bar" style="margin-top:4px"><i style="width:${(Math.abs(i.valor) / max * 100).toFixed(1)}%;background:${SERIES[n % 6]}"></i></div>
+        </div>
+        <span class="mono" style="font-size:12.5px;font-weight:600">${esc(Fmt.gs(i.valor))}</span>
+      </div>`).join("") + `</div>`;
+  },
+};
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  TELAS                                                                */
+/* ==================================================================== */
+const btnNovo = (tipo, rot) => `<button class="btn btn-pri btn-sm" data-act="novo" data-tipo="${tipo}">+ ${esc(rot)}</button>`;
+const acoes = (tipo, id) => `<button class="btn btn-sm" data-act="editar" data-tipo="${tipo}" data-id="${esc(id)}">Editar</button>
+  <button class="btn btn-sm btn-danger" data-act="excluir" data-tipo="${tipo}" data-id="${esc(id)}">Excluir</button>`;
+
+const Views = {};
+
+/* ------------------------------------------------------------- painel */
+Views.painel = (v) => {
+  const i = v.indicadores, p = v.patrimonio;
+  const graves = v.alertas.filter((a) => a.nivel === "grave").length;
+  const fluxo12 = v.fluxo.filter((f) => f.compet >= Dt.compet(Dt.addMeses(v.hoje, -6))
+    && f.compet <= Dt.compet(Dt.addMeses(v.hoje, 5)));
+  const kpis = [
+    UI.kpi("Saldo total das contas", Fmt.gs(p.contas), `${v.contas.length} conta(s)`, "lead"),
+    UI.kpi("Disponível (não reservado)", Fmt.gs(p.livre), `${Fmt.gs(p.reservado)} reservado em metas`),
+    UI.kpi("Total investido", Fmt.gs(p.investimentos), `${Fmt.gs(sum(v.investimentos, (x) => x.rendimento))} de rendimento realizado`),
+    UI.kpi("Patrimônio líquido", Fmt.gs(p.plTotal), `Financeiro: ${Fmt.gs(p.plFin)}`, p.plTotal >= 0 ? "good" : "bad"),
+    UI.kpi("Dívida de cartões", Fmt.gs(p.cartoes), `${Fmt.gs(sum(v.cartoes, (k) => k.disponivel))} de limite livre`),
+    UI.kpi("Devedor de compromissos", Fmt.gs(p.compromissos), `${v.parcelas.filter((x) => x.status !== "PAGA").length} parcela(s) a vencer`),
+    UI.kpi("Resultado do mês", Fmt.gs(i.resultadoMes), `${Fmt.gs(i.recMes + i.rendMes)} entrou · ${Fmt.gs(i.despMes)} saiu`,
+      i.resultadoMes >= 0 ? "good" : "bad"),
+    UI.kpi("Menor saldo projetado", Fmt.gs(i.menorProj?.saldo ?? 0),
+      i.menorProj ? "em " + Fmt.compet(i.menorProj.compet) : "", (i.menorProj?.saldo ?? 0) < 0 ? "bad" : ""),
+  ].join("");
+  const alertaTopo = graves
+    ? `<div class="aviso-box e"><b>${graves} alerta(s) exigem atenção.</b>
+        ${esc(v.alertas.filter((a) => a.nivel === "grave").slice(0, 2).map((a) => a.titulo).join(" · "))}
+        <button class="btn btn-sm" style="margin-left:8px" data-act="ir" data-rota="alertas">Ver alertas</button></div>` : "";
+  return `<div class="page-head"><div><h1>Painel</h1>
+      <p>Posição em ${Fmt.data(v.hoje)}. Valores realizados, salvo onde estiver escrito projetado.</p></div></div>
+    ${alertaTopo}
+    <div class="grid g4">${kpis}</div>
+    <div class="split">
+      ${UI.card("Entradas e saídas por mês", Chart.barras(fluxo12, [
+        { nome: "Entradas", val: (f) => f.entR + f.entP, cor: "var(--s2)" },
+        { nome: "Saídas", val: (f) => -(f.saiR + f.saiP), cor: "var(--s4)" },
+      ], { rot: (f) => MESES_C[Number(String(f.compet).slice(4)) - 1], aria: "entradas e saídas por mês" }),
+        `<span class="hint">realizado + projetado</span>`)}
+      ${UI.card("Onde o dinheiro foi neste mês", Chart.ranking(i.catMes, { limite: 7 }),
+        `<span class="hint">${Fmt.mesAno(v.hoje)}</span>`)}
+    </div>
+    <div class="split">
+      ${UI.card("Saldo projetado", Chart.area(v.projecao.slice(0, 15), (p) => p.saldo,
+        { rot: (p) => MESES_C[Number(String(p.compet).slice(4)) - 1], aria: "saldo projetado" }),
+        `<span class="hint">próximos 15 meses</span>`)}
+      ${UI.card("Contas", UI.tabela([
+        { t: "Conta", f: (c) => `<b>${esc(c.nome)}</b><br><span class="hint">${esc(c.tipo)}</span>` },
+        { t: "Saldo", num: true, f: (c) => UI.moeda(c.saldo) },
+        { t: "Disponível", num: true, f: (c) => UI.moeda(c.disponivel) },
+      ], v.contas, { vazioTitulo: "Nenhuma conta cadastrada", vazioMsg: "Comece cadastrando onde seu dinheiro está.",
+        vazioBotao: `<button class="btn btn-pri" data-act="ir" data-rota="contas">Cadastrar conta</button>` }), "", true)}
+    </div>
+    <div class="split">
+      ${UI.card("Metas", v.metas.length ? `<div class="list-lines">` + v.metas.map((m) => `
+        <div class="line-item"><div class="li-m"><b>${esc(m.nome)}</b>
+          <span>${esc(Fmt.gs(m.reservado))} de ${esc(Fmt.gs(m.objetivo))} · ${esc(Fmt.pct(m.pct))}</span>
+          <div style="margin-top:5px">${UI.progresso(m.pct)}</div></div>
+          ${UI.tagStatus(m.situacao)}</div>`).join("") + `</div>`
+        : UI.vazio("Nenhuma meta", "Crie uma meta para reservar dinheiro sem tirá-lo da conta."), "", false)}
+      ${UI.card("Próximos compromissos", UI.tabela([
+        { t: "Compromisso", f: (c) => `<b>${esc(c.nome)}</b><br><span class="hint">parcela ${esc(c.atual)}</span>` },
+        { t: "Vence", f: (c) => esc(Fmt.data(c.proximoVencimento)) },
+        { t: "Devedor", num: true, f: (c) => UI.moeda(c.devedor) },
+      ], v.compromissos.filter((c) => c.restantes > 0),
+        { vazioTitulo: "Nenhum parcelamento", vazioMsg: "Cadastre financiamentos e compras parceladas." }), "", true)}
+    </div>`;
+};
+
+/* -------------------------------------------------------- lancamentos */
+Views.lancamentos = (v) => {
+  const f = App.filtros;
+  const lista = App.lancamentosFiltrados(v);
+  const tot = { rec: sum(lista, (l) => l.vRec), desp: sum(lista, (l) => l.vDesp),
+    rend: sum(lista, (l) => l.vRend), ent: sum(lista, (l) => l.entradaCaixa),
+    sai: sum(lista, (l) => l.saidaCaixa) };
+  const optConta = [...v.contas.map((c) => ({ v: c.id, t: c.nome })),
+    ...v.cartoes.map((c) => ({ v: c.id, t: c.nome })), ...v.investimentos.map((c) => ({ v: c.id, t: c.nome }))];
+  const filtros = `<div class="row" style="gap:8px">
+    <input class="inp" style="width:190px" placeholder="Buscar descrição…" name="q" value="${esc(f.q)}" data-filtro="q">
+    <select class="inp" style="width:140px" data-filtro="status">${UI.opcoes(STATUS_LANC, f.status, "Todos os status")}</select>
+    <select class="inp" style="width:165px" data-filtro="tipo">${UI.opcoes(TIPOS_OP.map((t) => ({ v: t, t: ROTULO_OP[t] })), f.tipo, "Todos os tipos")}</select>
+    <select class="inp" style="width:165px" data-filtro="entidade">${UI.opcoes(optConta, f.entidade, "Conta/cartão: todos")}</select>
+    <select class="inp" style="width:160px" data-filtro="categoria">${UI.opcoes(v.dRaw.categorias.map((c) => ({ v: c.id, t: c.nome })), f.categoria, "Todas as categorias")}</select>
+    <input class="inp" style="width:135px" type="month" data-filtro="mes" value="${esc(f.mes)}">
+    <button class="btn btn-sm" data-act="limpar-filtros">Limpar</button></div>`;
+  return `<div class="page-head"><div><h1>Lançamentos</h1>
+      <p>O livro único do sistema. Toda operação tem uma origem e um destino — é daí que saem todos os cálculos.</p></div>
+    <div class="sp" style="flex:1"></div>${btnNovo("lancamento", "Novo lançamento")}</div>
+    <div class="grid g4">
+      ${UI.kpi("Receitas", Fmt.gs(tot.rec), "no filtro atual")}
+      ${UI.kpi("Despesas", Fmt.gs(tot.desp), "no filtro atual")}
+      ${UI.kpi("Entradas de caixa", Fmt.gs(tot.ent), "")}
+      ${UI.kpi("Saídas de caixa", Fmt.gs(tot.sai), "")}
+    </div>
+    ${UI.card("", UI.tabela([
+      { t: "Data", f: (l) => `<span class="mono">${esc(Fmt.data(l.data))}</span>` },
+      { t: "Descrição", f: (l) => `<b>${esc(l.descricao)}</b>
+          ${l.validacao !== "OK" ? `<br><span class="tag t-grave">${esc(l.validacao)}</span>` : ""}
+          ${l.vinculos.length ? `<br><span class="hint">vinculado: ${esc(l.vinculos.join(" · "))}</span>` : ""}` },
+      { t: "Tipo", f: (l) => esc(ROTULO_OP[l.tipo] || l.tipo) },
+      { t: "De → Para", f: (l) => `<span class="hint">${esc(l.origemNome)} → ${esc(l.destinoNome)}</span>` },
+      { t: "Categoria", f: (l) => esc(l.categoriaNome ? l.categoriaNome + (l.subcategoriaNome ? " · " + l.subcategoriaNome : "") : "—") },
+      { t: "Status", f: (l) => UI.tagStatus(l.status) },
+      { t: "Valor", num: true, f: (l) => UI.moeda(l.classificacao === "DESPESA" ? -l.valor : l.valor) },
+      { t: "", f: (l) => `<div class="row" style="gap:4px;flex-wrap:nowrap">
+          ${l.status === "PROJETADO" ? `<button class="btn btn-sm" data-act="realizar" data-id="${esc(l.id)}">Realizar</button>` : ""}
+          ${l.status !== "CANCELADO" ? `<button class="btn btn-sm" data-act="cancelar-lanc" data-id="${esc(l.id)}">Cancelar</button>`
+            : `<button class="btn btn-sm" data-act="reativar" data-id="${esc(l.id)}">Reativar</button>`}
+          ${acoes("lancamento", l.id)}</div>` },
+    ], lista.slice(0, 400), { vazioTitulo: "Nenhum lançamento", vazioMsg: "Registre a primeira operação.",
+      vazioBotao: btnNovo("lancamento", "Novo lançamento") }), filtros, true)}
+    ${lista.length > 400 ? `<p class="hint">Mostrando os 400 primeiros de ${lista.length}. Use os filtros para reduzir.</p>` : ""}`;
+};
+
+/* ------------------------------------------------------------- contas */
+Views.contas = (v) => `
+  <div class="page-head"><div><h1>Contas</h1>
+    <p>Contas bancárias e dinheiro em espécie. O saldo é sempre saldo inicial mais entradas menos saídas realizadas.</p></div>
+  <div style="flex:1"></div>${btnNovo("conta", "Nova conta")}</div>
+  <div class="grid g4">
+    ${UI.kpi("Saldo total", Fmt.gs(sum(v.contas, (c) => c.saldo)))}
+    ${UI.kpi("Reservado em metas", Fmt.gs(sum(v.contas, (c) => c.reservado)))}
+    ${UI.kpi("Disponível", Fmt.gs(sum(v.contas, (c) => c.disponivel)))}
+    ${UI.kpi("Projetado", Fmt.gs(sum(v.contas, (c) => c.projetado)), "com lançamentos futuros")}
+  </div>
+  ${UI.card("", UI.tabela([
+    { t: "Conta", f: (c) => `<b>${esc(c.nome)}</b><br><span class="hint">${esc(c.instituicaoNome || "—")} · ${esc(c.tipo)}</span>` },
+    { t: "Saldo inicial", num: true, f: (c) => UI.moeda(c.saldoInicial) },
+    { t: "Entradas", num: true, f: (c) => UI.moeda(c.entradas) },
+    { t: "Saídas", num: true, f: (c) => UI.moeda(-c.saidas) },
+    { t: "Saldo", num: true, f: (c) => `<b>${UI.moeda(c.saldo)}</b>` },
+    { t: "Reservado", num: true, f: (c) => UI.moeda(c.reservado) },
+    { t: "Disponível", num: true, f: (c) => UI.moeda(c.disponivel) },
+    { t: "Projetado", num: true, f: (c) => UI.moeda(c.projetado) },
+    { t: "Status", f: (c) => UI.tagStatus(c.status) },
+    { t: "", f: (c) => acoes("conta", c.id) },
+  ], v.contas, { vazioTitulo: "Nenhuma conta", vazioMsg: "Cadastre onde seu dinheiro fica guardado.",
+    vazioBotao: btnNovo("conta", "Nova conta") }), "", true)}`;
+
+/* ------------------------------------------------------------ cartoes */
+Views.cartoes = (v) => `
+  <div class="page-head"><div><h1>Cartões de crédito</h1>
+    <p>A compra no cartão já é a despesa. O pagamento da fatura só tira dinheiro da conta e abate a dívida — nunca gera uma segunda despesa.</p></div>
+  <div style="flex:1"></div>${btnNovo("cartao", "Novo cartão")}</div>
+  <div class="grid g4">
+    ${UI.kpi("Dívida total", Fmt.gs(sum(v.cartoes, (k) => k.divida)))}
+    ${UI.kpi("Limite disponível", Fmt.gs(sum(v.cartoes, (k) => k.disponivel)))}
+    ${UI.kpi("Fatura do ciclo aberto", Fmt.gs(sum(v.cartoes, (k) => k.fatura)))}
+    ${UI.kpi("Comprometimento futuro", Fmt.gs(sum(v.cartoes, (k) => k.comprometimento)), "dívida + compras já lançadas")}
+  </div>
+  ${UI.card("", UI.tabela([
+    { t: "Cartão", f: (k) => `<b>${esc(k.nome)}</b><br><span class="hint">${esc(k.instituicaoNome || "—")} · fecha dia ${k.diaFechamento}, vence dia ${k.diaVencimento}</span>` },
+    { t: "Limite", num: true, f: (k) => UI.moeda(k.limite) },
+    { t: "Dívida", num: true, f: (k) => `<b>${UI.moeda(k.divida)}</b>` },
+    { t: "Uso", num: true, f: (k) => `${Fmt.pct(k.pctLimite)}<div style="margin-top:3px">${UI.progresso(k.pctLimite)}</div>` },
+    { t: "Disponível", num: true, f: (k) => UI.moeda(k.disponivel) },
+    { t: "Ciclo aberto", f: (k) => `<span class="hint">${esc(Fmt.data(k.inicioCiclo))} a ${esc(Fmt.data(k.fechamento))}</span>` },
+    { t: "Fatura", num: true, f: (k) => UI.moeda(k.fatura) },
+    { t: "Vence em", f: (k) => `${esc(Fmt.data(k.vencimento))}<br><span class="hint">${k.diasParaVencer} dia(s)</span>` },
+    { t: "", f: (k) => acoes("cartao", k.id) },
+  ], v.cartoes, { vazioTitulo: "Nenhum cartão", vazioMsg: "Cadastre seus cartões para controlar faturas e limite.",
+    vazioBotao: btnNovo("cartao", "Novo cartão") }), "", true)}`;
+
+/* ------------------------------------------------------ investimentos */
+Views.investimentos = (v) => `
+  <div class="page-head"><div><h1>Investimentos</h1>
+    <p>Cada investimento é um caixa separado. Aporte e resgate movem dinheiro sem virar despesa nem receita; só o rendimento é receita financeira.</p></div>
+  <div style="flex:1"></div>${btnNovo("investimento", "Novo investimento")}</div>
+  <div class="grid g4">
+    ${UI.kpi("Total investido", Fmt.gs(sum(v.investimentos, (i) => i.saldo)))}
+    ${UI.kpi("Principal", Fmt.gs(sum(v.investimentos, (i) => i.principal)))}
+    ${UI.kpi("Rendimento realizado", Fmt.gs(sum(v.investimentos, (i) => i.rendimento)), "já creditado", "good")}
+    ${UI.kpi("Rendimento projetado", Fmt.gs(sum(v.investimentos, (i) => i.rendProjetado)), "estimativa, nunca somada ao realizado")}
+  </div>
+  ${UI.card("", UI.tabela([
+    { t: "Investimento", f: (i) => `<b>${esc(i.nome)}</b><br><span class="hint">${esc(i.instituicaoNome || "—")} · ${esc(i.tipo)}</span>` },
+    { t: "Saldo", num: true, f: (i) => `<b>${UI.moeda(i.saldo)}</b>` },
+    { t: "Principal", num: true, f: (i) => UI.moeda(i.principal) },
+    { t: "Rend. no saldo", num: true, f: (i) => UI.moeda(i.rendNoSaldo) },
+    { t: "Rend. realizado", num: true, f: (i) => UI.moeda(i.rendimento) },
+    { t: "Rend. projetado", num: true, f: (i) => UI.moeda(i.rendProjetado) },
+    { t: "Taxa", num: true, f: (i) => `${Fmt.pct(i.taxa, 2)}<br><span class="hint">${esc(i.baseRendimento)}</span>` },
+    { t: "Vencimento", f: (i) => i.vencimento ? `${esc(Fmt.data(i.vencimento))}<br><span class="hint">${i.diasParaVencer} dia(s)</span>` : "<span class='hint'>sem prazo</span>" },
+    { t: "", f: (i) => `<button class="btn btn-sm" data-act="resgatar" data-id="${esc(i.id)}">Resgatar</button>${acoes("investimento", i.id)}` },
+  ], v.investimentos, { vazioTitulo: "Nenhum investimento", vazioMsg: "Cadastre fondos mutuos, ahorro a plazo e outros.",
+    vazioBotao: btnNovo("investimento", "Novo investimento") }), "", true)}`;
+</script>
+<script>
+"use strict";
+/* ------------------------------------------------------ compromissos */
+Views.compromissos = (v) => {
+  const cor = { PAGA: "bom", ABERTA: "aviso", ATRASADA: "grave", PROJETADA: "neutro", CANCELADA: "neutro" };
+  const blocos = v.compromissos.map((c) => {
+    const aberto = App.abertos.has(c.id);
+    const linhas = aberto ? UI.tabela([
+      { t: "Parcela", f: (p) => `<b class="mono">${esc(p.rotulo)}</b>` },
+      { t: "Vencimento", f: (p) => esc(Fmt.data(p.vencimento)) },
+      { t: "Valor", num: true, f: (p) => UI.moeda(p.valor) },
+      { t: "Status", f: (p) => UI.tag(p.status, cor[p.status] || "neutro") },
+      { t: "Pago em", f: (p) => p.dataPagamento ? esc(Fmt.data(p.dataPagamento))
+        : (p.pagoAntes === "SIM" ? "<span class='hint'>antes do sistema</span>" : "—") },
+      { t: "Atraso", num: true, f: (p) => p.diasAtraso ? `<span class="neg">${p.diasAtraso} dia(s)</span>` : "—" },
+      { t: "", f: (p) => p.status === "PAGA" ? "" :
+        `<button class="btn btn-sm btn-pri" data-act="pagar-parcela" data-id="${esc(p.id)}">Registrar pagamento</button>` },
+    ], c.parcelas) : "";
+    return `<section class="card">
+      <div class="card-h">
+        <h3>${esc(c.nome)}</h3>
+        ${UI.tag("parcela " + c.atual, "acc")}
+        ${c.atrasadas ? UI.tag(c.atrasadas + " atrasada(s)", "grave") : ""}
+        <div class="sp"></div>
+        <span class="hint">${esc(c.categoriaNome)} · paga em ${esc(c.entidadeNome)}</span>
+        <button class="btn btn-sm" data-act="toggle" data-id="${esc(c.id)}">${aberto ? "Ocultar" : "Ver"} cronograma</button>
+        ${acoes("compromisso", c.id)}
+      </div>
+      <div class="card-b">
+        <div class="grid g4">
+          ${UI.kpi("Valor total", Fmt.gs(c.valorTotal), `${c.qtd} parcelas de ${Fmt.gs(c.valorParcela)}`)}
+          ${UI.kpi("Já pago", Fmt.gs(c.valorPago), `${c.pagas} de ${c.qtd} parcelas`, "good")}
+          ${UI.kpi("Saldo devedor", Fmt.gs(c.devedor), `${c.restantes} parcela(s) restante(s)`)}
+          ${UI.kpi("Próximo vencimento", c.proximoVencimento ? Fmt.data(c.proximoVencimento) : "—",
+            c.proximoVencimento ? Dt.diffDias(c.proximoVencimento, v.hoje) + " dia(s)" : "quitado")}
+        </div>
+        <div style="margin-top:12px">${UI.progresso(c.qtd ? c.pagas / c.qtd : 0)}</div>
+      </div>
+      ${aberto ? `<div class="card-b flush" style="border-top:1px solid var(--line)">${linhas}</div>` : ""}
+    </section>`;
+  }).join("");
+  return `<div class="page-head"><div><h1>Compromissos e parcelas</h1>
+      <p>Financiamentos e compras parceladas. Informe quantas parcelas já foram quitadas antes de começar a usar o sistema e o cronograma inteiro é gerado.</p></div>
+    <div style="flex:1"></div>${btnNovo("compromisso", "Novo compromisso")}</div>
+    ${v.compromissos.length ? blocos : UI.card("", UI.vazio("Nenhum compromisso",
+      "Cadastre um financiamento ou uma compra parcelada e o cronograma sai pronto.",
+      btnNovo("compromisso", "Novo compromisso")))}`;
+};
+
+/* -------------------------------------------------------------- metas */
+Views.metas = (v) => {
+  const movs = v.dRaw.movMetas.slice().sort((a, b) => b.data.localeCompare(a.data));
+  const nomeMeta = (id) => v.metas.find((m) => m.id === id)?.nome ?? id;
+  return `<div class="page-head"><div><h1>Metas</h1>
+      <p>A meta é uma reserva lógica: o dinheiro continua na conta, mas sai do saldo disponível. Nada aqui altera seu saldo bancário.</p></div>
+    <div style="flex:1"></div>${btnNovo("meta", "Nova meta")}</div>
+    <div class="grid g3">
+      ${UI.kpi("Metas ativas", String(v.metas.filter((m) => m.status === "Ativa").length))}
+      ${UI.kpi("Total reservado", Fmt.gs(sum(v.metas, (m) => m.reservado)))}
+      ${UI.kpi("Falta acumular", Fmt.gs(sum(v.metas.filter((m) => m.status === "Ativa"), (m) => m.faltante)))}
+    </div>
+    <div class="grid g2">${v.metas.map((m) => `
+      <section class="card"><div class="card-h"><h3>${esc(m.nome)}</h3><div class="sp"></div>${UI.tagStatus(m.situacao)}</div>
+        <div class="card-b">
+          <div class="row" style="justify-content:space-between;margin-bottom:6px">
+            <span class="mono" style="font-size:19px;font-weight:600">${esc(Fmt.gs(m.reservado))}</span>
+            <span class="hint">de ${esc(Fmt.gs(m.objetivo))} · ${esc(Fmt.pct(m.pct))}</span></div>
+          ${UI.progresso(m.pct)}
+          <div class="grid g3" style="margin-top:12px">
+            ${UI.kpi("Falta", Fmt.gs(m.faltante))}
+            ${UI.kpi("Prazo", m.prazo ? Fmt.data(m.prazo) : "—", m.mesesRestantes + " mês(es)")}
+            ${UI.kpi("Aporte mensal", Fmt.gs(m.aporteMensal), "para chegar no prazo")}
+          </div>
+          <p class="hint" style="margin-top:10px">Reserva na conta: ${esc(m.contaNome || "não vinculada")} ·
+            ${m.considerarFluxo === "SIM" ? "descontada" : "não descontada"} do fluxo projetado</p>
+          <div class="row" style="margin-top:12px">
+            <button class="btn btn-pri btn-sm" data-act="mov-meta" data-id="${esc(m.id)}" data-mov="RESERVA">Reservar</button>
+            <button class="btn btn-sm" data-act="mov-meta" data-id="${esc(m.id)}" data-mov="RETIRADA">Retirar</button>
+            <button class="btn btn-sm" data-act="mov-meta" data-id="${esc(m.id)}" data-mov="TRANSF_SAIDA">Transferir</button>
+            ${m.status === "Ativa" ? `<button class="btn btn-sm" data-act="concluir-meta" data-id="${esc(m.id)}">Concluir</button>
+              <button class="btn btn-sm btn-danger" data-act="cancelar-meta" data-id="${esc(m.id)}">Cancelar</button>` : ""}
+            ${acoes("meta", m.id)}
+          </div>
+        </div></section>`).join("") || UI.card("", UI.vazio("Nenhuma meta",
+          "Crie uma meta para separar dinheiro sem tirá-lo da conta.", btnNovo("meta", "Nova meta")))}
+    </div>
+    ${UI.card("Histórico de movimentações", UI.tabela([
+      { t: "Data", f: (m) => esc(Fmt.data(m.data)) },
+      { t: "Meta", f: (m) => esc(nomeMeta(m.metaId)) },
+      { t: "Movimento", f: (m) => UI.tag(m.tipo.replace(/_/g, " "), SINAL_MOV[m.tipo] > 0 ? "bom" : "aviso") },
+      { t: "Valor", num: true, f: (m) => UI.moeda((SINAL_MOV[m.tipo] || 0) * m.valor, { sinal: true, positivo: true }) },
+      { t: "Destino", f: (m) => esc(m.destino || (m.metaDestinoId ? nomeMeta(m.metaDestinoId) : "—")) },
+      { t: "Observação", f: (m) => `<span class="hint">${esc(m.obs || "")}</span>` },
+      { t: "", f: (m) => `<button class="btn btn-sm btn-danger" data-act="excluir" data-tipo="movMeta" data-id="${esc(m.id)}">Excluir</button>` },
+    ], movs, { vazioTitulo: "Sem movimentações", vazioMsg: "As reservas e retiradas aparecem aqui." }), "", true)}`;
+};
+
+/* ------------------------------------------------------- recorrencias */
+Views.recorrencias = (v) => `
+  <div class="page-head"><div><h1>Recorrências</h1>
+    <p>Regras que se repetem: salário, aluguel, assinaturas. Gere as ocorrências como lançamentos projetados e marque como realizado quando o dinheiro se mover.</p></div>
+  <div style="flex:1"></div>${btnNovo("recorrencia", "Nova recorrência")}</div>
+  ${UI.card("", UI.tabela([
+    { t: "Descrição", f: (r) => `<b>${esc(r.descricao)}</b><br><span class="hint">${esc(ROTULO_OP[r.tipo] || r.tipo)}</span>` },
+    { t: "Valor", num: true, f: (r) => UI.moeda(r.valor) },
+    { t: "Periodicidade", f: (r) => `${esc(r.periodicidade)}<br><span class="hint">dia ${r.dia}</span>` },
+    { t: "Início", f: (r) => esc(Fmt.data(r.inicio)) },
+    { t: "Ocorrências", num: true, f: (r) => String(r.ocorrencias) },
+    { t: "Já gerados", num: true, f: (r) => {
+      const g = v.L.filter((l) => l.recorrenciaId === r.id);
+      return `${g.length}<br><span class="hint">${g.filter((l) => l.status === "REALIZADO").length} realizados</span>`; } },
+    { t: "Status", f: (r) => UI.tagStatus(r.status) },
+    { t: "", f: (r) => `<button class="btn btn-sm btn-pri" data-act="gerar-rec" data-id="${esc(r.id)}">Gerar lançamentos</button>${acoes("recorrencia", r.id)}` },
+  ], v.dRaw.recorrencias, { vazioTitulo: "Nenhuma recorrência",
+    vazioMsg: "Cadastre o que se repete todo mês e deixe o sistema projetar.",
+    vazioBotao: btnNovo("recorrencia", "Nova recorrência") }), "", true)}`;
+
+/* ---------------------------------------------------------- catalogos */
+Views.categorias = (v) => {
+  const subs = groupBy(v.dRaw.subcategorias, (s) => s.categoriaId);
+  const gastoCat = new Map();
+  for (const l of v.L) if (l.vDesp) gastoCat.set(l.categoriaId, (gastoCat.get(l.categoriaId) || 0) + l.vDesp);
+  return `<div class="page-head"><div><h1>Categorias</h1>
+      <p>Como suas despesas e receitas são classificadas. As subcategorias aparecem automaticamente na tela de lançamento conforme a categoria escolhida.</p></div>
+    <div style="flex:1"></div>${btnNovo("subcategoria", "Nova subcategoria")}${btnNovo("categoria", "Nova categoria")}</div>
+    <div class="grid g2">${v.dRaw.categorias.map((c) => `
+      <section class="card"><div class="card-h"><h3>${esc(c.nome)}</h3>
+        ${UI.tag(c.tipoPadrao, c.tipoPadrao === "RECEITA" ? "bom" : c.tipoPadrao === "NEUTRO" ? "neutro" : "aviso")}
+        <div class="sp"></div><span class="mono hint">${esc(Fmt.gs(gastoCat.get(c.id) || 0))}</span>
+        ${acoes("categoria", c.id)}</div>
+        <div class="card-b"><div class="row" style="gap:6px">
+          ${(subs.get(c.id) || []).map((s) => `<span class="tag t-neutro">${esc(s.nome)}
+            <button class="btn btn-sm" style="padding:0 4px;border:0;background:none" data-act="excluir"
+              data-tipo="subcategoria" data-id="${esc(s.id)}" title="Excluir subcategoria">×</button></span>`).join("")
+            || `<span class="hint">Nenhuma subcategoria.</span>`}
+        </div></div></section>`).join("")}</div>`;
+};
+
+Views.instituicoes = (v) => `
+  <div class="page-head"><div><h1>Instituições</h1>
+    <p>Bancos, financeiras e emissores. Depois de cadastrados aparecem nas listas de contas, cartões e investimentos.</p></div>
+  <div style="flex:1"></div>${btnNovo("instituicao", "Nova instituição")}</div>
+  ${UI.card("", UI.tabela([
+    { t: "Nome", f: (i) => `<b>${esc(i.nome)}</b>` },
+    { t: "Tipo", f: (i) => esc(i.tipo || "—") },
+    { t: "Contas", num: true, f: (i) => String(v.contas.filter((c) => c.instituicaoId === i.id).length) },
+    { t: "Cartões", num: true, f: (i) => String(v.cartoes.filter((c) => c.instituicaoId === i.id).length) },
+    { t: "Investimentos", num: true, f: (i) => String(v.investimentos.filter((c) => c.instituicaoId === i.id).length) },
+    { t: "Observação", f: (i) => `<span class="hint">${esc(i.obs || "")}</span>` },
+    { t: "", f: (i) => acoes("instituicao", i.id) },
+  ], v.dRaw.instituicoes, { vazioTitulo: "Nenhuma instituição", vazioMsg: "Cadastre seu banco para começar.",
+    vazioBotao: btnNovo("instituicao", "Nova instituição") }), "", true)}`;
+
+Views.bens = (v) => `
+  <div class="page-head"><div><h1>Bens</h1>
+    <p>Ativos que não são dinheiro: imóveis, veículos, equipamentos. Entram no patrimônio total, não no patrimônio financeiro.</p></div>
+  <div style="flex:1"></div>${btnNovo("bem", "Novo bem")}</div>
+  ${UI.card("", UI.tabela([
+    { t: "Bem", f: (b) => `<b>${esc(b.nome)}</b><br><span class="hint">${esc(b.tipo || "")}</span>` },
+    { t: "Valor", num: true, f: (b) => UI.moeda(b.valor) },
+    { t: "Aquisição", f: (b) => esc(Fmt.data(b.dataAquisicao)) },
+    { t: "Financiamento", f: (b) => esc(v.compromissos.find((c) => c.id === b.compromissoId)?.nome || "—") },
+    { t: "Devedor", num: true, f: (b) => UI.moeda(v.compromissos.find((c) => c.id === b.compromissoId)?.devedor || 0) },
+    { t: "Valor líquido", num: true, f: (b) => UI.moeda(b.valor - (v.compromissos.find((c) => c.id === b.compromissoId)?.devedor || 0)) },
+    { t: "", f: (b) => acoes("bem", b.id) },
+  ], v.dRaw.bens, { vazioTitulo: "Nenhum bem cadastrado",
+    vazioMsg: "Opcional. Serve para o patrimônio não ficar negativo por causa de um financiamento.",
+    vazioBotao: btnNovo("bem", "Novo bem") }), "", true)}`;
+</script>
+<script>
+"use strict";
+/* -------------------------------------------------------------- fluxo */
+Views.fluxo = (v) => {
+  const m = App.fluxoModo;
+  const seg = ["mensal", "diario", "semanal", "anual"].map((k) =>
+    `<button data-act="fluxo-modo" data-modo="${k}" aria-pressed="${m === k}">${k[0].toUpperCase() + k.slice(1)}</button>`).join("");
+  let corpo = "", grafico = "";
+  if (m === "mensal") {
+    grafico = Chart.barras(v.fluxo.slice(0, 18), [
+      { nome: "Entradas", val: (f) => f.entR + f.entP, cor: "var(--s2)" },
+      { nome: "Saídas", val: (f) => -(f.saiR + f.saiP), cor: "var(--s4)" }],
+      { rot: (f) => MESES_C[Number(String(f.compet).slice(4)) - 1] });
+    corpo = UI.tabela([
+      { t: "Competência", f: (f) => `<span class="mono">${esc(Fmt.compet(f.compet))}</span>` },
+      { t: "Saldo inicial", num: true, f: (f) => UI.moeda(f.saldoIni) },
+      { t: "Entradas realiz.", num: true, f: (f) => UI.moeda(f.entR) },
+      { t: "Saídas realiz.", num: true, f: (f) => UI.moeda(-f.saiR) },
+      { t: "Entradas proj.", num: true, f: (f) => UI.moeda(f.entP) },
+      { t: "Saídas proj.", num: true, f: (f) => UI.moeda(-f.saiP) },
+      { t: "Saldo final", num: true, f: (f) => `<b>${UI.moeda(f.saldoFim)}</b>` },
+      { t: "Reservado", num: true, f: (f) => UI.moeda(-f.reservado) },
+      { t: "Saldo livre", num: true, f: (f) => UI.moeda(f.livre) },
+    ], v.fluxo);
+  } else if (m === "diario") {
+    corpo = UI.tabela([
+      { t: "Dia", f: (f) => `<span class="mono">${esc(Fmt.data(f.data))}</span>${f.hoje ? " " + UI.tag("hoje", "acc") : ""}` },
+      { t: "Entradas", num: true, f: (f) => UI.moeda(f.ent) },
+      { t: "Saídas", num: true, f: (f) => UI.moeda(-f.sai) },
+      { t: "Líquido", num: true, f: (f) => UI.moeda(f.liq, { positivo: true }) },
+      { t: "Saldo acumulado", num: true, f: (f) => `<b>${UI.moeda(f.saldo)}</b>` },
+      { t: "", f: (f) => f.futuro ? `<span class="hint">projetado</span>` : "" },
+    ], v.diario.filter((f) => f.ent || f.sai || f.hoje));
+    grafico = Chart.area(v.diario, (f) => f.saldo, { rot: (f) => Fmt.dataCurta(f.data), altura: 150 });
+  } else if (m === "semanal") {
+    corpo = UI.tabela([
+      { t: "Semana", f: (f) => `<span class="mono">${esc(Fmt.dataCurta(f.ini))} a ${esc(Fmt.dataCurta(f.fim))}</span>` },
+      { t: "Entradas", num: true, f: (f) => UI.moeda(f.ent) },
+      { t: "Saídas", num: true, f: (f) => UI.moeda(-f.sai) },
+      { t: "Líquido", num: true, f: (f) => UI.moeda(f.liq, { positivo: true }) },
+      { t: "Saldo acumulado", num: true, f: (f) => `<b>${UI.moeda(f.saldo)}</b>` },
+    ], v.semanal);
+    grafico = Chart.area(v.semanal, (f) => f.saldo, { rot: (f) => Fmt.dataCurta(f.ini), altura: 150 });
+  } else {
+    corpo = UI.tabela([
+      { t: "Ano", f: (f) => `<span class="mono">${f.ano}</span>` },
+      { t: "Entradas realiz.", num: true, f: (f) => UI.moeda(f.entR) },
+      { t: "Saídas realiz.", num: true, f: (f) => UI.moeda(-f.saiR) },
+      { t: "Entradas proj.", num: true, f: (f) => UI.moeda(f.entP) },
+      { t: "Saídas proj.", num: true, f: (f) => UI.moeda(-f.saiP) },
+      { t: "Saldo no fim do ano", num: true, f: (f) => `<b>${UI.moeda(f.saldoFim)}</b>` },
+    ], v.anos);
+    grafico = Chart.barras(v.anos, [
+      { nome: "Entradas", val: (f) => f.entR + f.entP, cor: "var(--s2)" },
+      { nome: "Saídas", val: (f) => -(f.saiR + f.saiP), cor: "var(--s4)" }], { rot: (f) => String(f.ano) });
+  }
+  return `<div class="page-head"><div><h1>Fluxo de caixa</h1>
+      <p>Só o que atravessa uma conta. Transferência entre contas próprias não aparece como entrada nem como saída, e compra no cartão só vira saída quando a fatura é paga.</p></div>
+    <div style="flex:1"></div><div class="seg">${seg}</div></div>
+    ${UI.card("Movimento do caixa", grafico)}
+    ${UI.card("", corpo, "", true)}`;
+};
+
+/* ----------------------------------------------------------- projecao */
+Views.projecao = (v) => `
+  <div class="page-head"><div><h1>Projeção</h1>
+    <p>O futuro mês a mês, considerando recorrências, parcelas, faturas, aportes, resgates e vencimentos já lançados. Nada aqui conta como realizado.</p></div></div>
+  <div class="grid g4">
+    ${UI.kpi("Saldo no fim do horizonte", Fmt.gs(v.projecao.length ? v.projecao[v.projecao.length - 1].saldo : 0))}
+    ${UI.kpi("Menor saldo do período", Fmt.gs(v.indicadores.menorProj?.saldo ?? 0),
+      v.indicadores.menorProj ? "em " + Fmt.compet(v.indicadores.menorProj.compet) : "",
+      (v.indicadores.menorProj?.saldo ?? 0) < 0 ? "bad" : "good")}
+    ${UI.kpi("Parcelas e faturas em 12 meses", Fmt.gs(v.indicadores.compr12))}
+    ${UI.kpi("Renda comprometida", Fmt.pct(v.indicadores.pctRenda),
+      "limite: " + Fmt.pct(v.cfg.pctRenda), v.indicadores.pctRenda > v.cfg.pctRenda ? "warn" : "")}
+  </div>
+  ${UI.card("Saldo projetado", Chart.area(v.projecao, (p) => p.saldo,
+    { rot: (p) => MESES_C[Number(String(p.compet).slice(4)) - 1], altura: 180 }))}
+  ${UI.card("", UI.tabela([
+    { t: "Competência", f: (p) => `<span class="mono">${esc(Fmt.compet(p.compet))}</span>` },
+    { t: "Receitas", num: true, f: (p) => UI.moeda(p.receitas) },
+    { t: "Rendimentos", num: true, f: (p) => UI.moeda(p.rendimentos) },
+    { t: "Despesas", num: true, f: (p) => UI.moeda(-p.despesas) },
+    { t: "Parcelas", num: true, f: (p) => UI.moeda(-p.parcelas) },
+    { t: "Faturas", num: true, f: (p) => UI.moeda(-p.faturas) },
+    { t: "Aportes", num: true, f: (p) => UI.moeda(-p.aportes) },
+    { t: "Resgates", num: true, f: (p) => UI.moeda(p.resgates) },
+    { t: "Já realizado no mês", num: true, f: (p) => UI.moeda(p.liqR, { positivo: true }) },
+    { t: "Saldo projetado", num: true, f: (p) => `<b>${UI.moeda(p.saldo)}</b>` },
+  ], v.projecao), "", true)}`;
+
+/* --------------------------------------------------------- relatorios */
+Views.relMensal = (v) => {
+  const { ano, mes } = App.rel;
+  const ini = Dt.iso(ano, mes, 1), fim = Dt.fimMes(ini);
+  const noPer = (l) => l.data >= ini && l.data <= fim;
+  const R = v.R.filter(noPer), P = v.P.filter(noPer);
+  const lin = (rot, campo, extra) => {
+    const f = extra || (() => true);
+    const r = sum(R.filter(f), (l) => l[campo]), p = sum(P.filter(f), (l) => l[campo]);
+    return { rot, r, p, t: r + p };
+  };
+  const resumo = [
+    lin("Receitas operacionais", "vRec"), lin("Receitas financeiras", "vRend"),
+    lin("Despesas", "vDesp"), lin("Entradas de caixa", "entradaCaixa"),
+    lin("Saídas de caixa", "saidaCaixa"),
+    lin("Transferências entre contas", "valor", (l) => l.tipo === "TRANSFERENCIA"),
+    lin("Aportes em investimentos", "valor", (l) => l.tipo === "APORTE"),
+    lin("Resgates", "valor", (l) => l.tipo === "RESGATE"),
+    lin("Compras no cartão", "valor", (l) => l.tipo === "COMPRA_CARTAO"),
+    lin("Pagamentos de fatura", "valor", (l) => l.tipo === "PAGAMENTO_CARTAO"),
+    lin("Parcelas de compromissos", "valor", (l) => l.tipo === "PAGAMENTO_PARCELA"),
+  ];
+  const res = resumo[0].t + resumo[1].t - resumo[2].t;
+  const porCat = (lista) => v.dRaw.categorias.map((c) => ({ nome: c.nome,
+    r: sum(lista.filter((l) => l.categoriaId === c.id), (l) => l.vDesp) }))
+    .filter((x) => x.r).sort((a, b) => b.r - a.r);
+  const porSub = v.dRaw.subcategorias.map((s) => ({ nome: s.nome,
+    cat: v.idx.cat.get(s.categoriaId)?.nome ?? "",
+    r: sum(R.filter((l) => l.subcategoriaId === s.id), (l) => l.vDesp),
+    p: sum(P.filter((l) => l.subcategoriaId === s.id), (l) => l.vDesp) }))
+    .filter((x) => x.r || x.p).sort((a, b) => (b.r + b.p) - (a.r + a.p));
+  return `<div class="page-head"><div><h1>Relatório mensal</h1>
+      <p>Resultado por competência e movimento de caixa do mês escolhido.</p></div>
+    <div style="flex:1"></div>
+    <div class="row"><select class="inp" style="width:130px" data-rel="mes">
+        ${UI.opcoes(MESES.map((m, i) => ({ v: i + 1, t: m })), mes)}</select>
+      <input class="inp" style="width:90px" type="number" data-rel="ano" value="${ano}"></div></div>
+    <div class="grid g4">
+      ${UI.kpi("Receitas", Fmt.gs(resumo[0].t + resumo[1].t), "realizado + projetado")}
+      ${UI.kpi("Despesas", Fmt.gs(resumo[2].t), "realizado + projetado")}
+      ${UI.kpi("Resultado do mês", Fmt.gs(res), "competência", res >= 0 ? "good" : "bad")}
+      ${UI.kpi("Fluxo líquido de caixa", Fmt.gs(resumo[3].t - resumo[4].t), "entradas − saídas")}
+    </div>
+    <div class="split">
+      ${UI.card("Resumo do mês", UI.tabela([
+        { t: "Indicador", f: (x) => x.rot }, { t: "Realizado", num: true, f: (x) => UI.moeda(x.r) },
+        { t: "Projetado", num: true, f: (x) => UI.moeda(x.p) },
+        { t: "Total", num: true, f: (x) => `<b>${UI.moeda(x.t)}</b>` },
+      ], resumo), "", true)}
+      ${UI.card("Despesas por categoria", Chart.ranking(porCat(R).map((c) => ({ nome: c.nome, valor: c.r })), { limite: 10 }))}
+    </div>
+    ${UI.card("Despesas por subcategoria", UI.tabela([
+      { t: "Categoria", f: (x) => `<span class="hint">${esc(x.cat)}</span>` },
+      { t: "Subcategoria", f: (x) => `<b>${esc(x.nome)}</b>` },
+      { t: "Realizado", num: true, f: (x) => UI.moeda(x.r) },
+      { t: "Projetado", num: true, f: (x) => UI.moeda(x.p) },
+      { t: "Total", num: true, f: (x) => `<b>${UI.moeda(x.r + x.p)}</b>` },
+    ], porSub, { vazioTitulo: "Sem despesas no mês", vazioMsg: "Nenhuma despesa classificada neste período." }), "", true)}
+    <div class="split">
+      ${UI.card("Movimento por conta", UI.tabela([
+        { t: "Conta", f: (c) => esc(c.nome) },
+        { t: "Entradas", num: true, f: (c) => UI.moeda(sum(R.filter((l) => l.destinoTipo === "CONTA" && l.destinoId === c.id), (l) => l.valor)) },
+        { t: "Saídas", num: true, f: (c) => UI.moeda(-sum(R.filter((l) => l.origemTipo === "CONTA" && l.origemId === c.id), (l) => l.valor)) },
+        { t: "Saldo atual", num: true, f: (c) => `<b>${UI.moeda(c.saldo)}</b>` },
+      ], v.contas), "", true)}
+      ${UI.card("Movimento por cartão", UI.tabela([
+        { t: "Cartão", f: (k) => esc(k.nome) },
+        { t: "Compras", num: true, f: (k) => UI.moeda(sum(R.filter((l) => l.origemTipo === "CARTAO" && l.origemId === k.id), (l) => l.valor)) },
+        { t: "Pagamentos", num: true, f: (k) => UI.moeda(-sum(R.filter((l) => l.destinoTipo === "CARTAO" && l.destinoId === k.id), (l) => l.valor)) },
+        { t: "Dívida atual", num: true, f: (k) => `<b>${UI.moeda(k.divida)}</b>` },
+      ], v.cartoes), "", true)}
+    </div>`;
+};
+
+Views.relAnual = (v) => {
+  const ano = App.rel.ano;
+  const meses = Array.from({ length: 12 }, (_, i) => {
+    const ini = Dt.iso(ano, i + 1, 1), fim = Dt.fimMes(ini);
+    const L = v.ativos.filter((l) => l.data >= ini && l.data <= fim);
+    const rec = sum(L, (l) => l.vRec), rend = sum(L, (l) => l.vRend), desp = sum(L, (l) => l.vDesp);
+    return { mes: MESES[i], ini, fim, rec, rend, desp, resultado: rec + rend - desp,
+      aportes: sum(L.filter((l) => l.tipo === "APORTE"), (l) => l.valor),
+      resgates: sum(L.filter((l) => l.tipo === "RESGATE"), (l) => l.valor),
+      ent: sum(L, (l) => l.entradaCaixa), sai: sum(L, (l) => l.saidaCaixa),
+      saldo: v.saldoAte(Dt.addDias(fim, 1)) };
+  });
+  const T = (k) => sum(meses, (m) => m[k]);
+  const catAno = v.dRaw.categorias.map((c) => ({ nome: c.nome,
+    valor: sum(v.ativos.filter((l) => l.categoriaId === c.id && Dt.parts(l.data).y === ano), (l) => l.vDesp) }))
+    .filter((x) => x.valor).sort((a, b) => b.valor - a.valor);
+  const maiorD = meses.reduce((a, m) => (m.desp > a.desp ? m : a), meses[0]);
+  const menorD = meses.reduce((a, m) => (m.desp < a.desp ? m : a), meses[0]);
+  const evDez = v.evolucao.find((e) => e.compet === ano * 100 + 12);
+  const evJan = v.evolucao.find((e) => e.compet === ano * 100 + 1);
+  return `<div class="page-head"><div><h1>Relatório anual</h1>
+      <p>Os doze meses de ${ano}, somando realizado e projetado.</p></div>
+    <div style="flex:1"></div><input class="inp" style="width:100px" type="number" data-rel="ano" value="${ano}"></div>
+    <div class="grid g4">
+      ${UI.kpi("Receitas do ano", Fmt.gs(T("rec") + T("rend")))}
+      ${UI.kpi("Despesas do ano", Fmt.gs(T("desp")))}
+      ${UI.kpi("Resultado", Fmt.gs(T("resultado")), "", T("resultado") >= 0 ? "good" : "bad")}
+      ${UI.kpi("Taxa de poupança", Fmt.pct(T("rec") ? T("resultado") / (T("rec") + T("rend")) : 0))}
+    </div>
+    ${UI.card("Receitas e despesas por mês", Chart.barras(meses, [
+      { nome: "Receitas", val: (m) => m.rec + m.rend, cor: "var(--s2)" },
+      { nome: "Despesas", val: (m) => -m.desp, cor: "var(--s4)" }],
+      { rot: (m) => m.mes.slice(0, 3).toLowerCase() }))}
+    ${UI.card("", UI.tabela([
+      { t: "Mês", f: (m) => m.mes }, { t: "Receitas", num: true, f: (m) => UI.moeda(m.rec) },
+      { t: "Rendimentos", num: true, f: (m) => UI.moeda(m.rend) },
+      { t: "Despesas", num: true, f: (m) => UI.moeda(-m.desp) },
+      { t: "Resultado", num: true, f: (m) => UI.moeda(m.resultado, { positivo: true }) },
+      { t: "Aportes", num: true, f: (m) => UI.moeda(m.aportes) },
+      { t: "Resgates", num: true, f: (m) => UI.moeda(m.resgates) },
+      { t: "Entradas", num: true, f: (m) => UI.moeda(m.ent) },
+      { t: "Saídas", num: true, f: (m) => UI.moeda(-m.sai) },
+      { t: "Saldo no fim", num: true, f: (m) => `<b>${UI.moeda(m.saldo)}</b>` },
+    ], meses, { rodape: {} }), "", true)}
+    <div class="split">
+      ${UI.card("Despesas do ano por categoria", Chart.ranking(catAno, { limite: 12 }))}
+      ${UI.card("Destaques do ano", `<div class="list-lines">
+        ${[["Maior despesa mensal", `${Fmt.gs(maiorD.desp)} em ${maiorD.mes}`],
+           ["Menor despesa mensal", `${Fmt.gs(menorD.desp)} em ${menorD.mes}`],
+           ["Média mensal de despesa", Fmt.gs(T("desp") / 12)],
+           ["Categoria de maior gasto", catAno[0] ? `${catAno[0].nome} — ${Fmt.gs(catAno[0].valor)}` : "—"],
+           ["Patrimônio em 31/12", evDez ? Fmt.gs(evDez.plTotal) : "fora da grade"],
+           ["Evolução no ano", evDez && evJan ? Fmt.gs(evDez.plTotal - evJan.plTotal, true) : "—"],
+          ].map(([a, b]) => `<div class="line-item"><div class="li-m"><b>${esc(a)}</b></div>
+            <span class="mono" style="font-weight:600">${esc(b)}</span></div>`).join("")}
+      </div>`)}
+    </div>`;
+};
+
+/* -------------------------------------------------------- patrimonio */
+Views.patrimonio = (v) => {
+  const p = v.patrimonio;
+  const linha = (rot, val, forte) => `<div class="line-item"><div class="li-m">
+    <b style="${forte ? "font-weight:700" : "font-weight:500"}">${esc(rot)}</b></div>
+    <span class="mono" style="font-weight:${forte ? 700 : 500}">${esc(Fmt.gs(val))}</span></div>`;
+  return `<div class="page-head"><div><h1>Patrimônio</h1>
+      <p>Patrimônio financeiro considera contas, investimentos, cartões e compromissos. O total soma também os bens cadastrados.</p></div></div>
+    <div class="grid g4">
+      ${UI.kpi("Total de ativos", Fmt.gs(p.ativos))}
+      ${UI.kpi("Total de passivos", Fmt.gs(p.passivos))}
+      ${UI.kpi("Patrimônio financeiro", Fmt.gs(p.plFin), "sem os bens", p.plFin >= 0 ? "good" : "bad")}
+      ${UI.kpi("Patrimônio total", Fmt.gs(p.plTotal), "com os bens", "lead")}
+    </div>
+    <div class="split">
+      ${UI.card("Composição atual", `<div class="list-lines">
+        ${linha("Contas e dinheiro", p.contas)}${linha("Investimentos", p.investimentos)}
+        ${linha("Ativos financeiros", p.ativosFin, true)}${linha("Bens", p.bens)}
+        ${linha("Total de ativos", p.ativos, true)}
+        ${linha("Dívida de cartões", -p.cartoes)}${linha("Saldo devedor de compromissos", -p.compromissos)}
+        ${linha("Total de passivos", -p.passivos, true)}
+        ${linha("Patrimônio líquido total", p.plTotal, true)}
+        ${linha("Memória: reservado em metas", p.reservado)}${linha("Memória: saldo livre", p.livre)}
+      </div>`)}
+      ${UI.card("Evolução do patrimônio", Chart.area(v.evolucao, (e) => e.plTotal,
+        { rot: (e) => MESES_C[Number(String(e.compet).slice(4)) - 1], altura: 180 }),
+        `<span class="hint">realizado + projetado</span>`)}
+    </div>
+    ${UI.card("", UI.tabela([
+      { t: "Competência", f: (e) => `<span class="mono">${esc(Fmt.compet(e.compet))}</span>` },
+      { t: "Contas", num: true, f: (e) => UI.moeda(e.contas) },
+      { t: "Investimentos", num: true, f: (e) => UI.moeda(e.investimentos) },
+      { t: "Bens", num: true, f: (e) => UI.moeda(e.bens) },
+      { t: "Cartões", num: true, f: (e) => UI.moeda(-e.cartoes) },
+      { t: "Compromissos", num: true, f: (e) => UI.moeda(-e.compromissos) },
+      { t: "PL financeiro", num: true, f: (e) => UI.moeda(e.plFin) },
+      { t: "PL total", num: true, f: (e) => `<b>${UI.moeda(e.plTotal)}</b>` },
+      { t: "Variação", num: true, f: (e) => UI.moeda(e.variacao, { sinal: true, positivo: true }) },
+    ], v.evolucao), "", true)}`;
+};
+</script>
+<script>
+"use strict";
+/* -------------------------------------------------------- indicadores */
+Views.indicadores = (v) => {
+  const i = v.indicadores, c = v.cfg;
+  const bloco = (titulo, itens) => UI.card(titulo, `<div class="list-lines">` + itens.map(([rot, val, obs]) =>
+    `<div class="line-item"><div class="li-m"><b>${esc(rot)}</b>${obs ? `<span>${esc(obs)}</span>` : ""}</div>
+      <span class="mono" style="font-weight:600">${esc(val)}</span></div>`).join("") + `</div>`);
+  return `<div class="page-head"><div><h1>Indicadores</h1>
+      <p>Leitura automática dos seus números, por regras e fórmulas. Sem inteligência artificial: tudo é calculado a partir dos lançamentos.</p></div></div>
+    <div class="grid g2">
+      ${bloco("Para onde o dinheiro vai", [
+        ["Categoria que mais consumiu no mês", i.maiorCatMes ? i.maiorCatMes.nome : "—",
+          i.maiorCatMes ? Fmt.gs(i.maiorCatMes.valor) : ""],
+        ["Categoria que mais consumiu no ano", i.maiorCatAno ? i.maiorCatAno.nome : "—",
+          i.maiorCatAno ? Fmt.gs(i.maiorCatAno.valor) : ""],
+        ["Despesa realizada no mês corrente", Fmt.gs(i.despMes)],
+        ["Média mensal de despesa (6 meses anteriores)", Fmt.gs(i.despMedia)],
+        ["Variação sobre a média", Fmt.pct(i.variacaoDesp), "limite de alerta: " + Fmt.pct(c.pctDesp)],
+      ])}
+      ${bloco("Ritmo de receitas", [
+        ["Receita média mensal (6 meses)", Fmt.gs(i.recMedia)],
+        ["Receita do mês corrente", Fmt.gs(i.recMes)],
+        ["Rendimento financeiro do mês", Fmt.gs(i.rendMes)],
+        ["Resultado do mês", Fmt.gs(i.resultadoMes)],
+        ["Taxa de poupança (6 meses)", Fmt.pct(i.taxaPoupanca), "quanto sobra da renda"],
+      ])}
+      ${bloco("Comprometimento futuro", [
+        ["Parcelas e faturas dos próximos 12 meses", Fmt.gs(i.compr12)],
+        ["Percentual da renda comprometida", Fmt.pct(i.pctRenda), "limite: " + Fmt.pct(c.pctRenda)],
+        ["Total de parcelas ainda não pagas", Fmt.gs(i.parcelasAbertas)],
+        ["Maior saída projetada em um mês", Fmt.gs(i.maiorSaida?.saidas ?? 0),
+          i.maiorSaida ? Fmt.compet(i.maiorSaida.compet) : ""],
+        ["Menor saldo projetado", Fmt.gs(i.menorProj?.saldo ?? 0),
+          i.menorProj ? Fmt.compet(i.menorProj.compet) : ""],
+      ])}
+      ${bloco("Patrimônio, investimentos e metas", [
+        ["Patrimônio líquido total", Fmt.gs(v.patrimonio.plTotal)],
+        ["Variação em 6 meses", Fmt.gs(i.varPat, true)],
+        ["Tendência", i.tendencia],
+        ["Total investido", Fmt.gs(sum(v.investimentos, (x) => x.saldo))],
+        ["Investimentos vencendo em " + c.diasInv + " dias", String(i.investVencendo.length),
+          i.investVencendo.map((x) => x.nome).join(" · ")],
+        ["Metas ativas", String(i.metasAtivas.length)],
+        ["Metas com 80% ou mais", String(i.metasQuase.length), i.metasQuase.map((m) => m.nome).join(" · ")],
+      ])}
+    </div>`;
+};
+
+/* ------------------------------------------------------------ alertas */
+Views.alertas = (v) => {
+  const a = v.alertas;
+  const graves = a.filter((x) => x.nivel === "grave"), avisos = a.filter((x) => x.nivel === "aviso");
+  const lista = (itens) => itens.length ? `<div class="list-lines">` + itens.map((x) => `
+    <div class="line-item">${UI.tag(x.grupo, x.nivel)}
+      <div class="li-m"><b>${esc(x.titulo)}</b><span>${esc(x.detalhe)}</span></div>
+      ${x.valor !== null && x.valor !== undefined ? `<span class="mono" style="font-weight:600">${esc(Fmt.gs(x.valor))}</span>` : ""}
+    </div>`).join("") + `</div>` : UI.vazio("Nada por aqui", "Nenhuma situação neste nível.");
+  return `<div class="page-head"><div><h1>Alertas</h1>
+      <p>Os limites de cada alerta ficam em Configurações. Nada aqui é aviso genérico: cada linha aponta um número seu que passou de um limite.</p></div></div>
+    <div class="grid g3">
+      ${UI.kpi("Exigem ação", String(graves.length), "", graves.length ? "bad" : "good")}
+      ${UI.kpi("Merecem atenção", String(avisos.length), "", avisos.length ? "warn" : "good")}
+      ${UI.kpi("Tudo em ordem", a.length ? "não" : "sim", a.length ? `${a.length} ponto(s) abertos` : "nenhum alerta ativo",
+        a.length ? "" : "good")}
+    </div>
+    ${UI.card("Exigem ação", lista(graves))}
+    ${UI.card("Merecem atenção", lista(avisos))}`;
+};
+
+/* ------------------------------------------------------------- testes */
+Views.testes = (v) => {
+  const t = v.testes, falhas = t.filter((x) => !x.ok);
+  const grupos = Array.from(groupBy(t, (x) => x.grupo));
+  return `<div class="page-head"><div><h1>Conferência</h1>
+      <p>Cada teste recalcula um número por um caminho diferente e compara com o que o sistema mostra. Se algo estiver inconsistente, aparece aqui antes de você tomar uma decisão errada.</p></div></div>
+    <div class="grid g3">
+      ${UI.kpi("Testes executados", String(t.length))}
+      ${UI.kpi("Com falha", String(falhas.length), "", falhas.length ? "bad" : "good")}
+      ${UI.kpi("Situação", falhas.length ? "Revisar" : "Consistente", "tolerância de Gs. 0,50",
+        falhas.length ? "bad" : "good")}
+    </div>
+    ${falhas.length ? `<div class="aviso-box e"><b>${falhas.length} verificação(ões) não fecharam.</b>
+      Confira as linhas marcadas abaixo antes de confiar nos relatórios.</div>` : ""}
+    ${grupos.map(([g, itens]) => UI.card(g, UI.tabela([
+      { t: "Verificação", f: (x) => esc(x.nome) },
+      { t: "Esperado", num: true, f: (x) => x.unidade === "qtd" ? Fmt.num(x.esperado) : Fmt.gs(x.esperado) },
+      { t: "Obtido", num: true, f: (x) => x.unidade === "qtd" ? Fmt.num(x.obtido) : Fmt.gs(x.obtido) },
+      { t: "Diferença", num: true, f: (x) => x.dif ? `<span class="neg">${esc(x.unidade === "qtd" ? Fmt.num(x.dif) : Fmt.gs(x.dif))}</span>` : "0" },
+      { t: "Resultado", f: (x) => UI.tag(x.ok ? "OK" : "FALHA", x.ok ? "bom" : "grave") },
+    ], itens), "", true)).join("")}`;
+};
+
+/* -------------------------------------------------------------- config */
+Views.config = (v) => {
+  const c = v.cfg;
+  const par = (n, l, val, tipo, ajuda) => `<div class="field"><label>${esc(l)}</label>
+    <input class="inp" data-cfg="${n}" type="${tipo}" value="${esc(val)}" step="${tipo === "number" ? "any" : ""}">
+    <span class="hint">${esc(ajuda)}</span></div>`;
+  return `<div class="page-head"><div><h1>Configurações</h1>
+      <p>Parâmetros do sistema, gestão de perfis e cópia de segurança dos dados.</p></div></div>
+    ${UI.card("Datas de referência", `<div class="fgrid">
+      ${par("dataRef", "Data de referência (hoje)", c.dataRef, "date", "Define o que é passado e o que é futuro em todo o sistema.")}
+      ${par("inicio", "Início do sistema", c.inicio, "date", "Data a que se referem os saldos iniciais.")}
+      ${par("horizonte", "Horizonte de projeção (meses)", c.horizonte, "number", "Quantos meses a projeção olha para frente.")}
+      <div class="field"><label>Reservas de metas no fluxo projetado</label>
+        <select class="inp" data-cfg="reservaNoFluxo">${UI.opcoes(["SIM", "NAO"], c.reservaNoFluxo)}</select>
+        <span class="hint">SIM desconta as reservas do saldo livre projetado.</span></div>
+    </div>`)}
+    ${UI.card("Limites de alerta", `<div class="fgrid">
+      ${par("saldoMin", "Saldo mínimo por conta (Gs.)", c.saldoMin, "number", "Abaixo disso a conta entra em alerta.")}
+      ${par("pctCartao", "Uso máximo do limite do cartão", c.pctCartao, "number", "Fração: 0,8 = 80%.")}
+      ${par("diasAlerta", "Dias de antecedência para vencimentos", c.diasAlerta, "number", "Faturas e parcelas dentro desse prazo alertam.")}
+      ${par("diasInv", "Dias de antecedência para investimentos", c.diasInv, "number", "Vencimentos de aplicação.")}
+      ${par("pctRenda", "Comprometimento máximo da renda", c.pctRenda, "number", "Fração: 0,4 = 40%.")}
+      ${par("pctDesp", "Variação de despesa que alerta", c.pctDesp, "number", "Fração: 0,25 = 25% acima da média.")}
+    </div>`)}
+    ${UI.card("Perfis", `<div class="perfil-lista">${App.perfis.map((p) => `
+        <div class="perfil-item"><b>${esc(p.nome)}</b>
+          ${p.id === Store.pid ? UI.tag("em uso", "acc") : ""}
+          <span class="hint">criado em ${esc(Fmt.data(String(p.criadoEm).slice(0, 10)))}</span>
+          ${p.id !== Store.pid ? `<button class="btn btn-sm" data-act="trocar-perfil" data-id="${esc(p.id)}">Abrir</button>` : ""}
+          <button class="btn btn-sm" data-act="renomear-perfil" data-id="${esc(p.id)}">Renomear</button>
+          ${App.perfis.length > 1 ? `<button class="btn btn-sm btn-danger" data-act="excluir-perfil" data-id="${esc(p.id)}">Excluir</button>` : ""}
+        </div>`).join("")}</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn btn-pri btn-sm" data-act="novo-perfil-vazio">+ Perfil vazio</button>
+        <button class="btn btn-sm" data-act="novo-perfil-demo">+ Perfil com dados de exemplo</button>
+      </div>`)}
+    ${UI.card("Dados", `<p class="hint">Os dados ficam salvos ${Store.online
+        ? "no banco de dados online deste aplicativo, na sua conta."
+        : "apenas neste navegador (o banco online não está disponível nesta sessão)."}
+      Baixe uma cópia de segurança de vez em quando.</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn btn-sm" data-act="exportar">Baixar cópia (JSON)</button>
+        <button class="btn btn-sm" data-act="importar">Restaurar de um arquivo</button>
+        <button class="btn btn-sm btn-danger" data-act="zerar">Apagar todos os lançamentos</button>
+      </div>
+      <div class="grid g4" style="margin-top:14px">
+        ${UI.kpi("Lançamentos", Fmt.num(v.L.length))}
+        ${UI.kpi("Parcelas", Fmt.num(v.parcelas.length))}
+        ${UI.kpi("Cadastros", Fmt.num(v.contas.length + v.cartoes.length + v.investimentos.length
+          + v.dRaw.categorias.length + v.dRaw.subcategorias.length))}
+        ${UI.kpi("Movimentos de meta", Fmt.num(v.dRaw.movMetas.length))}
+      </div>`)}
+    ${UI.card("Como o sistema funciona", `
+      <p style="max-width:70ch">Existe um único livro de operações. Cada lançamento tem uma <b>origem</b> e um <b>destino</b>,
+      e cada um deles é uma conta, um cartão, um investimento ou <i>externo</i> — o mundo fora do seu controle.
+      Dessa regra sozinha saem todos os números do sistema, sem nada ser digitado duas vezes.</p>
+      <div class="tbl-wrap" style="margin-top:12px"><table>
+        <thead><tr><th>Operação</th><th>Origem → Destino</th><th>Conta como</th><th>Mexe no caixa?</th></tr></thead>
+        <tbody>${[
+          ["Receita", "Externo → Conta", "Receita", "Entrada"],
+          ["Despesa", "Conta → Externo", "Despesa", "Saída"],
+          ["Transferência", "Conta → Conta", "Neutro", "Não mexe"],
+          ["Compra no cartão", "Cartão → Externo", "Despesa", "Não mexe"],
+          ["Pagamento de fatura", "Conta → Cartão", "Neutro", "Saída"],
+          ["Aporte", "Conta → Investimento", "Neutro", "Saída"],
+          ["Resgate", "Investimento → Conta", "Neutro", "Entrada"],
+          ["Rendimento", "Externo → Investimento", "Receita financeira", "Não mexe"],
+        ].map((r) => `<tr>${r.map((x, i) => `<td>${i === 0 ? `<b>${esc(x)}</b>` : esc(x)}</td>`).join("")}</tr>`).join("")}
+        </tbody></table></div>`)}`;
+};
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  FORMULARIOS                                                          */
+/* ==================================================================== */
+const optsDe = (lista, campo) => lista.map((x) => ({ v: x.id, t: x[campo || "nome"] }));
+const FORMS = {
+  instituicao: { rot: "Instituição", lista: "instituicoes", pre: "INS", campos: () => [
+    { n: "nome", l: "Nome", t: "text", req: 1 },
+    { n: "tipo", l: "Tipo", t: "select", opts: TIPOS_INST },
+    { n: "obs", l: "Observação", t: "text", full: 1 }] },
+  conta: { rot: "Conta", lista: "contas", pre: "CON", campos: (d) => [
+    { n: "nome", l: "Nome da conta", t: "text", req: 1 },
+    { n: "instituicaoId", l: "Instituição", t: "select", opts: optsDe(d.instituicoes), vazio: "—" },
+    { n: "tipo", l: "Tipo", t: "select", opts: TIPOS_CONTA },
+    { n: "saldoInicial", l: "Saldo inicial (Gs.)", t: "money", def: 0 },
+    { n: "dataSaldoInicial", l: "Data do saldo inicial", t: "date", def: (d) => d.config.inicio },
+    { n: "status", l: "Status", t: "select", opts: STATUS_CAD, def: "Ativo" },
+    { n: "obs", l: "Observação", t: "text", full: 1 }] },
+  cartao: { rot: "Cartão", lista: "cartoes", pre: "CAR", campos: (d) => [
+    { n: "nome", l: "Nome do cartão", t: "text", req: 1 },
+    { n: "instituicaoId", l: "Instituição", t: "select", opts: optsDe(d.instituicoes), vazio: "—" },
+    { n: "limite", l: "Limite (Gs.)", t: "money", def: 0 },
+    { n: "dividaInicial", l: "Dívida inicial (Gs.)", t: "money", def: 0 },
+    { n: "dataDivida", l: "Data da dívida inicial", t: "date", def: (d) => d.config.inicio },
+    { n: "diaFechamento", l: "Dia do fechamento", t: "int", def: 25, min: 1, max: 31 },
+    { n: "diaVencimento", l: "Dia do vencimento", t: "int", def: 5, min: 1, max: 31 },
+    { n: "status", l: "Status", t: "select", opts: STATUS_CAD, def: "Ativo" },
+    { n: "obs", l: "Observação", t: "text", full: 1 }] },
+  investimento: { rot: "Investimento", lista: "investimentos", pre: "INV", campos: (d) => [
+    { n: "nome", l: "Nome", t: "text", req: 1 },
+    { n: "instituicaoId", l: "Instituição", t: "select", opts: optsDe(d.instituicoes), vazio: "—" },
+    { n: "tipo", l: "Tipo", t: "select", opts: TIPOS_INV },
+    { n: "valorInicial", l: "Valor já aplicado (Gs.)", t: "money", def: 0 },
+    { n: "dataInicial", l: "Data inicial", t: "date", def: (d) => d.config.inicio },
+    { n: "baseRendimento", l: "Base do rendimento", t: "select", opts: BASES_REND },
+    { n: "taxa", l: "Taxa (0,09 = 9%)", t: "num", def: 0 },
+    { n: "prazoMeses", l: "Prazo em meses (0 = sem prazo)", t: "int", def: 0 },
+    { n: "status", l: "Status", t: "select", opts: STATUS_CAD, def: "Ativo" },
+    { n: "obs", l: "Observação", t: "text", full: 1 }] },
+  categoria: { rot: "Categoria", lista: "categorias", pre: "CAT", campos: () => [
+    { n: "nome", l: "Nome", t: "text", req: 1 },
+    { n: "tipoPadrao", l: "Tipo padrão", t: "select", opts: ["DESPESA", "RECEITA", "NEUTRO"] }] },
+  subcategoria: { rot: "Subcategoria", lista: "subcategorias", pre: "SUB", campos: (d) => [
+    { n: "categoriaId", l: "Categoria", t: "select", opts: optsDe(d.categorias), req: 1 },
+    { n: "nome", l: "Nome", t: "text", req: 1 }] },
+  bem: { rot: "Bem", lista: "bens", pre: "BEM", campos: (d) => [
+    { n: "nome", l: "Nome", t: "text", req: 1 },
+    { n: "tipo", l: "Tipo", t: "select", opts: TIPOS_BEM },
+    { n: "valor", l: "Valor atual (Gs.)", t: "money", def: 0 },
+    { n: "dataAquisicao", l: "Data de aquisição", t: "date" },
+    { n: "compromissoId", l: "Financiamento vinculado", t: "select", opts: optsDe(d.compromissos), vazio: "—" },
+    { n: "obs", l: "Observação", t: "text", full: 1 }] },
+  meta: { rot: "Meta", lista: "metas", pre: "MET", campos: (d) => [
+    { n: "nome", l: "Nome da meta", t: "text", req: 1 },
+    { n: "objetivo", l: "Valor objetivo (Gs.)", t: "money", req: 1, def: 0 },
+    { n: "prazo", l: "Prazo", t: "date" },
+    { n: "contaId", l: "Conta onde o dinheiro está", t: "select", opts: optsDe(d.contas), vazio: "—" },
+    { n: "investimentoId", l: "Investimento vinculado", t: "select", opts: optsDe(d.investimentos), vazio: "—" },
+    { n: "considerarFluxo", l: "Descontar do fluxo projetado?", t: "select", opts: ["SIM", "NAO"], def: "NAO" },
+    { n: "status", l: "Status", t: "select", opts: STATUS_META, def: "Ativa" },
+    { n: "obs", l: "Observação", t: "text", full: 1 }] },
+  compromisso: { rot: "Compromisso", lista: "compromissos", pre: "CMP", campos: (d) => [
+    { n: "nome", l: "Nome", t: "text", req: 1, full: 1 },
+    { n: "categoriaId", l: "Categoria", t: "select", opts: optsDe(d.categorias), req: 1 },
+    { n: "subcategoriaId", l: "Subcategoria", t: "select", opts: optsDe(d.subcategorias), vazio: "—", dep: "categoriaId" },
+    { n: "qtd", l: "Quantidade de parcelas", t: "int", req: 1, def: 12, min: 1, max: 600 },
+    { n: "valorParcela", l: "Valor da parcela (Gs.)", t: "money", req: 1, def: 0 },
+    { n: "primeira", l: "Vencimento da 1ª parcela", t: "date", req: 1 },
+    { n: "dia", l: "Dia do vencimento", t: "int", def: 10, min: 1, max: 31 },
+    { n: "periodicidade", l: "Periodicidade", t: "select", opts: PERIODICIDADES, def: "Mensal" },
+    { n: "pagasAntes", l: "Parcelas já pagas antes do sistema", t: "int", def: 0, min: 0 },
+    { n: "entidadeTipo", l: "Pago com", t: "select", opts: ["CONTA", "CARTAO"], def: "CONTA" },
+    { n: "entidadeId", l: "Conta ou cartão", t: "select", opts: [...optsDe(d.contas), ...optsDe(d.cartoes)], req: 1 },
+    { n: "status", l: "Status", t: "select", opts: STATUS_CAD, def: "Ativo" },
+    { n: "obs", l: "Observação", t: "text", full: 1 }] },
+  recorrencia: { rot: "Recorrência", lista: "recorrencias", pre: "REC", campos: (d) => [
+    { n: "descricao", l: "Descrição", t: "text", req: 1, full: 1 },
+    { n: "tipo", l: "Tipo de operação", t: "select", opts: TIPOS_OP.map((t) => ({ v: t, t: ROTULO_OP[t] })), req: 1 },
+    { n: "valor", l: "Valor (Gs.)", t: "money", req: 1, def: 0 },
+    { n: "periodicidade", l: "Periodicidade", t: "select", opts: PERIODICIDADES, def: "Mensal" },
+    { n: "dia", l: "Dia", t: "int", def: 5, min: 1, max: 31 },
+    { n: "inicio", l: "Primeira ocorrência", t: "date", req: 1 },
+    { n: "ocorrencias", l: "Quantas ocorrências", t: "int", def: 12, min: 1, max: 240 },
+    { n: "categoriaId", l: "Categoria", t: "select", opts: optsDe(d.categorias), vazio: "—" },
+    { n: "subcategoriaId", l: "Subcategoria", t: "select", opts: optsDe(d.subcategorias), vazio: "—", dep: "categoriaId" },
+    { n: "origemTipo", l: "Origem", t: "select", opts: TIPOS_ENT, def: "EXTERNO" },
+    { n: "origemId", l: "De onde", t: "select", opts: [], vazio: "—", entidade: "origemTipo" },
+    { n: "destinoTipo", l: "Destino", t: "select", opts: TIPOS_ENT, def: "CONTA" },
+    { n: "destinoId", l: "Para onde", t: "select", opts: [], vazio: "—", entidade: "destinoTipo" },
+    { n: "forma", l: "Forma de pagamento", t: "select", opts: FORMAS_PGTO, vazio: "—" },
+    { n: "status", l: "Status", t: "select", opts: STATUS_CAD, def: "Ativo" }] },
+  lancamento: { rot: "Lançamento", lista: "lancamentos", pre: "LAN", campos: (d) => [
+    { n: "data", l: "Data", t: "date", req: 1, def: (d) => d.config.dataRef },
+    { n: "descricao", l: "Descrição", t: "text", req: 1, full: 1 },
+    { n: "tipo", l: "Tipo de operação", t: "select", opts: TIPOS_OP.map((t) => ({ v: t, t: ROTULO_OP[t] })), req: 1, def: "DESPESA" },
+    { n: "status", l: "Status", t: "select", opts: STATUS_LANC, def: "REALIZADO" },
+    { n: "valor", l: "Valor (Gs.)", t: "money", req: 1, def: 0 },
+    { n: "origemTipo", l: "Origem", t: "select", opts: TIPOS_ENT },
+    { n: "origemId", l: "De onde sai", t: "select", opts: [], vazio: "—", entidade: "origemTipo" },
+    { n: "destinoTipo", l: "Destino", t: "select", opts: TIPOS_ENT },
+    { n: "destinoId", l: "Para onde vai", t: "select", opts: [], vazio: "—", entidade: "destinoTipo" },
+    { n: "categoriaId", l: "Categoria", t: "select", opts: optsDe(d.categorias), vazio: "—" },
+    { n: "subcategoriaId", l: "Subcategoria", t: "select", opts: optsDe(d.subcategorias), vazio: "—", dep: "categoriaId" },
+    { n: "forma", l: "Forma de pagamento", t: "select", opts: FORMAS_PGTO, vazio: "—" },
+    { n: "compromissoId", l: "Compromisso (opcional)", t: "select", opts: optsDe(d.compromissos), vazio: "—" },
+    { n: "parcelaId", l: "Parcela (opcional)", t: "select", opts: [], vazio: "—", parcelas: 1 },
+    { n: "metaId", l: "Meta (opcional)", t: "select", opts: optsDe(d.metas), vazio: "—" },
+    { n: "obs", l: "Observação", t: "text", full: 1 }] },
+};
+
+const Form = {
+  entidadeOpts(d, tipo) {
+    if (tipo === "CONTA") return optsDe(d.contas);
+    if (tipo === "CARTAO") return optsDe(d.cartoes);
+    if (tipo === "INVESTIMENTO") return optsDe(d.investimentos);
+    return [];
+  },
+  html(tipo, reg, d) {
+    const spec = FORMS[tipo];
+    return `<div class="fgrid">` + spec.campos(d).map((c) => {
+      let val = reg[c.n];
+      if (val === undefined || val === null || val === "")
+        val = typeof c.def === "function" ? c.def(d) : (c.def ?? "");
+      let opts = c.opts;
+      if (c.entidade) opts = Form.entidadeOpts(d, reg[c.entidade] ?? "");
+      if (c.dep) opts = optsDe(d.subcategorias.filter((s) => s.categoriaId === (reg[c.dep] || "")));
+      if (c.parcelas) {
+        const ps = d.parcelas.filter((p) => p.compromissoId === (reg.compromissoId || ""));
+        const c2 = d.compromissos.find((x) => x.id === reg.compromissoId);
+        opts = ps.map((p) => ({ v: p.id, t: `${p.num}/${c2 ? c2.qtd : "?"} — vence ${Fmt.data(p.vencimento)}` }));
+      }
+      const attr = `${c.req ? " required" : ""}${c.min !== undefined ? ` min="${c.min}"` : ""}${c.max !== undefined ? ` max="${c.max}"` : ""}`;
+      if (c.t === "select")
+        return UI.campo(c.l, `<select class="inp" name="${c.n}" data-campo="${c.n}"${attr}>${UI.opcoes(opts || [], val, c.vazio)}</select>`, c.full);
+      const tipoIn = c.t === "date" ? "date" : (c.t === "money" || c.t === "num" || c.t === "int") ? "number" : "text";
+      const step = c.t === "num" ? "0.0001" : c.t === "money" ? "1" : c.t === "int" ? "1" : "";
+      return UI.campo(c.l, `<input class="inp${c.t === "money" || c.t === "num" || c.t === "int" ? " num" : ""}"
+        name="${c.n}" data-campo="${c.n}" type="${tipoIn}" value="${esc(val)}"${step ? ` step="${step}"` : ""}${attr}>`, c.full);
+    }).join("") + `</div>`;
+  },
+  ler(form, tipo, d) {
+    const spec = FORMS[tipo], out = {};
+    for (const c of spec.campos(d)) {
+      const el = form.elements[c.n];
+      if (!el) continue;
+      let v = el.value;
+      if (c.t === "money" || c.t === "num" || c.t === "int") v = v === "" ? 0 : Number(v);
+      out[c.n] = v;
+    }
+    return out;
+  },
+};
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  APLICACAO                                                            */
+/* ==================================================================== */
+const DEMO = /*__DEMO__*/ null;
+
+const NAV = [
+  ["Visão geral", [["painel", "Painel"], ["alertas", "Alertas"], ["indicadores", "Indicadores"]]],
+  ["Movimento", [["lancamentos", "Lançamentos"], ["compromissos", "Compromissos"],
+    ["metas", "Metas"], ["recorrencias", "Recorrências"]]],
+  ["Cadastros", [["contas", "Contas"], ["cartoes", "Cartões"], ["investimentos", "Investimentos"],
+    ["categorias", "Categorias"], ["instituicoes", "Instituições"], ["bens", "Bens"]]],
+  ["Análise", [["fluxo", "Fluxo de caixa"], ["projecao", "Projeção"],
+    ["relMensal", "Relatório mensal"], ["relAnual", "Relatório anual"], ["patrimonio", "Patrimônio"]]],
+  ["Sistema", [["testes", "Conferência"], ["config", "Configurações"]]],
+];
+
+const App = {
+  d: null, v: null, perfis: [], perfilNome: "", rota: "painel", sync: "ok", pronto: false,
+  filtros: { q: "", status: "", tipo: "", entidade: "", categoria: "", mes: "" },
+  rel: { ano: 0, mes: 0 }, abertos: new Set(), fluxoModo: "mensal", modalCtx: null,
+
+  /* ------------------------------------------------------------ boot */
+  async boot() {
+    await Store.init();
+    this.perfis = await Store.listarPerfis();
+    const ultimo = localStorage.getItem("cg.ultimo");
+    const alvo = this.perfis.find((p) => p.id === ultimo) || this.perfis[0];
+    if (alvo) await this.abrirPerfil(alvo.id);
+    else this.renderOnboarding();
+    document.addEventListener("click", (e) => this.onClick(e));
+    document.addEventListener("change", (e) => this.onChange(e));
+    document.addEventListener("input", (e) => this.onInput(e));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") this.fecharModal(); });
+    window.addEventListener("beforeunload", () => { if (Store.dirty.size) Store.flush(); });
+  },
+  async abrirPerfil(pid) {
+    this.d = await Store.carregar(pid);
+    const meta = this.perfis.find((p) => p.id === pid);
+    this.perfilNome = meta ? meta.nome : "Meu perfil";
+    localStorage.setItem("cg.ultimo", pid);
+    this.rel = { ano: Dt.parts(this.d.config.dataRef).y, mes: Dt.parts(this.d.config.dataRef).m };
+    this.filtros.mes = "";
+    this.pronto = true;
+    this.recalc(); this.render();
+  },
+  recalc() {
+    this.v = Calc.derivar(this.d);
+    this.v.indicadores = Calc.indicadores(this.v);
+    this.v.alertas = Calc.alertas(this.v);
+    this.v.testes = Calc.testes(this.v);
+  },
+  salvar(...blocos) { Store.marcar(...blocos); this.recalc(); this.render(); },
+  setSync(s, cod) { this.sync = s; const el = $("#sync"); if (el) el.outerHTML = this.syncHTML(); },
+  syncHTML() {
+    const m = { salvando: ["aviso", "salvando…"], ok: ["bom", Store.online ? "salvo online" : "salvo neste navegador"],
+      erro: ["grave", "erro ao salvar"] }[this.sync] || ["neutro", ""];
+    return `<span id="sync" class="tag t-${m[0]}"><i class="dot"></i>${esc(m[1])}</span>`;
+  },
+
+  /* ---------------------------------------------------------- render */
+  render() {
+    if (!this.pronto) return this.renderOnboarding();
+    const v = this.v, falhas = v.testes.filter((t) => !t.ok).length;
+    const graves = v.alertas.filter((a) => a.nivel === "grave").length;
+    const nav = NAV.map(([g, itens]) => `<div class="nav-group">${esc(g)}</div>` + itens.map(([r, rot]) => {
+      const badge = r === "alertas" && graves ? `<span class="nav-badge">${graves}</span>`
+        : r === "testes" && falhas ? `<span class="nav-badge">${falhas}</span>` : "";
+      return `<button class="nav-item" data-act="ir" data-rota="${r}"${this.rota === r ? ' aria-current="page"' : ""}>
+        ${esc(rot)}${badge}</button>`;
+    }).join("")).join("");
+    const view = (Views[this.rota] || Views.painel)(v);
+    $("#app").innerHTML = `<div class="app">
+      <aside class="side">
+        <div class="brand"><div class="brand-mark">Gs</div>
+          <div><div class="brand-name">Caja Guaraní</div><div class="brand-sub">${esc(this.perfilNome)}</div></div></div>
+        <nav class="nav">${nav}</nav>
+      </aside>
+      <div class="main">
+        <header class="topbar">
+          <span class="hint">Referência</span>
+          <input class="inp" style="width:145px" type="date" data-cfg="dataRef" value="${esc(v.cfg.dataRef)}">
+          <div class="sp"></div>
+          ${this.syncHTML()}
+          <button class="btn btn-sm" data-act="ir" data-rota="config">Perfis</button>
+          <button class="btn btn-pri btn-sm" data-act="novo" data-tipo="lancamento">+ Lançamento</button>
+        </header>
+        <main class="page">${view}</main>
+      </div></div>`;
+    window.scrollTo(0, 0);
+  },
+  renderOnboarding(msg) {
+    const temDemo = !!DEMO;
+    $("#app").innerHTML = `<div class="onb"><div class="onb-card">
+      <div class="onb-top"><h1>Caja Guaraní</h1>
+        <p>Controle financeiro pessoal em guaraníes: contas, cartões, parcelamentos, investimentos,
+        metas, fluxo de caixa, projeção e patrimônio. Escolha por onde começar.</p></div>
+      <div class="onb-b">
+        ${msg ? `<div class="aviso-box i">${esc(msg)}</div>` : ""}
+        <div class="field"><label>Nome deste perfil</label>
+          <input class="inp" id="onb-nome" value="Meu controle" maxlength="60"></div>
+        <button class="choice" data-act="novo-perfil-vazio"><span class="ci">◇</span>
+          <span><b>Começar do zero</b><span>Sem nenhum registro. Vem só com as 13 categorias
+          e 54 subcategorias padrão, prontas para editar.</span></span></button>
+        ${temDemo ? `<button class="choice" data-act="novo-perfil-demo"><span class="ci">◈</span>
+          <span><b>Abrir com dados de exemplo</b><span>602 lançamentos fictícios de jan/2026 a jan/2028,
+          com 3 contas, 2 cartões, 2 investimentos, um terreno na parcela 44/60 e 4 metas.
+          Serve para conhecer o sistema antes de colocar os seus números.</span></span></button>` : ""}
+        ${this.perfis.length ? `<div><div class="nav-group" style="padding-left:0">Perfis já criados</div>
+          <div class="perfil-lista">${this.perfis.map((p) => `<div class="perfil-item"><b>${esc(p.nome)}</b>
+            <button class="btn btn-sm btn-pri" data-act="trocar-perfil" data-id="${esc(p.id)}">Abrir</button></div>`).join("")}
+          </div></div>` : ""}
+        <p class="hint">${Store.online ? "Seus dados ficam salvos online, na sua conta, e voltam em qualquer aparelho."
+          : "O banco online não respondeu nesta sessão: os dados serão salvos apenas neste navegador."}</p>
+      </div></div></div>`;
+  },
+
+  /* --------------------------------------------------------- helpers */
+  lancamentosFiltrados(v) {
+    const f = this.filtros;
+    let l = v.L.slice().sort((a, b) => b.data.localeCompare(a.data) || b.id.localeCompare(a.id));
+    if (f.q) { const q = f.q.toLowerCase(); l = l.filter((x) => (x.descricao || "").toLowerCase().includes(q)
+      || (x.obs || "").toLowerCase().includes(q)); }
+    if (f.status) l = l.filter((x) => x.status === f.status);
+    if (f.tipo) l = l.filter((x) => x.tipo === f.tipo);
+    if (f.entidade) l = l.filter((x) => x.origemId === f.entidade || x.destinoId === f.entidade);
+    if (f.categoria) l = l.filter((x) => x.categoriaId === f.categoria);
+    if (f.mes) l = l.filter((x) => x.data.slice(0, 7) === f.mes);
+    return l;
+  },
+  proximoId(pre, lista) {
+    let max = 0;
+    for (const x of lista) { const m = String(x.id || "").match(/-(\d+)$/); if (m) max = Math.max(max, +m[1]); }
+    return pre + "-" + String(max + 1).padStart(6, "0");
+  },
+  toast(msg, err) {
+    const t = document.createElement("div");
+    t.className = "toast" + (err ? " err" : ""); t.textContent = msg;
+    $("#toasts").appendChild(t);
+    setTimeout(() => t.remove(), err ? 6000 : 3200);
+  },
+
+  /* ----------------------------------------------------------- modal */
+  modal({ titulo, corpo, ok = "Salvar", onOk, largura }) {
+    this.fecharModal();
+    const o = document.createElement("div");
+    o.className = "ovl"; o.id = "ovl";
+    o.innerHTML = `<div class="modal" ${largura ? `style="width:min(${largura}px,100%)"` : ""} role="dialog" aria-modal="true">
+      <div class="modal-h"><h3>${esc(titulo)}</h3><div class="sp" style="flex:1"></div>
+        <button class="btn btn-sm" data-act="fechar-modal">Fechar</button></div>
+      <form class="modal-b" id="modal-form">${corpo}</form>
+      <div class="modal-f"><button class="btn" data-act="fechar-modal">Cancelar</button>
+        ${ok ? `<button class="btn btn-pri" data-act="modal-ok">${esc(ok)}</button>` : ""}</div></div>`;
+    document.body.appendChild(o);
+    o.addEventListener("click", (e) => { if (e.target === o) this.fecharModal(); });
+    const f = $("#modal-form", o);
+    f.addEventListener("submit", (e) => { e.preventDefault(); onOk && onOk(f); });
+    this.modalOk = onOk;
+    const first = f.querySelector("input,select,textarea");
+    if (first) setTimeout(() => first.focus(), 30);
+  },
+  fecharModal() { const o = $("#ovl"); if (o) o.remove(); this.modalOk = null; this.modalCtx = null; },
+  confirmar(titulo, msg, rotulo = "Confirmar") {
+    return new Promise((res) => {
+      this.modal({ titulo, corpo: `<p style="margin:0;max-width:60ch">${msg}</p>`, ok: rotulo,
+        onOk: () => { this.fecharModal(); res(true); } });
+      $("#ovl").addEventListener("click", (e) => {
+        if (e.target.dataset.act === "fechar-modal" || e.target === $("#ovl")) res(false);
+      });
+    });
+  },
+};
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  ACOES                                                                */
+/* ==================================================================== */
+Object.assign(App, {
+  onClick(e) {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const { act, tipo, id, rota, modo, mov } = b.dataset;
+    const acoes = {
+      ir: () => { this.rota = rota; this.render(); },
+      "fechar-modal": () => this.fecharModal(),
+      "modal-ok": () => { const f = $("#modal-form"); if (f && f.reportValidity() && this.modalOk) this.modalOk(f); },
+      novo: () => this.editar(tipo, null),
+      editar: () => this.editar(tipo, id),
+      excluir: () => this.excluir(tipo, id),
+      realizar: () => this.mudarStatus(id, "REALIZADO"),
+      "cancelar-lanc": () => this.mudarStatus(id, "CANCELADO"),
+      reativar: () => this.mudarStatus(id, "REALIZADO"),
+      "pagar-parcela": () => this.pagarParcela(id),
+      toggle: () => { this.abertos.has(id) ? this.abertos.delete(id) : this.abertos.add(id); this.render(); },
+      resgatar: () => this.resgatar(id),
+      "mov-meta": () => this.movMeta(id, mov),
+      "concluir-meta": () => this.encerrarMeta(id, "Concluída"),
+      "cancelar-meta": () => this.encerrarMeta(id, "Cancelada"),
+      "gerar-rec": () => this.gerarRecorrencia(id),
+      "fluxo-modo": () => { this.fluxoModo = modo; this.render(); },
+      "limpar-filtros": () => { this.filtros = { q: "", status: "", tipo: "", entidade: "", categoria: "", mes: "" }; this.render(); },
+      "novo-perfil-vazio": () => this.criarPerfil(false),
+      "novo-perfil-demo": () => this.criarPerfil(true),
+      "trocar-perfil": () => this.abrirPerfil(id),
+      "renomear-perfil": () => this.renomearPerfil(id),
+      "excluir-perfil": () => this.apagarPerfil(id),
+      exportar: () => this.exportar(),
+      importar: () => this.importar(),
+      zerar: () => this.zerar(),
+    };
+    if (acoes[act]) { e.preventDefault(); acoes[act](); }
+  },
+  onChange(e) {
+    const t = e.target;
+    if (t.dataset.filtro) { this.filtros[t.dataset.filtro] = t.value; this.render(); return; }
+    if (t.dataset.rel) { this.rel[t.dataset.rel] = Number(t.value) || this.rel[t.dataset.rel]; this.render(); return; }
+    if (t.dataset.cfg) {
+      const k = t.dataset.cfg;
+      this.d.config[k] = t.type === "number" ? Number(t.value) : t.value;
+      this.salvar("config"); return;
+    }
+    if (t.dataset.campo && this.modalCtx) {
+      const c = this.modalCtx; c.reg[t.dataset.campo] = t.value;
+      if (c.tipo === "lancamento" && t.dataset.campo === "tipo") {
+        const f = FLUXO_OP[t.value]; if (f) { c.reg.origemTipo = f[0]; c.reg.destinoTipo = f[1]; }
+        c.reg.origemId = ""; c.reg.destinoId = "";
+      }
+      if (["tipo", "origemTipo", "destinoTipo", "categoriaId", "compromissoId"].includes(t.dataset.campo)) {
+        if (t.dataset.campo === "origemTipo") c.reg.origemId = "";
+        if (t.dataset.campo === "destinoTipo") c.reg.destinoId = "";
+        if (t.dataset.campo === "categoriaId") c.reg.subcategoriaId = "";
+        if (t.dataset.campo === "compromissoId") c.reg.parcelaId = "";
+        c.rerender();
+      }
+    }
+  },
+  onInput(e) {
+    if (e.target.dataset.filtro === "q") {
+      clearTimeout(this._tq);
+      this._tq = setTimeout(() => { this.filtros.q = e.target.value; this.render();
+        const i = $('[data-filtro="q"]'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 320);
+    }
+  },
+
+  /* --------------------------------------------------- CRUD generico */
+  editar(tipo, id) {
+    const spec = FORMS[tipo], lista = this.d[spec.lista];
+    const orig = id ? lista.find((x) => x.id === id) : null;
+    const reg = orig ? { ...orig } : {};
+    const dica = tipo === "lancamento"
+      ? `<div class="aviso-box i">Toda operação sai de uma <b>origem</b> e vai para um <b>destino</b>.
+         Ao escolher o tipo, o sistema já sugere o caminho certo. <i>Externo</i> é o mundo fora do seu controle:
+         o empregador, o supermercado.</div>` : "";
+    const avisoVinc = orig && tipo === "lancamento" && this.v.L.find((l) => l.id === id)?.vinculos.length
+      ? `<div class="aviso-box a">Este lançamento está vinculado a
+         ${esc(this.v.L.find((l) => l.id === id).vinculos.join(", "))}. Alterar valor, data ou status pode
+         mudar o estado de uma parcela ou de uma meta.</div>` : "";
+    const corpo = () => dica + avisoVinc + Form.html(tipo, reg, this.d);
+    this.modal({ titulo: (id ? "Editar " : "Novo ") + spec.rot.toLowerCase(), corpo: corpo(),
+      largura: tipo === "lancamento" || tipo === "compromisso" || tipo === "recorrencia" ? 900 : 620,
+      onOk: (f) => {
+        const dados = Form.ler(f, tipo, this.d);
+        if (tipo === "lancamento") {
+          const teste = Calc.validarLanc({ ...dados, ...{} }, this.v.idx, this.v.ent);
+          if (teste !== "OK") { this.toast("Não dá para salvar: " + teste, true); return; }
+        }
+        if (orig) Object.assign(orig, dados);
+        else { dados.id = this.proximoId(spec.pre, lista); lista.push(dados); }
+        this.fecharModal();
+        if (tipo === "compromisso") this.sincronizarParcelas(orig ? orig.id : dados.id);
+        this.salvar(spec.lista, "parcelas");
+        this.toast(spec.rot + (orig ? " atualizado." : " criado."));
+      } });
+    this.modalCtx = { tipo, reg, rerender: () => { $("#modal-form").innerHTML = corpo(); } };
+  },
+  async excluir(tipo, id) {
+    const mapa = { movMeta: "movMetas", subcategoria: "subcategorias" };
+    const spec = FORMS[tipo], listaNome = spec ? spec.lista : mapa[tipo];
+    const lista = this.d[listaNome];
+    const reg = lista.find((x) => x.id === id); if (!reg) return;
+    let aviso = "";
+    if (tipo === "lancamento") {
+      const l = this.v.L.find((x) => x.id === id);
+      if (l && l.vinculos.length) aviso = `<br><br><b>Atenção:</b> está vinculado a ${esc(l.vinculos.join(", "))}.
+        Excluir pode reabrir uma parcela já dada como paga. Se a intenção é apenas anular o efeito
+        financeiro mantendo o histórico, use <b>Cancelar</b>.`;
+    }
+    if (tipo === "conta" || tipo === "cartao" || tipo === "investimento") {
+      const n = this.d.lancamentos.filter((l) => l.origemId === id || l.destinoId === id).length;
+      if (n) aviso = `<br><br><b>Atenção:</b> ${n} lançamento(s) apontam para este cadastro e ficarão órfãos.
+        Prefira mudar o status para Inativo.`;
+    }
+    if (tipo === "compromisso") aviso = `<br><br>O cronograma de parcelas também será apagado.`;
+    if (tipo === "meta") aviso = `<br><br>As movimentações de reserva desta meta também serão apagadas.`;
+    const ok = await this.confirmar("Excluir " + (spec ? spec.rot.toLowerCase() : "registro"),
+      `Excluir <b>${esc(reg.nome || reg.descricao || reg.id)}</b>?${aviso}`, "Excluir");
+    if (!ok) return;
+    const i = lista.indexOf(reg); lista.splice(i, 1);
+    const extra = [listaNome];
+    if (tipo === "compromisso") {
+      this.d.parcelas = this.d.parcelas.filter((p) => p.compromissoId !== id); extra.push("parcelas");
+    }
+    if (tipo === "meta") {
+      this.d.movMetas = this.d.movMetas.filter((m) => m.metaId !== id); extra.push("movMetas");
+    }
+    this.fecharModal(); this.salvar(...extra); this.toast("Registro excluído.");
+  },
+  mudarStatus(id, st) {
+    const l = this.d.lancamentos.find((x) => x.id === id); if (!l) return;
+    l.status = st;
+    if (st === "CANCELADO" && !/CANCELADO/.test(l.obs || ""))
+      l.obs = (l.obs ? l.obs + " · " : "") + "CANCELADO em " + Fmt.data(this.d.config.dataRef);
+    this.salvar("lancamentos");
+    this.toast(st === "CANCELADO" ? "Lançamento cancelado: o histórico fica, o efeito financeiro sai."
+      : "Lançamento marcado como realizado.");
+  },
+
+  /* ------------------------------------------------------- parcelas */
+  sincronizarParcelas(cmpId) {
+    const c = this.d.compromissos.find((x) => x.id === cmpId); if (!c) return;
+    const antigas = new Map(this.d.parcelas.filter((p) => p.compromissoId === cmpId).map((p) => [p.num, p]));
+    const novas = [];
+    for (let i = 1; i <= c.qtd; i++) {
+      const venc = PASSO_MES[c.periodicidade]
+        ? Dt.diaMes(...(() => { const b = Dt.addMeses(c.primeira, (i - 1) * PASSO_MES[c.periodicidade]);
+            const p = Dt.parts(b); return [p.y, p.m, c.dia || p.d]; })())
+        : Dt.addDias(c.primeira, (i - 1) * (PASSO_DIA[c.periodicidade] || 30));
+      const old = antigas.get(i);
+      novas.push({ id: old ? old.id : this.proximoId("PAR", [...this.d.parcelas, ...novas]),
+        compromissoId: cmpId, num: i, vencimento: venc, valor: c.valorParcela, obs: old?.obs || "" });
+    }
+    this.d.parcelas = this.d.parcelas.filter((p) => p.compromissoId !== cmpId).concat(novas);
+  },
+  pagarParcela(parcelaId) {
+    const p = this.v.parcelas.find((x) => x.id === parcelaId); if (!p) return;
+    const c = this.d.compromissos.find((x) => x.id === p.compromissoId);
+    const proj = this.d.lancamentos.find((l) => l.parcelaId === parcelaId && l.status === "PROJETADO");
+    const contas = c.entidadeTipo === "CARTAO" ? optsDe(this.d.cartoes) : optsDe(this.d.contas);
+    this.modal({ titulo: `Pagar parcela ${p.rotulo} — ${c.nome}`, ok: "Registrar pagamento",
+      corpo: `${proj ? `<div class="aviso-box i">Já existe um lançamento projetado para esta parcela.
+          Ele será convertido em realizado, sem criar uma segunda linha.</div>` : ""}
+        <div class="fgrid">
+          ${UI.txt("data", "Data do pagamento", this.d.config.dataRef, { tipo: "date" })}
+          ${UI.txt("valor", "Valor pago (Gs.)", p.valor, { tipo: "number" })}
+          ${UI.sel("entidadeId", c.entidadeTipo === "CARTAO" ? "Cartão" : "Conta", contas, c.entidadeId)}
+          ${UI.txt("obs", "Observação", "", { full: 1 })}
+        </div>`,
+      onOk: (f) => {
+        const data = f.elements.data.value, valor = Number(f.elements.valor.value), eid = f.elements.entidadeId.value;
+        if (!(valor > 0)) { this.toast("Informe um valor maior que zero.", true); return; }
+        if (proj) { Object.assign(proj, { status: "REALIZADO", data, valor, origemId: eid,
+          obs: f.elements.obs.value || proj.obs }); }
+        else {
+          this.d.lancamentos.push({ id: this.proximoId("LAN", this.d.lancamentos), data,
+            descricao: `${c.nome} - parcela ${p.rotulo}`,
+            tipo: c.entidadeTipo === "CARTAO" ? "COMPRA_CARTAO" : "PAGAMENTO_PARCELA",
+            status: "REALIZADO", valor, origemTipo: c.entidadeTipo, origemId: eid,
+            destinoTipo: "EXTERNO", destinoId: "", categoriaId: c.categoriaId,
+            subcategoriaId: c.subcategoriaId, forma: c.entidadeTipo === "CARTAO" ? "Crédito" : "Transferência",
+            compromissoId: c.id, parcelaId: p.id, obs: f.elements.obs.value || "" });
+        }
+        this.fecharModal(); this.salvar("lancamentos");
+        this.toast(`Parcela ${p.rotulo} paga.`);
+      } });
+  },
+
+  /* --------------------------------------------------- investimentos */
+  resgatar(invId) {
+    const i = this.v.investimentos.find((x) => x.id === invId); if (!i) return;
+    const catInv = this.d.categorias.find((c) => c.nome === "Investimentos");
+    const catRec = this.d.categorias.find((c) => c.nome === "Receitas");
+    const subDe = (cat, nome) => this.d.subcategorias.find((s) => s.categoriaId === cat?.id && s.nome === nome)?.id || "";
+    this.modal({ titulo: "Resgatar — " + i.nome, ok: "Registrar resgate", largura: 700,
+      corpo: `<div class="aviso-box i">O <b>principal</b> nunca vira receita: ele só muda de lugar.
+          Se ainda houver rendimento não lançado, informe abaixo e o sistema cria uma linha separada
+          de receita financeira.</div>
+        <div class="fgrid">
+          ${UI.txt("data", "Data do resgate", this.d.config.dataRef, { tipo: "date" })}
+          ${UI.sel("contaId", "Conta que vai receber", optsDe(this.d.contas), this.d.contas[0]?.id)}
+          ${UI.txt("valor", "Valor total resgatado (Gs.)", Math.round(i.saldo), { tipo: "number" })}
+          ${UI.txt("rendimento", "Rendimento ainda não lançado (Gs.)", 0, { tipo: "number" })}
+        </div>
+        <p class="hint">Saldo atual: ${esc(Fmt.gs(i.saldo))} · principal ${esc(Fmt.gs(i.principal))} ·
+          rendimento já reconhecido ${esc(Fmt.gs(i.rendNoSaldo))}</p>`,
+      onOk: (f) => {
+        const data = f.elements.data.value, contaId = f.elements.contaId.value;
+        const valor = Number(f.elements.valor.value), rend = Number(f.elements.rendimento.value) || 0;
+        if (!(valor > 0)) { this.toast("Informe um valor maior que zero.", true); return; }
+        if (!contaId) { this.toast("Escolha a conta que vai receber.", true); return; }
+        if (rend > 0) this.d.lancamentos.push({ id: this.proximoId("LAN", this.d.lancamentos), data,
+          descricao: "Rendimento de " + i.nome, tipo: "RENDIMENTO", status: "REALIZADO", valor: rend,
+          origemTipo: "EXTERNO", origemId: "", destinoTipo: "INVESTIMENTO", destinoId: i.id,
+          categoriaId: catRec?.id || "", subcategoriaId: subDe(catRec, "Rendimento financeiro"),
+          forma: "Transferência", obs: "Rendimento reconhecido no momento do resgate" });
+        this.d.lancamentos.push({ id: this.proximoId("LAN", this.d.lancamentos), data,
+          descricao: "Resgate de " + i.nome, tipo: "RESGATE", status: "REALIZADO", valor,
+          origemTipo: "INVESTIMENTO", origemId: i.id, destinoTipo: "CONTA", destinoId: contaId,
+          categoriaId: catInv?.id || "", subcategoriaId: subDe(catInv, "Resgate"),
+          forma: "Transferência", obs: "Operação neutra: o principal não é receita" });
+        this.fecharModal(); this.salvar("lancamentos");
+        this.toast("Resgate registrado" + (rend > 0 ? " com o rendimento em linha separada." : "."));
+      } });
+  },
+
+  /* ---------------------------------------------------------- metas */
+  movMeta(metaId, tipoMov) {
+    const m = this.v.metas.find((x) => x.id === metaId); if (!m) return;
+    const rot = { RESERVA: "Reservar para", RETIRADA: "Retirar de", TRANSF_SAIDA: "Transferir de" }[tipoMov];
+    const outras = this.d.metas.filter((x) => x.id !== metaId);
+    this.modal({ titulo: `${rot} ${m.nome}`, ok: "Registrar",
+      corpo: `<div class="aviso-box i">Isto é uma reserva lógica. O dinheiro continua na conta
+          ${esc(m.contaNome || "vinculada")}; o que muda é o saldo disponível.</div>
+        <div class="fgrid">
+          ${UI.txt("data", "Data", this.d.config.dataRef, { tipo: "date" })}
+          ${UI.txt("valor", "Valor (Gs.)", tipoMov === "RESERVA" ? "" : Math.round(m.reservado), { tipo: "number" })}
+          ${tipoMov === "RETIRADA" ? UI.sel("destino", "Destino do valor retirado", DESTINOS_RET, "Saldo disponível") : ""}
+          ${tipoMov === "TRANSF_SAIDA" ? UI.sel("metaDestinoId", "Meta de destino", optsDe(outras), outras[0]?.id) : ""}
+          ${UI.txt("obs", "Observação", "", { full: 1 })}
+        </div>
+        <p class="hint">Reservado hoje: ${esc(Fmt.gs(m.reservado))} de ${esc(Fmt.gs(m.objetivo))}</p>`,
+      onOk: (f) => {
+        const valor = Number(f.elements.valor.value);
+        if (!(valor > 0)) { this.toast("Informe um valor maior que zero.", true); return; }
+        if (tipoMov !== "RESERVA" && valor > m.reservado + 0.5) {
+          this.toast(`A meta tem apenas ${Fmt.gs(m.reservado)} reservados.`, true); return; }
+        const data = f.elements.data.value, obs = f.elements.obs.value || "";
+        const destino = f.elements.destino ? f.elements.destino.value : "";
+        const metaDestinoId = f.elements.metaDestinoId ? f.elements.metaDestinoId.value : "";
+        this.d.movMetas.push({ id: this.proximoId("MOV", this.d.movMetas), data, metaId,
+          tipo: tipoMov, valor, destino, metaDestinoId, obs });
+        if (tipoMov === "TRANSF_SAIDA" && metaDestinoId)
+          this.d.movMetas.push({ id: this.proximoId("MOV", [...this.d.movMetas]), data,
+            metaId: metaDestinoId, tipo: "TRANSF_ENTRADA", valor,
+            obs: "Recebido de " + m.nome });
+        this.fecharModal(); this.salvar("movMetas"); this.toast("Movimentação registrada.");
+      } });
+  },
+  encerrarMeta(metaId, novoStatus) {
+    const m = this.v.metas.find((x) => x.id === metaId); if (!m) return;
+    const outras = this.d.metas.filter((x) => x.id !== metaId && x.status === "Ativa");
+    const temSaldo = m.reservado > 0.5;
+    this.modal({ titulo: (novoStatus === "Concluída" ? "Concluir" : "Cancelar") + " meta — " + m.nome,
+      ok: novoStatus === "Concluída" ? "Concluir meta" : "Cancelar meta",
+      corpo: `<p style="margin:0;max-width:64ch">Objetivo ${esc(Fmt.gs(m.objetivo))} ·
+          acumulado ${esc(Fmt.gs(m.reservado))} · ${esc(Fmt.pct(m.pct))} concluído.</p>
+        ${temSaldo ? `<div class="fgrid">
+          ${UI.txt("data", "Data", this.d.config.dataRef, { tipo: "date" })}
+          ${UI.sel("acao", "O que fazer com o valor reservado?", [
+            { v: "manter", t: "Manter reservado" },
+            { v: "liberar", t: "Liberar para o saldo disponível" },
+            ...(outras.length ? [{ v: "transferir", t: "Transferir para outra meta" }] : []),
+          ], "liberar")}
+          ${outras.length ? UI.sel("metaDestinoId", "Meta de destino", optsDe(outras), outras[0]?.id) : ""}
+        </div>` : `<div class="aviso-box i">A meta não tem valor reservado; nada precisa ser decidido.</div>`}`,
+      onOk: (f) => {
+        const reg = this.d.metas.find((x) => x.id === metaId);
+        reg.status = novoStatus;
+        reg.conclusao = temSaldo ? f.elements.data.value : this.d.config.dataRef;
+        if (temSaldo) {
+          const acao = f.elements.acao.value, data = f.elements.data.value;
+          if (acao === "liberar")
+            this.d.movMetas.push({ id: this.proximoId("MOV", this.d.movMetas), data, metaId,
+              tipo: novoStatus === "Concluída" ? "LIBERACAO_CONCLUSAO" : "LIBERACAO_CANCELAMENTO",
+              valor: m.reservado, destino: "Saldo disponível",
+              obs: "Meta " + novoStatus.toLowerCase() + ": valor liberado" });
+          else if (acao === "transferir") {
+            const dest = f.elements.metaDestinoId.value;
+            this.d.movMetas.push({ id: this.proximoId("MOV", this.d.movMetas), data, metaId,
+              tipo: "TRANSF_SAIDA", valor: m.reservado, destino: "Outra meta", metaDestinoId: dest,
+              obs: "Meta " + novoStatus.toLowerCase() + ": saldo transferido" });
+            this.d.movMetas.push({ id: this.proximoId("MOV", [...this.d.movMetas]), data, metaId: dest,
+              tipo: "TRANSF_ENTRADA", valor: m.reservado, obs: "Recebido de " + m.nome });
+          }
+        }
+        this.fecharModal(); this.salvar("metas", "movMetas");
+        this.toast("Meta " + novoStatus.toLowerCase() + ". O histórico permanece.");
+      } });
+  },
+
+  /* --------------------------------------------------- recorrencias */
+  gerarRecorrencia(recId) {
+    const r = this.d.recorrencias.find((x) => x.id === recId); if (!r) return;
+    const existentes = new Set(this.d.lancamentos.filter((l) => l.recorrenciaId === recId).map((l) => l.data));
+    const novas = [];
+    for (let i = 0; i < r.ocorrencias; i++) {
+      let data;
+      if (PASSO_MES[r.periodicidade]) {
+        const b = Dt.addMeses(r.inicio, i * PASSO_MES[r.periodicidade]), p = Dt.parts(b);
+        data = Dt.diaMes(p.y, p.m, r.dia || p.d);
+      } else data = Dt.addDias(r.inicio, i * (PASSO_DIA[r.periodicidade] || 30));
+      if (existentes.has(data)) continue;
+      novas.push({ data, descricao: r.descricao, tipo: r.tipo,
+        status: data <= this.d.config.dataRef ? "REALIZADO" : "PROJETADO", valor: r.valor,
+        origemTipo: r.origemTipo, origemId: r.origemId, destinoTipo: r.destinoTipo,
+        destinoId: r.destinoId, categoriaId: r.categoriaId, subcategoriaId: r.subcategoriaId,
+        forma: r.forma, recorrenciaId: r.id, obs: "Gerado pela recorrência " + r.id });
+    }
+    if (!novas.length) { this.toast("Todas as ocorrências desta recorrência já existem."); return; }
+    this.confirmar("Gerar lançamentos", `Serão criados <b>${novas.length}</b> lançamento(s) a partir de
+      <b>${esc(r.descricao)}</b>. Os que caem até a data de referência entram como realizados;
+      os demais como projetados. Ocorrências que já existem não são duplicadas.`, "Gerar")
+      .then((ok) => {
+        if (!ok) return;
+        for (const n of novas) { n.id = this.proximoId("LAN", this.d.lancamentos); this.d.lancamentos.push(n); }
+        this.salvar("lancamentos"); this.toast(novas.length + " lançamento(s) gerados.");
+      });
+  },
+
+  /* --------------------------------------------------------- perfis */
+  async criarPerfil(comDemo) {
+    const campo = $("#onb-nome");
+    const nome = (campo ? campo.value.trim() : "") || (comDemo ? "Exemplo" : "Meu controle");
+    if (comDemo && !DEMO) { this.toast("Os dados de exemplo não estão disponíveis nesta versão.", true); return; }
+    const dados = comDemo ? JSON.parse(JSON.stringify(DEMO)) : dadosVazios();
+    if (comDemo) dados.config = Object.assign(CONFIG_PADRAO(), dados.config);
+    this.toast("Criando perfil…");
+    try {
+      const meta = await Store.criarPerfil(nome, dados);
+      this.perfis = await Store.listarPerfis();
+      await this.abrirPerfil(meta.id);
+      this.toast(comDemo ? "Perfil de exemplo criado. Explore à vontade e apague quando quiser."
+        : "Perfil criado. Comece cadastrando suas contas.");
+      if (!comDemo) { this.rota = "contas"; this.render(); }
+    } catch (e) { console.error(e); this.toast("Não foi possível criar o perfil: " + (e?.message || e), true); }
+  },
+  renomearPerfil(id) {
+    const p = this.perfis.find((x) => x.id === id); if (!p) return;
+    this.modal({ titulo: "Renomear perfil", corpo: UI.txt("nome", "Nome", p.nome, { full: 1 }),
+      onOk: async (f) => {
+        const nome = f.elements.nome.value.trim(); if (!nome) return;
+        await Store.renomearPerfil(id, nome);
+        this.perfis = await Store.listarPerfis();
+        if (id === Store.pid) this.perfilNome = nome;
+        this.fecharModal(); this.render(); this.toast("Perfil renomeado.");
+      } });
+  },
+  async apagarPerfil(id) {
+    const p = this.perfis.find((x) => x.id === id); if (!p) return;
+    const ok = await this.confirmar("Excluir perfil",
+      `Todos os dados de <b>${esc(p.nome)}</b> serão apagados: lançamentos, cadastros, parcelas e metas.
+       Isso não pode ser desfeito. Baixe uma cópia antes, se quiser.`, "Excluir tudo");
+    if (!ok) return;
+    this.fecharModal();
+    await Store.excluirPerfil(id);
+    this.perfis = await Store.listarPerfis();
+    if (id === Store.pid) {
+      this.pronto = false;
+      if (this.perfis.length) await this.abrirPerfil(this.perfis[0].id);
+      else this.renderOnboarding("Perfil excluído. Crie outro para continuar.");
+    } else this.render();
+    this.toast("Perfil excluído.");
+  },
+
+  /* ----------------------------------------------------------- dados */
+  async exportar() {
+    const nome = "caja-guarani-" + this.perfilNome.replace(/[^\w-]+/g, "-").toLowerCase()
+      + "-" + this.d.config.dataRef + ".json";
+    const txt = JSON.stringify({ versao: 1, perfil: this.perfilNome, dados: this.d }, null, 1);
+    try {
+      const dl = await claude.use("downloads");
+      if (dl) { await dl.save({ filename: nome, data: txt }); this.toast("Cópia salva."); return; }
+    } catch (e) { if (e && e.code === "declined") return; console.warn(e); }
+    this.modal({ titulo: "Cópia de segurança", ok: "", largura: 760,
+      corpo: `<p class="hint">Não foi possível baixar o arquivo por aqui. Selecione o texto abaixo,
+        copie e cole em um arquivo <b>${esc(nome)}</b>.</p>
+        <textarea class="inp mono" rows="16" readonly style="font-size:11px">${esc(txt)}</textarea>` });
+  },
+  importar() {
+    this.modal({ titulo: "Restaurar de um arquivo", ok: "Restaurar", largura: 760,
+      corpo: `<div class="aviso-box a">Isto substitui <b>todos</b> os dados do perfil atual
+          (${esc(this.perfilNome)}). Baixe uma cópia antes.</div>
+        <div class="field"><label>Arquivo .json</label><input class="inp" type="file" name="arq" accept=".json"></div>
+        <div class="field"><label>Ou cole o conteúdo aqui</label>
+          <textarea class="inp mono" name="txt" rows="10" style="font-size:11px"></textarea></div>`,
+      onOk: async (f) => {
+        let txt = f.elements.txt.value.trim();
+        const arq = f.elements.arq.files[0];
+        if (!txt && arq) txt = await arq.text();
+        if (!txt) { this.toast("Escolha um arquivo ou cole o conteúdo.", true); return; }
+        let obj; try { obj = JSON.parse(txt); } catch (e) { this.toast("Arquivo inválido: não é um JSON.", true); return; }
+        const novo = obj.dados || obj;
+        if (!novo || !Array.isArray(novo.lancamentos)) { this.toast("Arquivo inválido: não parece uma cópia do sistema.", true); return; }
+        this.d = Object.assign(dadosVazios(), novo);
+        this.d.config = Object.assign(CONFIG_PADRAO(), novo.config || {});
+        this.fecharModal();
+        await Store.salvarTudo(this.d);
+        this.recalc(); this.render();
+        this.toast("Dados restaurados.");
+      } });
+  },
+  async zerar() {
+    const ok = await this.confirmar("Apagar lançamentos",
+      `Os <b>${this.d.lancamentos.length}</b> lançamentos e as movimentações de metas serão apagados.
+       Contas, cartões, investimentos, categorias, compromissos e metas continuam cadastrados.`, "Apagar");
+    if (!ok) return;
+    this.d.lancamentos = []; this.d.movMetas = [];
+    this.fecharModal(); this.salvar("lancamentos", "movMetas");
+    this.toast("Lançamentos apagados. Os cadastros continuam no lugar.");
+  },
+});
+
+App.boot();
+</script>

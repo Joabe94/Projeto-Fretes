@@ -1,0 +1,26 @@
+{
+  "name": "projeto-fretes",
+  "version": "1.0.0",
+  "description": "Sistema completo de controle financeiro pessoal em Excel, sem macros, com moeda **Guaraní paraguaio (Gs.)**. Todo o cálculo é feito por fórmulas nativas; o arquivo abre em qualquer Excel ou LibreOffice sem aviso de segurança.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Joabe94/Projeto-Fretes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Joabe94/Projeto-Fretes/issues"
+  },
+  "homepage": "https://github.com/Joabe94/Projeto-Fretes#readme",
+  "dependencies": {
+    "playwright-core": "^1.63.0"
+  }
+}
