@@ -10,7 +10,7 @@ dados do próprio artefato (capacidade `db`) e cópia de segurança pela capacid
 | `index.html` | Fonte do app (11 blocos de script, sem framework nem CDN de código) |
 | `exportar_demo.py` | Exporta o dataset fictício de `gerador/dados.py` para JSON |
 | `build_app.py` | Embute o JSON em `index.html` e grava `dist/caja-guarani.html` |
-| `teste_app.mjs` | Abre o app no Chromium e confere 62 números contra o Excel |
+| `teste_app.mjs` | Abre o app no Chromium: confere os números contra o Excel, a ajuda das 20 telas, o guia e o layout de telefone |
 
 ```bash
 python3 app/build_app.py --regerar   # gera dist/caja-guarani.html
@@ -30,10 +30,24 @@ node app/teste_app.mjs               # teste de fumaça + conferência numérica
 - **Conferência** (`Calc.testes`): 41 verificações que recalculam cada número por
   um caminho diferente. A tela Conferência mostra o resultado ao usuário.
 - **Telas** (`Views`): 20 rotas renderizadas por string, com delegação de eventos.
+- **Ajuda** (`AJUDA`): para cada uma das 20 telas, o que ela faz, como se liga às
+  outras (com link que navega) e os sintomas mais prováveis com o que verificar.
+- **Guia** (`Guia`): três telas de boas-vindas explicando a regra origem/destino,
+  o cartão de crédito e realizado/projetado; depois uma lista de 10 passos no
+  painel que se marcam sozinhos conforme os dados aparecem.
+- **Telefone**: barra inferior de 5 abas com folha para os menus longos, botão
+  flutuante de lançamento e, abaixo de 860px, toda tabela vira lista de cartões —
+  o papel de cada coluna no cartão é deduzido da própria definição da tabela,
+  sem duplicar código por tela.
 
 ## Equivalência com o Excel
 
-`teste_app.mjs` compara 62 valores do app com os que a auditoria do Excel
-apurou: saldos das 3 contas, dívida e fatura dos 2 cartões, saldo/principal/
-rendimento dos 2 investimentos, as 4 metas, a contagem dos 82 status de parcela,
-o compromisso do terreno em 44/60, patrimônio, fluxo e projeção. Todos batem.
+`teste_app.mjs` faz 85 verificações. Compara os valores do app com os que a
+auditoria do Excel apurou (saldos das 3 contas, dívida e fatura dos 2 cartões,
+saldo/principal/rendimento dos 2 investimentos, as 4 metas, a contagem dos 82
+status de parcela, o terreno em 44/60, patrimônio, fluxo e projeção); percorre as
+20 telas; abre a ajuda de cada uma exigindo as três seções preenchidas; cria um
+perfil vazio e percorre o guia até o primeiro passo se marcar sozinho; e, num
+viewport de 390x844, confere a barra inferior, a folha de menu, os cartões no
+lugar das tabelas, a altura de toque dos botões e a ausência de rolagem
+horizontal.

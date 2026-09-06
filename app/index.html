@@ -80,14 +80,77 @@ a{color:var(--accent)}
 .page-head{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
 .page-head h1{font-size:23px}
 .page-head p{margin:2px 0 0;color:var(--ink-2);font-size:13px;max-width:70ch}
-@media (max-width:900px){
-  .app{grid-template-columns:1fr}
-  .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
-  .nav{display:flex;gap:6px;overflow-x:auto;padding:8px 10px}
-  .nav-group{display:none}
-  .nav-item{white-space:nowrap;width:auto}
-  .page{padding:14px}
-}
+/* ---------- telefone ---------- */
+.only-mob{display:none}
+.mob-bar,.fab,.sheet-wrap{display:none}
+
+/* folha inferior (menu "mais") */
+.sheet-wrap{position:fixed;inset:0;z-index:120;background:rgba(16,14,26,.5);display:none;
+  align-items:flex-end}
+.sheet-wrap.on{display:flex}
+.sheet{background:var(--surface);width:100%;border-radius:16px 16px 0 0;max-height:82vh;
+  overflow-y:auto;padding:8px 0 calc(16px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.sheet-h{display:flex;align-items:center;gap:10px;padding:10px 16px 8px}
+.sheet-h h3{font-size:15px;flex:1}
+.sheet-grip{width:38px;height:4px;border-radius:4px;background:var(--line-2);margin:6px auto 2px}
+.sheet-item{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;
+  padding:12px 16px;font-size:14.5px;color:var(--ink);cursor:pointer;text-align:left;min-height:48px}
+.sheet-item:hover,.sheet-item:focus{background:var(--surface-3)}
+.sheet-item[aria-current="page"]{color:var(--accent);font-weight:700;background:var(--accent-soft)}
+.sheet-item .si{width:22px;text-align:center;opacity:.8}
+.sheet-sec{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:700;padding:12px 16px 4px}
+
+/* lista em cartoes (telefone) */
+.cards{display:none;flex-direction:column;gap:8px;padding:12px}
+@media (max-width:860px){.tbl-wrap{display:none}.cards{display:flex}}
+.cardrow{border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2);padding:11px 12px}
+.cr-top{display:flex;gap:10px;align-items:flex-start}
+.cr-t{flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.3}
+.cr-t .hint{font-weight:400}
+.cr-v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;
+  white-space:nowrap;text-align:right}
+.cr-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.cr-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin:9px 0 0;padding:9px 0 0;
+  border-top:1px dashed var(--line)}
+.cr-grid>div{min-width:0}
+.cr-grid dt{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.cr-grid dd{margin:1px 0 0;font-size:12.5px;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.cr-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.cr-acts .row{width:100%;gap:6px}
+.cr-acts .btn{flex:1 1 auto;justify-content:center;min-width:88px}
+
+/* guia de primeiros passos */
+.guia{border:1px solid var(--accent);border-radius:var(--r);background:var(--accent-soft);overflow:hidden}
+.guia-h{padding:13px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.guia-h h3{font-size:14.5px;color:var(--accent)}
+.guia-h .sp{flex:1}
+.guia-b{background:var(--surface);border-top:1px solid var(--line);padding:4px 0}
+.passo{display:flex;gap:11px;align-items:flex-start;padding:11px 16px;border-bottom:1px solid var(--line)}
+.passo:last-child{border-bottom:0}
+.passo .pn{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none;
+  font-size:11.5px;font-weight:700;background:var(--surface-3);color:var(--ink-2);margin-top:1px}
+.passo.ok .pn{background:var(--bom);color:#fff}
+.passo.ok .pt b{text-decoration:line-through;opacity:.6}
+.passo .pt{flex:1;min-width:0}
+.passo .pt b{display:block;font-size:13.5px}
+.passo .pt span{font-size:12.5px;color:var(--ink-2);display:block;margin-top:1px}
+.passo .pa{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+@media (max-width:860px){.passo{flex-wrap:wrap}}
+
+/* ajuda */
+.ajuda-sec{margin:0 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent);font-weight:700}
+.ajuda-p{margin:0 0 14px;max-width:66ch;font-size:13.5px}
+.ajuda-lig{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.ajuda-lig button{display:flex;gap:9px;align-items:baseline;text-align:left;width:100%;border:1px solid var(--line);
+  background:var(--surface-2);border-radius:var(--r-sm);padding:9px 11px;cursor:pointer;font-size:13px}
+.ajuda-lig button:hover{border-color:var(--accent);background:var(--accent-soft)}
+.ajuda-lig b{color:var(--accent);white-space:nowrap}
+.ajuda-prob{display:flex;flex-direction:column;gap:9px}
+.ajuda-prob div{border-left:3px solid var(--aviso);padding:2px 0 2px 11px}
+.ajuda-prob b{display:block;font-size:13px}
+.ajuda-prob span{font-size:12.5px;color:var(--ink-2)}
 
 /* ---------- primitivas ---------- */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh-1)}
@@ -138,6 +201,7 @@ th{text-align:left;font-size:10.5px;letter-spacing:.07em;text-transform:uppercas
   font-weight:700;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;
   background:var(--surface-2);position:sticky;top:0;z-index:1}
 td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+td .row{flex-wrap:nowrap}
 tbody tr:hover{background:var(--surface-2)}
 tbody tr:last-child td{border-bottom:0}
 td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
@@ -226,6 +290,55 @@ th.num{text-align:right}
 .line-item .li-m b{display:block;font-size:13px;font-weight:600}
 .line-item .li-m span{font-size:11.5px;color:var(--ink-3)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- ajustes de telefone (por ultimo, para vencer o cascade) ---------- */
+@media (max-width:860px){
+  .only-mob{display:initial}
+  .no-mob{display:none!important}
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .main{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+  .topbar{padding:8px 12px;gap:8px}
+  .page{padding:12px;gap:14px}
+  .page-head h1{font-size:20px}
+  .page-head p{font-size:12.5px}
+  .grid{gap:10px}
+  .g2,.g3{grid-template-columns:1fr}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .kpi{padding:10px 12px}
+  .kpi .k-v{font-size:16px}
+  .kpi .k-l{min-height:0;font-size:9.5px}
+  .split{grid-template-columns:1fr}
+  .card-h{padding:11px 13px}
+  .card-b{padding:13px}
+  .inp,select.inp{font-size:16px;padding:9px 10px}   /* 16px evita o zoom do iOS */
+  .btn{padding:9px 14px;min-height:40px}
+  .btn-sm{padding:7px 11px;min-height:36px;font-size:12.5px}
+  .modal{width:100%;max-height:100vh;height:100%;border-radius:0;border:0}
+  .ovl{padding:0;place-items:stretch}
+  .modal-f{border-radius:0;padding-bottom:calc(13px + env(safe-area-inset-bottom,0px))}
+  .fgrid{grid-template-columns:1fr}
+  .onb{padding:0;place-items:stretch}
+  .onb-card{border-radius:0;border:0;min-height:100vh}
+  .onb-top{padding:22px 18px 16px}.onb-b{padding:18px}
+  .perfil-item{flex-wrap:wrap}
+  /* barra inferior */
+  .mob-bar{display:grid;position:fixed;left:0;right:0;bottom:0;z-index:60;
+    grid-template-columns:repeat(5,1fr);background:var(--surface);
+    border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+  .mob-bar button{border:0;background:none;padding:8px 2px 9px;display:flex;flex-direction:column;
+    align-items:center;gap:2px;color:var(--ink-3);font-size:10.5px;font-weight:600;cursor:pointer;
+    min-height:54px;position:relative}
+  .mob-bar button[aria-current="page"]{color:var(--accent)}
+  .mob-bar .mi{font-size:17px;line-height:1}
+  .mob-bar .nb{position:absolute;top:4px;right:calc(50% - 20px);background:var(--grave);color:#fff;
+    border-radius:20px;font-size:9px;padding:0 4px;font-weight:700}
+  .fab{display:grid;position:fixed;right:14px;bottom:calc(80px + env(safe-area-inset-bottom,0px));
+    z-index:61;width:52px;height:52px;border-radius:50%;background:var(--accent);color:var(--accent-ink);
+    place-items:center;border:0;font-size:26px;line-height:1;box-shadow:var(--sh-2);cursor:pointer}
+  .toasts{bottom:calc(142px + env(safe-area-inset-bottom,0px));right:12px;left:12px}
+  .toast{max-width:none}
+}
 </style>
 <div id="app"><div class="onb"><div class="onb-card"><div class="onb-top">
 <h1>Caja Guaraní</h1><p>Carregando o sistema…</p></div></div></div></div>
@@ -1027,17 +1140,47 @@ const UI = {
   vazio(titulo, msg, botao = "") {
     return `<div class="empty"><strong>${esc(titulo)}</strong>${esc(msg)}${botao ? `<div style="margin-top:12px">${botao}</div>` : ""}</div>`;
   },
+  /** Emite a mesma lista duas vezes: tabela (telas largas) e cartoes (telefone).
+   *  O papel de cada coluna no cartao e deduzido: a primeira vira titulo, colunas
+   *  sem cabecalho viram acoes, celulas com etiqueta viram selo, a primeira coluna
+   *  numerica vira o valor em destaque e o resto vira par rotulo/valor. */
   tabela(cols, linhas, opts = {}) {
     if (!linhas.length) return UI.vazio(opts.vazioTitulo || "Nada por aqui ainda",
       opts.vazioMsg || "Cadastre o primeiro registro para começar.", opts.vazioBotao || "");
+    const papel = cols.map((c, i) => {
+      if (c.m) return c.m;
+      if (!c.t) return "acao";
+      if (i === 0) return "titulo";
+      return c.num ? "num" : "texto";
+    });
+    const iValor = papel.findIndex((p, i) => p === "num" && cols[i].destaque !== false);
     const th = cols.map((c) => `<th class="${c.num ? "num" : ""}">${esc(c.t)}</th>`).join("");
-    const tr = linhas.map((l) => `<tr${l._attr || ""}>` + cols.map((c) => {
-      const v = c.f(l);
-      return `<td class="${c.num ? "num" : ""}${c.cls ? " " + c.cls(l) : ""}">${v}</td>`;
-    }).join("") + "</tr>").join("");
+    let tr = "", cards = "";
+    for (const l of linhas) {
+      const vals = cols.map((c) => c.f(l));
+      tr += `<tr${l._attr || ""}>` + cols.map((c, i) =>
+        `<td class="${c.num ? "num" : ""}${c.cls ? " " + c.cls(l) : ""}">${vals[i]}</td>`).join("") + "</tr>";
+      const selos = [], pares = [], acoes = [];
+      let titulo = "", valor = "";
+      cols.forEach((c, i) => {
+        const v = vals[i];
+        if (papel[i] === "acao") { if (String(v).trim()) acoes.push(v); return; }
+        if (papel[i] === "titulo") { titulo = v; return; }
+        if (i === iValor) { valor = v; return; }
+        if (/class="tag /.test(String(v))) { selos.push(v); return; }
+        const txt = String(v).replace(/<[^>]*>/g, "").trim();
+        if (txt && txt !== "—" && txt !== "0") pares.push(`<div><dt>${esc(c.t)}</dt><dd>${v}</dd></div>`);
+      });
+      cards += `<article class="cardrow"><div class="cr-top"><div class="cr-t">${titulo}</div>
+        ${valor ? `<div class="cr-v">${valor}</div>` : ""}</div>
+        ${selos.length ? `<div class="cr-badges">${selos.join("")}</div>` : ""}
+        ${pares.length ? `<dl class="cr-grid">${pares.join("")}</dl>` : ""}
+        ${acoes.length ? `<div class="cr-acts">${acoes.join("")}</div>` : ""}</article>`;
+    }
     const tf = opts.rodape ? `<tfoot class="tfoot"><tr>` + cols.map((c) =>
       `<td class="${c.num ? "num" : ""}">${opts.rodape[c.k] ?? ""}</td>`).join("") + "</tr></tfoot>" : "";
-    return `<div class="tbl-wrap"><table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody>${tf}</table></div>`;
+    return `<div class="tbl-wrap"><table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody>${tf}</table></div>
+      <div class="cards">${cards}</div>`;
   },
   tag(texto, nivel) { return `<span class="tag t-${nivel}"><i class="dot"></i>${esc(texto)}</span>`; },
   tagStatus(s) {
@@ -1200,6 +1343,7 @@ Views.painel = (v) => {
         <button class="btn btn-sm" style="margin-left:8px" data-act="ir" data-rota="alertas">Ver alertas</button></div>` : "";
   return `<div class="page-head"><div><h1>Painel</h1>
       <p>Posição em ${Fmt.data(v.hoje)}. Valores realizados, salvo onde estiver escrito projetado.</p></div></div>
+    ${Guia.card(v)}
     ${alertaTopo}
     <div class="grid g4">${kpis}</div>
     <div class="split">
@@ -1274,7 +1418,7 @@ Views.lancamentos = (v) => {
       { t: "Categoria", f: (l) => esc(l.categoriaNome ? l.categoriaNome + (l.subcategoriaNome ? " · " + l.subcategoriaNome : "") : "—") },
       { t: "Status", f: (l) => UI.tagStatus(l.status) },
       { t: "Valor", num: true, f: (l) => UI.moeda(l.classificacao === "DESPESA" ? -l.valor : l.valor) },
-      { t: "", f: (l) => `<div class="row" style="gap:4px;flex-wrap:nowrap">
+      { t: "", f: (l) => `<div class="row" style="gap:4px">
           ${l.status === "PROJETADO" ? `<button class="btn btn-sm" data-act="realizar" data-id="${esc(l.id)}">Realizar</button>` : ""}
           ${l.status !== "CANCELADO" ? `<button class="btn btn-sm" data-act="cancelar-lanc" data-id="${esc(l.id)}">Cancelar</button>`
             : `<button class="btn btn-sm" data-act="reativar" data-id="${esc(l.id)}">Reativar</button>`}
@@ -1920,6 +2064,14 @@ Views.config = (v) => {
         <button class="btn btn-pri btn-sm" data-act="novo-perfil-vazio">+ Perfil vazio</button>
         <button class="btn btn-sm" data-act="novo-perfil-demo">+ Perfil com dados de exemplo</button>
       </div>`)}
+    ${UI.card("Ajuda e guia", `<p class="hint" style="max-width:66ch">O botão <b>?</b> no alto de cada tela
+        explica o que ela faz, como se liga às outras e o que verificar quando um número não bate.
+        O guia de primeiros passos fica no Painel até você concluí-lo.</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn btn-sm" data-act="guia-mostrar">Mostrar guia no painel</button>
+        <button class="btn btn-sm" data-act="guia-boasvindas">Rever a explicação inicial</button>
+        <button class="btn btn-sm" data-act="ajuda">Ajuda desta tela</button>
+      </div>`)}
     ${UI.card("Dados", `<p class="hint">Os dados ficam salvos ${Store.online
         ? "no banco de dados online deste aplicativo, na sua conta."
         : "apenas neste navegador (o banco online não está disponível nesta sessão)."}
@@ -2190,16 +2342,81 @@ const App = {
       </aside>
       <div class="main">
         <header class="topbar">
-          <span class="hint">Referência</span>
-          <input class="inp" style="width:145px" type="date" data-cfg="dataRef" value="${esc(v.cfg.dataRef)}">
+          <span class="hint no-mob">Referência</span>
+          <input class="inp" style="width:145px;max-width:42vw" type="date" data-cfg="dataRef" value="${esc(v.cfg.dataRef)}">
           <div class="sp"></div>
-          ${this.syncHTML()}
-          <button class="btn btn-sm" data-act="ir" data-rota="config">Perfis</button>
-          <button class="btn btn-pri btn-sm" data-act="novo" data-tipo="lancamento">+ Lançamento</button>
+          <span class="no-mob">${this.syncHTML()}</span>
+          <button class="btn btn-sm" data-act="ajuda" title="O que esta tela faz"
+            aria-label="Ajuda desta tela">? <span class="no-mob">Ajuda</span></button>
+          <button class="btn btn-sm no-mob" data-act="ir" data-rota="config">Perfis</button>
+          <button class="btn btn-pri btn-sm no-mob" data-act="novo" data-tipo="lancamento">+ Lançamento</button>
         </header>
         <main class="page">${view}</main>
-      </div></div>`;
+      </div>
+      ${this.barraMobile(graves, falhas)}
+      <button class="fab" data-act="novo" data-tipo="lancamento" aria-label="Novo lançamento">+</button>
+      <div class="sheet-wrap" id="sheet"></div></div>`;
     window.scrollTo(0, 0);
+  },
+  barraMobile(graves, falhas) {
+    const abas = [["painel", "Painel", "painel"], ["lancamentos", "Lançar", "lancamentos"],
+      ["contas", "Contas", "contas"]];
+    const grupoAnalise = ["fluxo", "projecao", "relMensal", "relAnual", "patrimonio", "indicadores"];
+    const naAnalise = grupoAnalise.includes(this.rota);
+    const outras = !abas.some((a) => a[0] === this.rota) && !naAnalise;
+    return `<nav class="mob-bar" aria-label="Navegação principal">
+      ${abas.map(([r, rot, ic]) => `<button data-act="ir" data-rota="${r}"
+        ${this.rota === r ? 'aria-current="page"' : ""}>${ico(ic)}${esc(rot)}</button>`).join("")}
+      <button data-act="folha" data-folha="analise" ${naAnalise ? 'aria-current="page"' : ""}>
+        ${ico("analise")}Análise</button>
+      <button data-act="folha" data-folha="mais" ${outras ? 'aria-current="page"' : ""}>
+        ${ico("mais")}Mais${graves || falhas ? `<span class="nb">${graves + falhas}</span>` : ""}</button>
+    </nav>`;
+  },
+  folha(qual) {
+    const graves = this.v.alertas.filter((a) => a.nivel === "grave").length;
+    const falhas = this.v.testes.filter((t) => !t.ok).length;
+    const item = (r, rot, badge) => `<button class="sheet-item" data-act="ir" data-rota="${r}"
+      ${this.rota === r ? 'aria-current="page"' : ""}>${esc(rot)}
+      ${badge ? `<span class="nav-badge" style="margin-left:auto">${badge}</span>` : ""}</button>`;
+    const corpo = qual === "analise"
+      ? `<div class="sheet-sec">Análise</div>${item("fluxo", "Fluxo de caixa")}${item("projecao", "Projeção")}
+         ${item("relMensal", "Relatório mensal")}${item("relAnual", "Relatório anual")}
+         ${item("patrimonio", "Patrimônio")}${item("indicadores", "Indicadores")}`
+      : `<div class="sheet-sec">Movimento</div>${item("compromissos", "Compromissos e parcelas")}
+         ${item("metas", "Metas")}${item("recorrencias", "Recorrências")}
+         <div class="sheet-sec">Cadastros</div>${item("cartoes", "Cartões")}
+         ${item("investimentos", "Investimentos")}${item("categorias", "Categorias")}
+         ${item("instituicoes", "Instituições")}${item("bens", "Bens")}
+         <div class="sheet-sec">Sistema</div>${item("alertas", "Alertas", graves)}
+         ${item("testes", "Conferência", falhas)}${item("config", "Configurações e perfis")}
+         <button class="sheet-item" data-act="ajuda">Ajuda desta tela</button>
+         <div style="padding:12px 16px">${this.syncHTML()}</div>`;
+    const el = $("#sheet");
+    el.innerHTML = `<div class="sheet" role="dialog" aria-label="Menu"><div class="sheet-grip"></div>
+      <div class="sheet-h"><h3>${qual === "analise" ? "Análise" : "Mais"}</h3>
+        <button class="btn btn-sm" data-act="fechar-folha">Fechar</button></div>${corpo}</div>`;
+    el.classList.add("on");
+    el.onclick = (e) => { if (e.target === el) this.fecharFolha(); };
+  },
+  fecharFolha() { const el = $("#sheet"); if (el) { el.classList.remove("on"); el.innerHTML = ""; } },
+
+  /* ----------------------------------------------------------- ajuda */
+  ajuda(rota) {
+    const a = AJUDA[rota || this.rota] || AJUDA.painel;
+    this.fecharFolha();
+    this.modal({ titulo: "Ajuda — " + a.t, ok: "", largura: 720,
+      corpo: `<div><p class="ajuda-sec">O que esta tela faz</p>
+          <p class="ajuda-p">${a.oque}</p></div>
+        <div><p class="ajuda-sec">Como se liga com as outras</p>
+          <div class="ajuda-lig">${a.ligacoes.map(([r, txt]) =>
+            `<button data-act="ir-ajuda" data-rota="${r}"><b>${esc(AJUDA[r] ? AJUDA[r].t : r)}</b>
+              <span>${esc(txt)}</span></button>`).join("")}</div></div>
+        <div><p class="ajuda-sec">Se algo não funcionar</p>
+          <div class="ajuda-prob">${a.problemas.map(([q, r]) =>
+            `<div><b>${esc(q)}</b><span>${esc(r)}</span></div>`).join("")}</div></div>
+        <p class="hint" style="margin-top:6px">Continua sem fechar? Em Configurações, baixe a cópia
+          em JSON e mande para quem montou o sistema: ela tem tudo o que é preciso para reproduzir o problema.</p>` });
   },
   renderOnboarding(msg) {
     const temDemo = !!DEMO;
@@ -2291,9 +2508,23 @@ const App = {
 Object.assign(App, {
   onClick(e) {
     const b = e.target.closest("[data-act]"); if (!b) return;
-    const { act, tipo, id, rota, modo, mov } = b.dataset;
+    const { act, tipo, id, rota, modo, mov, folha, passo, i } = b.dataset;
     const acoes = {
-      ir: () => { this.rota = rota; this.render(); },
+      ir: () => { this.fecharFolha(); this.fecharModal(); this.rota = rota; this.render(); },
+      "ir-ajuda": () => { this.fecharModal(); this.rota = rota; this.render();
+        setTimeout(() => this.ajuda(rota), 60); },
+      ajuda: () => this.ajuda(),
+      folha: () => this.folha(folha),
+      "fechar-folha": () => this.fecharFolha(),
+      "guia-fazer": () => this.guiaFazer(passo),
+      "guia-pular": () => this.guiaMarcar(passo, "guiaPulados"),
+      "guia-marcar": () => this.guiaMarcar(passo, "guiaFeitos"),
+      "guia-fechar": () => { this.d.config.guiaOculto = true; this.d.config.guiaAtivo = false;
+        this.salvar("config"); this.toast("Guia escondido. Volta em Configurações."); },
+      "guia-mostrar": () => { this.d.config.guiaOculto = false; this.d.config.guiaAtivo = true;
+        this.rota = "painel"; this.salvar("config"); },
+      "guia-voltar": () => { this.fecharModal(); Guia.abrirBoasVindas(Number(i)); },
+      "guia-boasvindas": () => Guia.abrirBoasVindas(0),
       "fechar-modal": () => this.fecharModal(),
       "modal-ok": () => { const f = $("#modal-form"); if (f && f.reportValidity() && this.modalOk) this.modalOk(f); },
       novo: () => this.editar(tipo, null),
@@ -2618,6 +2849,19 @@ Object.assign(App, {
       });
   },
 
+  /* ----------------------------------------------------------- guia */
+  guiaFazer(passoId) {
+    const p = Guia.passos(this.v).find((x) => x.id === passoId); if (!p) return;
+    this.fecharFolha();
+    this.rota = p.rota; this.render();
+    if (p.novo) setTimeout(() => this.editar(p.novo, null), 80);
+  },
+  guiaMarcar(passoId, chave) {
+    const c = this.d.config;
+    c[chave] = Array.from(new Set([...(c[chave] || []), passoId]));
+    this.salvar("config");
+  },
+
   /* --------------------------------------------------------- perfis */
   async criarPerfil(comDemo) {
     const campo = $("#onb-nome");
@@ -2630,9 +2874,13 @@ Object.assign(App, {
       const meta = await Store.criarPerfil(nome, dados);
       this.perfis = await Store.listarPerfis();
       await this.abrirPerfil(meta.id);
-      this.toast(comDemo ? "Perfil de exemplo criado. Explore à vontade e apague quando quiser."
-        : "Perfil criado. Comece cadastrando suas contas.");
-      if (!comDemo) { this.rota = "contas"; this.render(); }
+      if (comDemo) this.toast("Perfil de exemplo criado. Explore à vontade e apague quando quiser.");
+      else {
+        this.d.config.guiaAtivo = true; this.d.config.guiaOculto = false;
+        Store.marcar("config");
+        this.rota = "painel"; this.render();
+        Guia.abrirBoasVindas(0);
+      }
     } catch (e) { console.error(e); this.toast("Não foi possível criar o perfil: " + (e?.message || e), true); }
   },
   renomearPerfil(id) {
@@ -2712,4 +2960,323 @@ Object.assign(App, {
 });
 
 App.boot();
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  AJUDA POR TELA                                                       */
+/*  o que faz · como se liga com as outras · o que fazer se nao bater     */
+/* ==================================================================== */
+const AJUDA = {
+  painel: { t: "Painel",
+    oque: `A fotografia do momento. Cada cartão de cima é um número calculado a partir dos seus lançamentos: o saldo somado das contas, quanto disso está reservado em metas, o que sobrou de livre, o total investido, o patrimônio e as dívidas. Embaixo ficam os gráficos do mês e as listas de contas, metas e compromissos.`,
+    ligacoes: [["lancamentos", "Nada aqui é digitado. Todo número vem dos lançamentos"],
+      ["contas", "O saldo total é a soma dos saldos das contas"],
+      ["alertas", "A faixa vermelha no topo aparece quando há alertas graves"],
+      ["projecao", "O “menor saldo projetado” vem da projeção"]],
+    problemas: [["O saldo não bate com o extrato do banco",
+      "Abra Contas e confira o saldo inicial e a data dele. O sistema calcula saldo inicial + entradas − saídas: se a data do saldo inicial estiver errada, tudo depois fica errado."],
+      ["Um valor aparece zerado", "Provavelmente o lançamento está como PROJETADO. Só o que está REALIZADO entra no saldo."],
+      ["A data de referência está errada", "Mude no campo do topo da tela. Ela define o que é passado e o que é futuro em todo o sistema."]] },
+  lancamentos: { t: "Lançamentos",
+    oque: `O livro único do sistema, e a única tela onde você realmente digita dinheiro. Toda operação sai de uma <b>origem</b> e vai para um <b>destino</b>, e cada um deles é uma conta, um cartão, um investimento ou <i>externo</i> (o mundo fora do seu controle: o empregador, o supermercado). É dessa regra sozinha que saem saldos, dívidas, fluxo, relatórios e patrimônio.`,
+    ligacoes: [["contas", "Origem ou destino CONTA mexe no saldo da conta"],
+      ["cartoes", "Origem CARTÃO aumenta a dívida; destino CARTÃO abate"],
+      ["compromissos", "Um lançamento com parcela vinculada marca a parcela como paga"],
+      ["fluxo", "Entradas e saídas de caixa alimentam o fluxo"],
+      ["relMensal", "As categorias alimentam os relatórios"]],
+    problemas: [["Lancei a compra no cartão e o saldo da conta caiu",
+      "O tipo deve ser “Compra no cartão”, com origem CARTÃO. Se estiver como Despesa com origem CONTA, o dinheiro sai da conta na hora."],
+      ["Paguei a fatura e a despesa apareceu duas vezes",
+      "O pagamento da fatura é “Pagamento de fatura” (Conta → Cartão), que é neutro. A despesa já foi contada na compra."],
+      ["A linha está com uma etiqueta vermelha de erro",
+      "A etiqueta diz exatamente o que está faltando: origem inexistente, subcategoria de outra categoria, valor zerado. Clique em Editar e corrija."],
+      ["Lancei errado e já usei o valor em outro lugar",
+      "Use Cancelar em vez de Excluir: o histórico continua e o efeito financeiro some. Excluir só quando o lançamento não tem vínculo nenhum."]] },
+  contas: { t: "Contas",
+    oque: `Onde seu dinheiro fica: conta corrente, poupança e dinheiro em espécie. O saldo nunca é digitado — é sempre saldo inicial mais entradas menos saídas realizadas. As colunas Reservado e Disponível mostram quanto do saldo já tem destino em alguma meta.`,
+    ligacoes: [["lancamentos", "Cada entrada e saída vem de um lançamento"],
+      ["metas", "O Reservado é a soma das metas ligadas a esta conta"],
+      ["fluxo", "O saldo inicial é o ponto de partida do fluxo de caixa"]],
+    problemas: [["O saldo calculado está diferente do banco",
+      "Confira o saldo inicial e a data. Depois filtre os lançamentos por esta conta e compare com o extrato do período."],
+      ["O disponível está menor que o saldo",
+      "É a reserva de metas. O dinheiro continua na conta; ele só está com destino marcado. Veja a tela Metas."],
+      ["Cadastrei a conta mas ela não aparece no lançamento",
+      "Verifique se o Status está Ativo e recarregue a página."]] },
+  cartoes: { t: "Cartões de crédito",
+    oque: `A dívida é dívida inicial mais compras menos pagamentos. O sistema calcula sozinho o ciclo aberto a partir do dia de fechamento, mostra o que já entrou nessa fatura e quando ela vence.`,
+    ligacoes: [["lancamentos", "Compra no cartão aumenta a dívida; pagamento de fatura abate"],
+      ["compromissos", "Compras parceladas no cartão viram uma parcela por mês"],
+      ["alertas", "Uso do limite e fatura perto do vencimento geram alerta"]],
+    problemas: [["A fatura mostrada não é a que o banco cobrou",
+      "Confira o dia de fechamento no cadastro. O ciclo aberto vai do dia seguinte ao último fechamento até o próximo."],
+      ["A dívida ficou negativa", "Você pagou mais do que devia, ou a dívida inicial está menor que a real. Ajuste a dívida inicial no cadastro."],
+      ["Paguei a fatura e a dívida não zerou",
+      "Só zera se o pagamento cobrir tudo. Compras feitas depois do fechamento já entram na próxima fatura e continuam na dívida."]] },
+  investimentos: { t: "Investimentos",
+    oque: `Cada investimento é um caixa separado. Aporte tira da conta e põe aqui; resgate faz o contrário. Nenhum dos dois é despesa ou receita — é dinheiro mudando de lugar. Só o rendimento é receita financeira.`,
+    ligacoes: [["lancamentos", "Aporte, resgate e rendimento são lançamentos"],
+      ["patrimonio", "O saldo entra nos ativos do patrimônio"],
+      ["projecao", "Vencimentos e rendimentos projetados entram na projeção"]],
+    problemas: [["O rendimento projetado apareceu junto com o realizado",
+      "Não aparece: são duas colunas separadas, e a projeção nunca é somada ao resultado. É proposital."],
+      ["Resguei e o valor virou receita",
+      "Use o botão Resgatar, que separa principal de rendimento. Se lançar na mão como Receita, o principal entra errado no resultado."],
+      ["A data de vencimento não apareceu", "Ela só é calculada quando o Prazo em meses é maior que zero."]] },
+  compromissos: { t: "Compromissos e parcelas",
+    oque: `Financiamentos e compras parceladas. Você informa o valor da parcela, quantas são, quando começou e quantas já pagou antes de usar o sistema — o cronograma inteiro é gerado, de 1/60 até 60/60, com o status de cada uma.`,
+    ligacoes: [["lancamentos", "Registrar o pagamento cria (ou converte) um lançamento"],
+      ["fluxo", "As parcelas futuras entram no fluxo projetado"],
+      ["patrimonio", "O saldo devedor entra nos passivos"],
+      ["bens", "Um bem pode ser ligado ao financiamento que o comprou"]],
+    problemas: [["A parcela está como ATRASADA e eu já paguei",
+      "O sistema só considera paga quando existe um lançamento REALIZADO ligado a ela. Clique em Registrar pagamento no cronograma."],
+      ["Paguei e apareceram dois lançamentos",
+      "Não deveria: o botão converte o lançamento projetado. Se você também lançou na mão, cancele o duplicado. A tela Conferência acusa isso."],
+      ["As parcelas já pagas antes aparecem em aberto",
+      "Preencha “Parcelas já pagas antes do sistema” no cadastro do compromisso."],
+      ["Mudei o valor da parcela e o cronograma não mudou",
+      "Ele é regerado ao salvar. As parcelas já pagas mantêm o valor efetivamente pago no histórico."]] },
+  metas: { t: "Metas",
+    oque: `Meta é reserva lógica, não transferência. O dinheiro continua fisicamente na conta; o que muda é o saldo disponível. Serve para separar mentalmente o que já tem destino sem tirar do banco.`,
+    ligacoes: [["contas", "A reserva reduz o Disponível da conta vinculada"],
+      ["fluxo", "Se a meta estiver marcada para descontar, ela reduz o saldo livre projetado"],
+      ["lancamentos", "Nenhuma movimentação de meta cria lançamento: são coisas separadas"]],
+    problemas: [["Reservei e o saldo da conta não mudou",
+      "Correto. Reserva não move dinheiro. Olhe a coluna Disponível, não a Saldo."],
+      ["Quero usar o dinheiro da meta",
+      "Retire da meta escolhendo o destino e depois faça o lançamento real da compra. São dois passos porque são duas coisas."],
+      ["Cancelei a meta e o valor sumiu",
+      "Não some: o sistema pergunta o destino e registra a liberação no histórico, embaixo da tela."]] },
+  recorrencias: { t: "Recorrências",
+    oque: `As regras do que se repete: salário, aluguel, assinaturas. Gerar as ocorrências cria lançamentos projetados até a data que você definir. Quando o dinheiro se mover de verdade, é só marcar como realizado.`,
+    ligacoes: [["lancamentos", "Gerar cria lançamentos projetados ligados à recorrência"],
+      ["projecao", "É o que faz a projeção ter conteúdo"],
+      ["fluxo", "As ocorrências futuras aparecem no fluxo projetado"]],
+    problemas: [["Gerei duas vezes e duplicou",
+      "Não duplica: o sistema pula as datas que já existem para aquela recorrência."],
+      ["Mudei o valor e os lançamentos antigos continuam com o valor velho",
+      "É proposital: o que já foi gerado é histórico. Edite os lançamentos futuros ou apague e gere de novo."],
+      ["O salário caiu num dia diferente", "Edite a data no lançamento daquele mês; a regra continua valendo para os outros."]] },
+  categorias: { t: "Categorias",
+    oque: `Como suas despesas e receitas são agrupadas nos relatórios. Cada categoria tem subcategorias, e na tela de lançamento a lista de subcategorias muda sozinha conforme a categoria escolhida.`,
+    ligacoes: [["lancamentos", "A classificação é feita no lançamento"],
+      ["relMensal", "Os relatórios agrupam por estas categorias"],
+      ["indicadores", "O “onde o dinheiro foi” usa a categoria"]],
+    problemas: [["A subcategoria não aparece na lista",
+      "Ela só aparece depois de escolher a categoria dona dela. Se ainda não aparecer, confira em qual categoria ela foi cadastrada."],
+      ["Excluí uma categoria em uso", "Os lançamentos antigos ficam sem nome de categoria. Recrie-a ou reclassifique os lançamentos."]] },
+  instituicoes: { t: "Instituições",
+    oque: `Bancos, financeiras e emissores de cartão. É só um agrupador: depois de cadastrada, a instituição aparece nas listas de contas, cartões e investimentos.`,
+    ligacoes: [["contas", "Cada conta pode apontar para uma instituição"],
+      ["cartoes", "Idem para cartões"], ["investimentos", "Idem para investimentos"]],
+    problemas: [["Cadastrei o banco e ele não apareceu na conta", "Recarregue a tela de contas; a lista é lida na hora de abrir o formulário."]] },
+  bens: { t: "Bens",
+    oque: `Ativos que não são dinheiro: imóvel, veículo, equipamento. Opcional, mas útil: sem cadastrar o bem, um financiamento aparece só como dívida e o patrimônio fica artificialmente negativo.`,
+    ligacoes: [["compromissos", "Ligue o bem ao financiamento que o comprou"],
+      ["patrimonio", "Os bens entram no patrimônio total, não no financeiro"]],
+    problemas: [["O patrimônio ficou negativo", "Provavelmente há um financiamento sem o bem correspondente cadastrado aqui."]] },
+  fluxo: { t: "Fluxo de caixa",
+    oque: `Só o que atravessa uma conta. Transferência entre contas próprias não aparece como entrada nem como saída, porque o dinheiro não entrou nem saiu do seu bolso. Compra no cartão também não: ela só vira saída quando a fatura é paga. Há quatro visões: mensal, diária, semanal e anual.`,
+    ligacoes: [["lancamentos", "Entradas e saídas vêm dos lançamentos"],
+      ["projecao", "A parte projetada é a mesma da projeção"],
+      ["metas", "A coluna Saldo livre desconta as reservas marcadas"]],
+    problemas: [["Uma transferência não aparece", "É proposital: ela sai de uma conta e entra em outra, e o total não muda."],
+      ["O saldo do primeiro mês parece alto demais",
+      "Ele parte da soma dos saldos iniciais das contas. Confira as datas dos saldos iniciais em Contas."],
+      ["O saldo fica negativo lá na frente", "É um aviso real: veja em Projeção qual mês e o que pesa nele."]] },
+  projecao: { t: "Projeção",
+    oque: `O futuro mês a mês, separando o que compõe cada saída: parcelas, faturas, aportes e despesas projetadas. A coluna “já realizado no mês” mostra o que do mês corrente já aconteceu, para o saldo partir da posição verdadeira.`,
+    ligacoes: [["recorrencias", "É daqui que vem a maior parte do que é projetado"],
+      ["compromissos", "As parcelas futuras aparecem na coluna Parcelas"],
+      ["cartoes", "As faturas futuras aparecem na coluna Faturas"]],
+    problemas: [["A projeção está vazia", "Você ainda não tem lançamentos PROJETADOS. Cadastre recorrências e clique em Gerar lançamentos."],
+      ["Os valores estão otimistas demais", "A projeção só conhece o que foi lançado. Despesas variáveis precisam de uma recorrência estimada para aparecerem."]] },
+  relMensal: { t: "Relatório mensal",
+    oque: `O mês fechado em duas leituras: <b>resultado</b> (receitas menos despesas por competência) e <b>fluxo de caixa</b> (o que entrou e saiu de fato). Os dois quase nunca são iguais, e é isso mesmo: a compra no cartão é despesa hoje e saída de caixa no mês que vem.`,
+    ligacoes: [["categorias", "A abertura por categoria e subcategoria usa o cadastro"],
+      ["lancamentos", "Todo valor pode ser rastreado até um lançamento"],
+      ["fluxo", "As linhas de entrada e saída são as mesmas do fluxo"]],
+    problemas: [["Resultado e fluxo de caixa estão diferentes", "É o comportamento correto, pelo motivo acima."],
+      ["Uma despesa não aparece na categoria", "O lançamento está sem categoria. Filtre em Lançamentos e classifique."]] },
+  relAnual: { t: "Relatório anual",
+    oque: `Os doze meses lado a lado, somando realizado e projetado, com totais, médias, maior e menor mês, categoria que mais pesou e a evolução do patrimônio no ano.`,
+    ligacoes: [["relMensal", "Cada linha é o mês detalhado no relatório mensal"],
+      ["patrimonio", "A evolução do ano vem da tela de patrimônio"]],
+    problemas: [["Os meses futuros já têm valor", "São os lançamentos projetados. Filtre por status em Lançamentos para ver quais são."]] },
+  patrimonio: { t: "Patrimônio",
+    oque: `Ativos menos passivos. O <b>patrimônio financeiro</b> considera contas, investimentos, cartões e o saldo devedor dos compromissos. O <b>total</b> soma também os bens. A evolução mostra mês a mês como isso se move.`,
+    ligacoes: [["contas", "Saldo das contas entra nos ativos"],
+      ["investimentos", "Saldo investido entra nos ativos"],
+      ["cartoes", "Dívida de cartão entra nos passivos"],
+      ["compromissos", "Parcelas a vencer entram nos passivos"], ["bens", "Bens entram só no total"]],
+    problemas: [["O patrimônio total é muito maior que o financeiro", "A diferença são os bens cadastrados. É esperado."],
+      ["A evolução não bate com a posição atual",
+      "A evolução inclui os lançamentos projetados até o fim de cada mês; a posição atual só considera o realizado até hoje."]] },
+  indicadores: { t: "Indicadores",
+    oque: `Leitura automática dos seus números por regras e fórmulas: para onde o dinheiro vai, o ritmo de receitas e despesas, quanto da renda já está comprometida e para onde o patrimônio aponta. Nada aqui é opinião — cada linha é uma conta feita sobre os seus lançamentos.`,
+    ligacoes: [["relMensal", "A categoria do mês vem do mês selecionado no relatório mensal"],
+      ["projecao", "O comprometimento futuro vem da projeção"],
+      ["alertas", "Os mesmos números viram alerta quando passam do limite"]],
+    problemas: [["A média de despesa está estranha", "Ela usa os 6 meses anteriores ao mês corrente. Com pouco histórico, ela distorce."],
+      ["A renda comprometida deu acima de 100%", "Você tem mais parcelas nos próximos 12 meses do que renda média. É um sinal real, não um erro."]] },
+  alertas: { t: "Alertas",
+    oque: `Cada linha é um número seu que passou de um limite que você mesmo definiu em Configurações. “Exigem ação” é o que já aconteceu; “merecem atenção” é o que está para acontecer.`,
+    ligacoes: [["config", "Todos os limites ficam em Configurações"],
+      ["compromissos", "Parcelas atrasadas e a vencer"], ["cartoes", "Limite e vencimento de fatura"],
+      ["metas", "Metas em risco ou com prazo vencido"]],
+    problemas: [["Aparecem alertas demais", "Ajuste os limites em Configurações: saldo mínimo, uso do cartão e dias de antecedência."],
+      ["Um alerta de integridade apareceu",
+      "É o mais sério: significa lançamento com erro ou parcela paga duas vezes. Vá em Conferência para ver o detalhe."]] },
+  testes: { t: "Conferência",
+    oque: `Antes de você confiar em qualquer relatório, esta tela recalcula cada número por um caminho diferente e compara. Saldo de conta, dívida de cartão, principal mais rendimento, reservas de meta, soma dos status de parcela, ativos menos passivos. Se der falha, algum dado está inconsistente.`,
+    ligacoes: [["lancamentos", "Quase toda falha aponta para um lançamento"],
+      ["compromissos", "Falhas de parcela vêm daqui"], ["alertas", "As mesmas falhas aparecem como alerta de integridade"]],
+    problemas: [["Deu FALHA em “nenhum lançamento com erro de validação”",
+      "Vá em Lançamentos e procure as linhas com etiqueta vermelha; a etiqueta diz o que corrigir."],
+      ["Deu FALHA em parcela com pagamento duplicado",
+      "A mesma parcela tem dois lançamentos realizados. Cancele um deles."],
+      ["Deu FALHA em saldo de conta", "Raro. Exporte uma cópia em Configurações e me mande: é um caso para eu olhar."]] },
+  config: { t: "Configurações",
+    oque: `Os parâmetros do sistema (datas de referência e limites de alerta), a gestão dos perfis e a cópia de segurança. Um perfil é um conjunto de dados independente: dá para manter o exemplo e o seu ao mesmo tempo.`,
+    ligacoes: [["alertas", "Os limites daqui definem os alertas"],
+      ["painel", "A data de referência muda o que é passado e o que é futuro em todas as telas"]],
+    problemas: [["A etiqueta diz “salvo neste navegador”",
+      "O banco online não respondeu. Os dados existem, mas só naquele aparelho. Baixe uma cópia e recarregue a página."],
+      ["Quero recomeçar do zero", "Crie um perfil vazio em vez de apagar registro por registro. O perfil antigo continua lá."],
+      ["Perdi dados", "Restaure a partir da última cópia em JSON. Vale baixar uma por mês."]] },
+};
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  GUIA DE PRIMEIROS PASSOS                                             */
+/* ==================================================================== */
+const Guia = {
+  passos(v) {
+    const d = v.dRaw, cfg = d.config;
+    const feitos = cfg.guiaFeitos || [], pulados = cfg.guiaPulados || [];
+    const temLanc = (t) => d.lancamentos.some((l) => l.tipo === t && l.status !== "CANCELADO");
+    return [
+      { id: "inst", t: "Cadastre seu banco", op: true, rota: "instituicoes", novo: "instituicao",
+        d: "Ueno, Continental, Atlas, o que você usar. Serve para agrupar contas, cartões e investimentos.",
+        ok: d.instituicoes.length > 0 },
+      { id: "conta", t: "Cadastre a conta e o saldo de hoje", rota: "contas", novo: "conta",
+        d: "O passo mais importante. Pegue o saldo do extrato e a data dele: o sistema calcula tudo a partir daí, somando entradas e subtraindo saídas.",
+        ok: d.contas.length > 0 },
+      { id: "cartao", t: "Cadastre seu cartão de crédito", op: true, rota: "cartoes", novo: "cartao",
+        d: "Informe o limite, o dia do fechamento, o dia do vencimento e quanto você já deve hoje. O ciclo da fatura passa a ser calculado sozinho.",
+        ok: d.cartoes.length > 0 },
+      { id: "cat", t: "Dê uma olhada nas categorias", manual: true, rota: "categorias",
+        d: "Já vêm 13 categorias e 54 subcategorias prontas. Renomeie, apague o que não usa e acrescente o que faltar — é assim que os relatórios vão ficar com a sua cara.",
+        ok: false },
+      { id: "receita", t: "Lance sua primeira receita", rota: "lancamentos", novo: "lancamento",
+        d: "Seu salário, por exemplo: tipo Receita, origem Externo, destino a sua conta. Veja o saldo mudar na hora.",
+        ok: temLanc("RECEITA") },
+      { id: "despesa", t: "Lance sua primeira despesa", rota: "lancamentos", novo: "lancamento",
+        d: "O aluguel, o supermercado. Se foi no cartão, escolha “Compra no cartão”: a despesa conta hoje, mas o dinheiro só sai da conta quando você pagar a fatura.",
+        ok: temLanc("DESPESA") || temLanc("COMPRA_CARTAO") },
+      { id: "rec", t: "Cadastre o que se repete todo mês", op: true, rota: "recorrencias", novo: "recorrencia",
+        d: "Salário, aluguel, internet. Depois clique em Gerar lançamentos e o sistema projeta os próximos meses sozinho.",
+        ok: d.recorrencias.length > 0 },
+      { id: "cmp", t: "Cadastre um parcelamento", op: true, rota: "compromissos", novo: "compromisso",
+        d: "Um financiamento ou uma compra parcelada. Diga quantas parcelas já pagou antes e o cronograma inteiro sai pronto.",
+        ok: d.compromissos.length > 0 },
+      { id: "meta", t: "Crie uma meta", op: true, rota: "metas", novo: "meta",
+        d: "Separe dinheiro sem tirar da conta. O saldo continua lá; o que muda é quanto está disponível.",
+        ok: d.metas.length > 0 },
+      { id: "conf", t: "Termine passando na Conferência", manual: true, rota: "testes",
+        d: "Sempre que tiver dúvida se um número está certo, é essa a tela. Ela recalcula tudo por outro caminho e avisa se algo não fecha.",
+        ok: false },
+    ].map((p) => ({ ...p, ok: p.ok || feitos.includes(p.id), pulado: pulados.includes(p.id) }));
+  },
+  progresso(v) {
+    const p = this.passos(v), obr = p.filter((x) => !x.op);
+    return { feitos: obr.filter((x) => x.ok).length, total: obr.length,
+      todos: p.filter((x) => x.ok || x.pulado).length, qtd: p.length,
+      completo: obr.every((x) => x.ok) };
+  },
+  ativo(v) {
+    const cfg = v.dRaw.config;
+    if (cfg.guiaOculto) return false;
+    return cfg.guiaAtivo === true || (cfg.guiaAtivo === undefined && v.L.length < 12);
+  },
+  card(v) {
+    if (!this.ativo(v)) return "";
+    const ps = this.passos(v), pr = this.progresso(v);
+    return `<section class="guia">
+      <div class="guia-h"><h3>Primeiros passos</h3>
+        ${UI.tag(`${pr.feitos} de ${pr.total} essenciais`, pr.completo ? "bom" : "acc")}
+        <div class="sp"></div>
+        ${pr.completo ? `<button class="btn btn-pri btn-sm" data-act="guia-fechar">Concluir guia</button>`
+          : `<button class="btn btn-sm" data-act="guia-fechar">Esconder</button>`}
+      </div>
+      <div style="padding:0 16px 12px">${UI.progresso(pr.todos / pr.qtd)}</div>
+      <div class="guia-b">${ps.map((p, i) => `
+        <div class="passo${p.ok ? " ok" : ""}${p.pulado ? " ok" : ""}">
+          <span class="pn">${p.ok || p.pulado ? "✓" : i + 1}</span>
+          <div class="pt"><b>${esc(p.t)}${p.op ? " " + UI.tag("opcional", "neutro") : ""}</b>
+            <span>${esc(p.d)}</span>
+            ${p.ok || p.pulado ? "" : `<div class="pa">
+              <button class="btn btn-pri btn-sm" data-act="guia-fazer" data-passo="${p.id}">Fazer agora</button>
+              ${p.manual ? `<button class="btn btn-sm" data-act="guia-marcar" data-passo="${p.id}">Já conferi</button>`
+                : `<button class="btn btn-sm" data-act="guia-pular" data-passo="${p.id}">Pular</button>`}</div>`}
+          </div></div>`).join("")}</div>
+      <div style="padding:11px 16px;border-top:1px solid var(--line);background:var(--surface)">
+        <span class="hint">Some quando você concluir. Para trazer de volta: Configurações → Mostrar guia.</span>
+      </div></section>`;
+  },
+  BOASVINDAS: [
+    { t: "Uma regra explica o sistema inteiro",
+      c: `Toda operação sai de uma <b>origem</b> e vai para um <b>destino</b>. Cada um deles é uma conta,
+        um cartão, um investimento, ou <i>externo</i> — o mundo fora do seu controle: o empregador, o supermercado.
+        <br><br>Seu salário é <b>Externo → Conta</b>. O supermercado no débito é <b>Conta → Externo</b>.
+        Passar dinheiro da corrente para a poupança é <b>Conta → Conta</b>, e por isso não é receita nem despesa.
+        <br><br>É só isso. Saldos, dívidas, fluxo de caixa, relatórios e patrimônio saem todos daí,
+        sem você digitar nada duas vezes.` },
+    { t: "O cartão de crédito é onde quase todo controle se perde",
+      c: `A compra no cartão é a <b>despesa</b>, no dia em que você comprou. O pagamento da fatura
+        <b>não é despesa nenhuma</b>: é só o dinheiro saindo da conta para abater a dívida.
+        <br><br>Se você lançasse os dois como despesa, gastaria duas vezes no papel. Aqui isso é impossível:
+        o tipo “Pagamento de fatura” é neutro por construção.
+        <br><br>Vale o mesmo para investimento: aportar não é gastar, resgatar não é ganhar. Só o rendimento é receita.` },
+    { t: "Realizado, projetado e cancelado",
+      c: `<b>Realizado</b> é dinheiro que já se moveu — é o que forma o seu saldo.
+        <b>Projetado</b> é o que você espera; aparece no fluxo futuro e não encosta no saldo.
+        Quando acontecer de verdade, você troca o status da mesma linha, sem criar outra.
+        <br><br><b>Cancelado</b> é para o lançamento errado: o histórico fica, o efeito financeiro some.
+        Use isso em vez de excluir.
+        <br><br>Na dúvida sobre qualquer tela, use o botão <b>?</b> no topo: ele explica o que a tela faz,
+        como ela se liga às outras e o que verificar se algo não bater.` },
+  ],
+  abrirBoasVindas(i) {
+    const s = this.BOASVINDAS[i], fim = i === this.BOASVINDAS.length - 1;
+    App.modal({ titulo: `Como funciona — ${i + 1} de ${this.BOASVINDAS.length}`, largura: 640,
+      ok: fim ? "Começar" : "Continuar",
+      corpo: `<h3 style="font-size:17px;margin-bottom:8px">${esc(s.t)}</h3>
+        <p style="margin:0;max-width:62ch;line-height:1.6">${s.c}</p>
+        <div class="row" style="gap:5px;margin-top:6px">${this.BOASVINDAS.map((_, n) =>
+          `<i style="width:${n === i ? 22 : 7}px;height:7px;border-radius:4px;display:block;
+            background:${n === i ? "var(--accent)" : "var(--line-2)"}"></i>`).join("")}</div>`,
+      onOk: () => { App.fecharModal(); if (!fim) this.abrirBoasVindas(i + 1); else App.render(); } });
+    if (i > 0) {
+      const f = $(".modal-f");
+      f.insertAdjacentHTML("afterbegin",
+        `<button class="btn" data-act="guia-voltar" data-i="${i - 1}" style="margin-right:auto">Voltar</button>`);
+    }
+  },
+};
+
+/* ------------------------------------------------- icones da barra ---- */
+const ICO = {
+  painel: '<path d="M3 3h7v7H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 14h7v7H3z"/>',
+  lancamentos: '<path d="M4 6h16M4 12h16M4 18h10"/>',
+  contas: '<path d="M3 7h15a3 3 0 013 3v7a3 3 0 01-3 3H5a2 2 0 01-2-2z"/><path d="M3 7V6a2 2 0 012-2h11"/><circle cx="17" cy="13.5" r="1.3"/>',
+  analise: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+};
+const ico = (k) => `<svg class="mi" width="21" height="21" viewBox="0 0 24 24" fill="none"
+  stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
+  aria-hidden="true">${ICO[k]}</svg>`;
 </script>

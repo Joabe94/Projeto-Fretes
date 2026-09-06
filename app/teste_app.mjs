@@ -151,6 +151,107 @@ conf("Parcela vira paga", 57, dep.pagas, 0);
 conf("Nenhuma parcela com pagamento duplicado", 0, dep.dupl, 0);
 conf("Bateria interna segue sem falha", 0, dep.falhas, 0);
 
+console.log("\n[11] Ajuda de tela");
+let ajudaOk = 0, ajudaVazia = [];
+for (const r of rotas) {
+  await page.click(`[data-act="ir"][data-rota="${r}"]`);
+  await page.waitForTimeout(60);
+  await page.click('[data-act="ajuda"]');
+  await page.waitForSelector("#modal-form", { timeout: 4000 });
+  const t = await page.textContent(".modal-h h3");
+  const secs = await page.locator(".ajuda-sec").count();
+  const ligs = await page.locator(".ajuda-lig button").count();
+  const probs = await page.locator(".ajuda-prob div").count();
+  if (t.startsWith("Ajuda —") && secs === 3 && ligs >= 1 && probs >= 1) ajudaOk++;
+  else ajudaVazia.push(`${r} (secoes ${secs}, ligacoes ${ligs}, problemas ${probs})`);
+  await page.click('[data-act="fechar-modal"]');
+  await page.waitForTimeout(40);
+}
+conf("Ajuda completa nas 20 telas", 20, ajudaOk, 0);
+if (ajudaVazia.length) ajudaVazia.forEach((x) => console.log("         incompleta -> " + x));
+await page.click(`[data-act="ir"][data-rota="contas"]`);
+await page.waitForTimeout(60);
+await page.click('[data-act="ajuda"]');
+await page.waitForSelector(".ajuda-lig button");
+await page.click('.ajuda-lig button');
+await page.waitForTimeout(200);
+conf("Link da ajuda navega para a tela citada", true,
+  (await page.evaluate(() => App.rota)) !== "contas");
+await page.click('[data-act="fechar-modal"]').catch(() => {});
+await page.waitForTimeout(100);
+
+console.log("\n[12] Guia de primeiros passos (perfil novo do zero)");
+await page.evaluate(() => App.criarPerfil(false));
+await page.waitForSelector(".modal-h", { timeout: 8000 });
+conf("Boas-vindas abrem no perfil vazio", true,
+  (await page.textContent(".modal-h h3")).includes("Como funciona"));
+await page.click('[data-act="modal-ok"]'); await page.waitForTimeout(120);
+await page.click('[data-act="modal-ok"]'); await page.waitForTimeout(120);
+conf("Botão Voltar aparece a partir do 2º passo", true,
+  (await page.locator('[data-act="guia-voltar"]').count()) > 0);
+await page.click('[data-act="modal-ok"]'); await page.waitForTimeout(220);
+conf("Guia aparece no painel", true, (await page.locator(".guia").count()) === 1);
+conf("Guia lista os 10 passos", 10, await page.locator(".passo").count(), 0);
+const prog0 = await page.textContent(".guia-h .tag");
+conf("Progresso começa em zero essenciais", true, prog0.includes("0 de"));
+await page.click('[data-act="guia-fazer"][data-passo="conta"]');
+await page.waitForSelector("#modal-form", { timeout: 5000 });
+conf("“Fazer agora” abre o cadastro certo", true,
+  (await page.textContent(".modal-h h3")).toLowerCase().includes("conta"));
+await page.fill('[name="nome"]', "Conta teste");
+await page.fill('[name="saldoInicial"]', "5000000");
+await page.click('[data-act="modal-ok"]');
+await page.waitForTimeout(300);
+await page.evaluate(() => { App.rota = "painel"; App.render(); });
+await page.waitForTimeout(200);
+const prog1 = await page.textContent(".guia-h .tag");
+conf("Passo se marca sozinho ao cadastrar", true, prog1.includes("1 de"));
+conf("Saldo do perfil novo confere", 5000000,
+  await page.evaluate(() => App.v.patrimonio.contas));
+conf("Perfil novo passa na conferência", 0,
+  await page.evaluate(() => App.v.testes.filter((t) => !t.ok).length), 0);
+await page.click('[data-act="guia-fechar"]');
+await page.waitForTimeout(200);
+conf("Esconder o guia funciona", 0, await page.locator(".guia").count(), 0);
+
+console.log("\n[13] Telefone (390 x 844)");
+await page.setViewportSize({ width: 390, height: 844 });
+await page.evaluate(() => { App.rota = "lancamentos"; App.render(); });
+await page.waitForTimeout(250);
+conf("Menu lateral escondido", false, await page.locator(".side").isVisible());
+conf("Barra inferior visível", true, await page.locator(".mob-bar").isVisible());
+conf("Botão flutuante visível", true, await page.locator(".fab").isVisible());
+await page.evaluate(() => { App.abrirPerfil(App.perfis[0].id); });
+await page.waitForTimeout(400);
+await page.evaluate(() => { App.rota = "lancamentos"; App.render(); });
+await page.waitForTimeout(250);
+conf("Tabela vira lista de cartões", false, await page.locator(".tbl-wrap").first().isVisible());
+conf("Cartões aparecem", true, await page.locator(".cards").first().isVisible());
+conf("Um cartão por lançamento", true, (await page.locator(".cardrow").count()) > 20);
+const larguraOk = await page.evaluate(() =>
+  document.documentElement.scrollWidth <= window.innerWidth + 1);
+conf("Nada estoura a largura da tela", true, larguraOk);
+await page.click('[data-act="folha"][data-folha="mais"]');
+await page.waitForTimeout(200);
+conf("Folha “Mais” abre", true, await page.locator(".sheet").isVisible());
+await page.click('.sheet-item[data-rota="metas"]');
+await page.waitForTimeout(250);
+conf("Folha navega e fecha", "metas", await page.evaluate(() => App.rota));
+conf("Folha fechou", 0, await page.locator(".sheet").count(), 0);
+const alvos = await page.evaluate(() => {
+  const r = [];
+  for (const b of document.querySelectorAll(".mob-bar button, .fab, .cr-acts .btn")) {
+    const x = b.getBoundingClientRect(); if (x.height && x.height < 34) r.push(b.textContent.trim());
+  }
+  return r;
+});
+conf("Todo botão tem altura de toque >= 34px", 0, alvos.length, 0);
+await page.screenshot({ path: path.join(AQUI, "dist", "telefone.png"), fullPage: false });
+await page.evaluate(() => { App.rota = "painel"; App.render(); });
+await page.waitForTimeout(250);
+await page.screenshot({ path: path.join(AQUI, "dist", "telefone-painel.png"), fullPage: false });
+
+await page.setViewportSize({ width: 1440, height: 1000 });
 await page.click('[data-act="ir"][data-rota="painel"]');
 await page.waitForTimeout(300);
 await page.screenshot({ path: path.join(AQUI, "dist", "painel.png"), fullPage: false });
