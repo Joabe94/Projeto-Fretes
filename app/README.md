@@ -29,7 +29,10 @@ node app/teste_app.mjs               # teste de fumaça + conferência numérica
   de meta, fluxo diário/semanal/mensal/anual, projeção, patrimônio e evolução.
 - **Conferência** (`Calc.testes`): 41 verificações que recalculam cada número por
   um caminho diferente. A tela Conferência mostra o resultado ao usuário.
-- **Telas** (`Views`): 20 rotas renderizadas por string, com delegação de eventos.
+- **Telas** (`Views`): 21 rotas renderizadas por string, com delegação de eventos.
+- **Extrato** (`Calc.extrato`): movimentos de uma conta, cartão ou investimento em
+  ordem de data, com saldo corrente a partir do saldo inicial. No cartão a lógica
+  inverte — comprar aumenta a dívida, pagar reduz — e as colunas mudam de nome.
 - **Ajuda** (`AJUDA`): para cada uma das 20 telas, o que ela faz, como se liga às
   outras (com link que navega) e os sintomas mais prováveis com o que verificar.
 - **Guia** (`Guia`): três telas de boas-vindas explicando a regra origem/destino,
@@ -42,7 +45,7 @@ node app/teste_app.mjs               # teste de fumaça + conferência numérica
 
 ## Equivalência com o Excel
 
-`teste_app.mjs` faz 85 verificações. Compara os valores do app com os que a
+`teste_app.mjs` faz 116 verificações. Compara os valores do app com os que a
 auditoria do Excel apurou (saldos das 3 contas, dívida e fatura dos 2 cartões,
 saldo/principal/rendimento dos 2 investimentos, as 4 metas, a contagem dos 82
 status de parcela, o terreno em 44/60, patrimônio, fluxo e projeção); percorre as
@@ -50,4 +53,6 @@ status de parcela, o terreno em 44/60, patrimônio, fluxo e projeção); percorr
 perfil vazio e percorre o guia até o primeiro passo se marcar sozinho; e, num
 viewport de 390x844, confere a barra inferior, a folha de menu, os cartões no
 lugar das tabelas, a altura de toque dos botões e a ausência de rolagem
-horizontal.
+horizontal. Também confere que o saldo final do extrato de cada conta, cartão e
+investimento é idêntico ao saldo do cadastro, que os filtros de lançamentos
+funcionam e que cada tipo de cadastro pode ser criado do zero.

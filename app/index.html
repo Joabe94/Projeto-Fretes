@@ -160,6 +160,10 @@ a{color:var(--accent)}
 .card-b{padding:16px}
 .card-b.flush{padding:0}
 .hint{color:var(--ink-3);font-size:12px;margin:0}
+.btn-link{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--accent);
+  cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px;
+  text-decoration-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+.btn-link:hover{text-decoration-color:var(--accent)}
 .grid{display:grid;gap:14px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
@@ -204,7 +208,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
 td .row{flex-wrap:nowrap}
 tbody tr:hover{background:var(--surface-2)}
 tbody tr:last-child td{border-bottom:0}
-td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 th.num{text-align:right}
 .tfoot td{font-weight:700;background:var(--surface-2);border-top:1px solid var(--line-2)}
 .neg{color:var(--grave)}
@@ -917,6 +921,35 @@ const Calc = {
       indicadores: null, alertas: null, testes: null };
   },
 
+  /** Extrato de uma conta, cartao ou investimento: movimentos em ordem de data
+   *  com saldo corrente, partindo do saldo (ou divida) inicial. */
+  extrato(v, tipoEnt, id, statusSet) {
+    const fonte = { CONTA: v.contas, CARTAO: v.cartoes, INVESTIMENTO: v.investimentos }[tipoEnt] || [];
+    const ent = fonte.find((x) => x.id === id);
+    if (!ent) return null;
+    const inicial = tipoEnt === "CARTAO" ? (ent.dividaInicial || 0)
+      : tipoEnt === "INVESTIMENTO" ? (ent.valorInicial || 0) : (ent.saldoInicial || 0);
+    const dataIni = ent.dataSaldoInicial || ent.dataDivida || ent.dataInicial || v.cfg.inicio;
+    const movs = v.L
+      .filter((l) => (l.origemTipo === tipoEnt && l.origemId === id)
+        || (l.destinoTipo === tipoEnt && l.destinoId === id))
+      .filter((l) => statusSet.has(l.status))
+      .sort((a, b) => a.data.localeCompare(b.data) || a.id.localeCompare(b.id));
+    let saldo = inicial;
+    const linhas = movs.map((l) => {
+      const saiu = l.origemTipo === tipoEnt && l.origemId === id;
+      /* no cartao a logica inverte: comprar aumenta a divida, pagar reduz */
+      const mais = tipoEnt === "CARTAO" ? saiu : !saiu;
+      const entrada = mais ? l.valor : 0, saida = mais ? 0 : l.valor;
+      saldo += entrada - saida;
+      return { ...l, entrada, saida, saldo,
+        contraparte: saiu ? l.destinoNome : l.origemNome };
+    });
+    return { ent, inicial, dataIni, linhas,
+      totalEntrada: sum(linhas, (l) => l.entrada), totalSaida: sum(linhas, (l) => l.saida),
+      saldoFinal: saldo };
+  },
+
   validarLanc(l, idx, ent) {
     if (!(l.valor > 0)) return "Valor deve ser maior que zero";
     if (!CLASSIF[l.tipo]) return "Tipo de operação inválido";
@@ -1131,7 +1164,10 @@ const SERIES = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)",
 
 const UI = {
   card(titulo, corpo, extra = "", flush = false) {
-    return `<section class="card">${titulo ? `<div class="card-h"><h3>${esc(titulo)}</h3><div class="sp"></div>${extra}</div>` : ""}<div class="card-b${flush ? " flush" : ""}">${corpo}</div></section>`;
+    /* o cabecalho aparece quando ha titulo OU conteudo extra (filtros, botoes) */
+    const cab = (titulo || extra)
+      ? `<div class="card-h">${titulo ? `<h3>${esc(titulo)}</h3>` : ""}<div class="sp"></div>${extra}</div>` : "";
+    return `<section class="card">${cab}<div class="card-b${flush ? " flush" : ""}">${corpo}</div></section>`;
   },
   kpi(label, valor, sub = "", mod = "") {
     return `<div class="kpi ${mod}"><div class="k-l">${esc(label)}</div>
@@ -1360,7 +1396,7 @@ Views.painel = (v) => {
         { rot: (p) => MESES_C[Number(String(p.compet).slice(4)) - 1], aria: "saldo projetado" }),
         `<span class="hint">próximos 15 meses</span>`)}
       ${UI.card("Contas", UI.tabela([
-        { t: "Conta", f: (c) => `<b>${esc(c.nome)}</b><br><span class="hint">${esc(c.tipo)}</span>` },
+        { t: "Conta", f: (c) => `<button class="btn-link" data-act="extrato" data-tipo="CONTA" data-id="${esc(c.id)}">${esc(c.nome)}</button><br><span class="hint">${esc(c.tipo)}</span>` },
         { t: "Saldo", num: true, f: (c) => UI.moeda(c.saldo) },
         { t: "Disponível", num: true, f: (c) => UI.moeda(c.disponivel) },
       ], v.contas, { vazioTitulo: "Nenhuma conta cadastrada", vazioMsg: "Comece cadastrando onde seu dinheiro está.",
@@ -1440,7 +1476,7 @@ Views.contas = (v) => `
     ${UI.kpi("Projetado", Fmt.gs(sum(v.contas, (c) => c.projetado)), "com lançamentos futuros")}
   </div>
   ${UI.card("", UI.tabela([
-    { t: "Conta", f: (c) => `<b>${esc(c.nome)}</b><br><span class="hint">${esc(c.instituicaoNome || "—")} · ${esc(c.tipo)}</span>` },
+    { t: "Conta", f: (c) => `<button class="btn-link" data-act="extrato" data-tipo="CONTA" data-id="${esc(c.id)}">${esc(c.nome)}</button><br><span class="hint">${esc(c.instituicaoNome || "—")} · ${esc(c.tipo)}</span>` },
     { t: "Saldo inicial", num: true, f: (c) => UI.moeda(c.saldoInicial) },
     { t: "Entradas", num: true, f: (c) => UI.moeda(c.entradas) },
     { t: "Saídas", num: true, f: (c) => UI.moeda(-c.saidas) },
@@ -1449,7 +1485,7 @@ Views.contas = (v) => `
     { t: "Disponível", num: true, f: (c) => UI.moeda(c.disponivel) },
     { t: "Projetado", num: true, f: (c) => UI.moeda(c.projetado) },
     { t: "Status", f: (c) => UI.tagStatus(c.status) },
-    { t: "", f: (c) => acoes("conta", c.id) },
+    { t: "", f: (c) => `<button class="btn btn-sm" data-act="extrato" data-tipo="CONTA" data-id="${esc(c.id)}">Extrato</button>` + acoes("conta", c.id) },
   ], v.contas, { vazioTitulo: "Nenhuma conta", vazioMsg: "Cadastre onde seu dinheiro fica guardado.",
     vazioBotao: btnNovo("conta", "Nova conta") }), "", true)}`;
 
@@ -1465,7 +1501,7 @@ Views.cartoes = (v) => `
     ${UI.kpi("Comprometimento futuro", Fmt.gs(sum(v.cartoes, (k) => k.comprometimento)), "dívida + compras já lançadas")}
   </div>
   ${UI.card("", UI.tabela([
-    { t: "Cartão", f: (k) => `<b>${esc(k.nome)}</b><br><span class="hint">${esc(k.instituicaoNome || "—")} · fecha dia ${k.diaFechamento}, vence dia ${k.diaVencimento}</span>` },
+    { t: "Cartão", f: (k) => `<button class="btn-link" data-act="extrato" data-tipo="CARTAO" data-id="${esc(k.id)}">${esc(k.nome)}</button><br><span class="hint">${esc(k.instituicaoNome || "—")} · fecha dia ${k.diaFechamento}, vence dia ${k.diaVencimento}</span>` },
     { t: "Limite", num: true, f: (k) => UI.moeda(k.limite) },
     { t: "Dívida", num: true, f: (k) => `<b>${UI.moeda(k.divida)}</b>` },
     { t: "Uso", num: true, f: (k) => `${Fmt.pct(k.pctLimite)}<div style="margin-top:3px">${UI.progresso(k.pctLimite)}</div>` },
@@ -1473,7 +1509,7 @@ Views.cartoes = (v) => `
     { t: "Ciclo aberto", f: (k) => `<span class="hint">${esc(Fmt.data(k.inicioCiclo))} a ${esc(Fmt.data(k.fechamento))}</span>` },
     { t: "Fatura", num: true, f: (k) => UI.moeda(k.fatura) },
     { t: "Vence em", f: (k) => `${esc(Fmt.data(k.vencimento))}<br><span class="hint">${k.diasParaVencer} dia(s)</span>` },
-    { t: "", f: (k) => acoes("cartao", k.id) },
+    { t: "", f: (k) => `<button class="btn btn-sm" data-act="extrato" data-tipo="CARTAO" data-id="${esc(k.id)}">Extrato</button>` + acoes("cartao", k.id) },
   ], v.cartoes, { vazioTitulo: "Nenhum cartão", vazioMsg: "Cadastre seus cartões para controlar faturas e limite.",
     vazioBotao: btnNovo("cartao", "Novo cartão") }), "", true)}`;
 
@@ -1489,7 +1525,7 @@ Views.investimentos = (v) => `
     ${UI.kpi("Rendimento projetado", Fmt.gs(sum(v.investimentos, (i) => i.rendProjetado)), "estimativa, nunca somada ao realizado")}
   </div>
   ${UI.card("", UI.tabela([
-    { t: "Investimento", f: (i) => `<b>${esc(i.nome)}</b><br><span class="hint">${esc(i.instituicaoNome || "—")} · ${esc(i.tipo)}</span>` },
+    { t: "Investimento", f: (i) => `<button class="btn-link" data-act="extrato" data-tipo="INVESTIMENTO" data-id="${esc(i.id)}">${esc(i.nome)}</button><br><span class="hint">${esc(i.instituicaoNome || "—")} · ${esc(i.tipo)}</span>` },
     { t: "Saldo", num: true, f: (i) => `<b>${UI.moeda(i.saldo)}</b>` },
     { t: "Principal", num: true, f: (i) => UI.moeda(i.principal) },
     { t: "Rend. no saldo", num: true, f: (i) => UI.moeda(i.rendNoSaldo) },
@@ -1497,7 +1533,7 @@ Views.investimentos = (v) => `
     { t: "Rend. projetado", num: true, f: (i) => UI.moeda(i.rendProjetado) },
     { t: "Taxa", num: true, f: (i) => `${Fmt.pct(i.taxa, 2)}<br><span class="hint">${esc(i.baseRendimento)}</span>` },
     { t: "Vencimento", f: (i) => i.vencimento ? `${esc(Fmt.data(i.vencimento))}<br><span class="hint">${i.diasParaVencer} dia(s)</span>` : "<span class='hint'>sem prazo</span>" },
-    { t: "", f: (i) => `<button class="btn btn-sm" data-act="resgatar" data-id="${esc(i.id)}">Resgatar</button>${acoes("investimento", i.id)}` },
+    { t: "", f: (i) => `<button class="btn btn-sm" data-act="extrato" data-tipo="INVESTIMENTO" data-id="${esc(i.id)}">Extrato</button><button class="btn btn-sm" data-act="resgatar" data-id="${esc(i.id)}">Resgatar</button>${acoes("investimento", i.id)}` },
   ], v.investimentos, { vazioTitulo: "Nenhum investimento", vazioMsg: "Cadastre fondos mutuos, ahorro a plazo e outros.",
     vazioBotao: btnNovo("investimento", "Novo investimento") }), "", true)}`;
 </script>
@@ -2248,6 +2284,15 @@ const Form = {
         name="${c.n}" data-campo="${c.n}" type="${tipoIn}" value="${esc(val)}"${step ? ` step="${step}"` : ""}${attr}>`, c.full);
     }).join("") + `</div>`;
   },
+  /** Um campo "governa" outro quando as opcoes do outro dependem dele.
+   *  Deduzido da propria especificacao, para nao haver lista fixa a manter. */
+  governa(tipo, campo, d) {
+    const spec = FORMS[tipo]; if (!spec) return false;
+    const cs = spec.campos(d);
+    if (tipo === "lancamento" && campo === "tipo") return true;   // define origem e destino
+    return cs.some((c) => c.dep === campo || c.entidade === campo
+      || (c.parcelas && campo === "compromissoId"));
+  },
   ler(form, tipo, d) {
     const spec = FORMS[tipo], out = {};
     for (const c of spec.campos(d)) {
@@ -2283,6 +2328,7 @@ const App = {
   d: null, v: null, perfis: [], perfilNome: "", rota: "painel", sync: "ok", pronto: false,
   filtros: { q: "", status: "", tipo: "", entidade: "", categoria: "", mes: "" },
   rel: { ano: 0, mes: 0 }, abertos: new Set(), fluxoModo: "mensal", modalCtx: null,
+  extratoSel: null, extratoMes: "", extratoStatus: "REALIZADO",
 
   /* ------------------------------------------------------------ boot */
   async boot() {
@@ -2514,6 +2560,9 @@ Object.assign(App, {
       "ir-ajuda": () => { this.fecharModal(); this.rota = rota; this.render();
         setTimeout(() => this.ajuda(rota), 60); },
       ajuda: () => this.ajuda(),
+      extrato: () => { this.fecharFolha(); this.extratoSel = { tipo, id };
+        this.extratoMes = ""; this.extratoStatus = "REALIZADO"; this.rota = "extrato"; this.render(); },
+      "extrato-status": () => { this.extratoStatus = b.dataset.st; this.render(); },
       folha: () => this.folha(folha),
       "fechar-folha": () => this.fecharFolha(),
       "guia-fazer": () => this.guiaFazer(passo),
@@ -2557,22 +2606,29 @@ Object.assign(App, {
     const t = e.target;
     if (t.dataset.filtro) { this.filtros[t.dataset.filtro] = t.value; this.render(); return; }
     if (t.dataset.rel) { this.rel[t.dataset.rel] = Number(t.value) || this.rel[t.dataset.rel]; this.render(); return; }
+    if (t.dataset.extrato === "mes") { this.extratoMes = t.value; this.render(); return; }
     if (t.dataset.cfg) {
       const k = t.dataset.cfg;
       this.d.config[k] = t.type === "number" ? Number(t.value) : t.value;
       this.salvar("config"); return;
     }
     if (t.dataset.campo && this.modalCtx) {
-      const c = this.modalCtx; c.reg[t.dataset.campo] = t.value;
-      if (c.tipo === "lancamento" && t.dataset.campo === "tipo") {
+      const c = this.modalCtx, campo = t.dataset.campo;
+      /* guarda TUDO o que esta no formulario antes de qualquer redesenho:
+         sem isto, redesenhar apagaria o que o usuario acabou de digitar */
+      const form = t.closest("form");
+      if (form) Object.assign(c.reg, Form.ler(form, c.tipo, this.d));
+      c.reg[campo] = t.value;
+      if (c.tipo === "lancamento" && campo === "tipo") {
         const f = FLUXO_OP[t.value]; if (f) { c.reg.origemTipo = f[0]; c.reg.destinoTipo = f[1]; }
         c.reg.origemId = ""; c.reg.destinoId = "";
       }
-      if (["tipo", "origemTipo", "destinoTipo", "categoriaId", "compromissoId"].includes(t.dataset.campo)) {
-        if (t.dataset.campo === "origemTipo") c.reg.origemId = "";
-        if (t.dataset.campo === "destinoTipo") c.reg.destinoId = "";
-        if (t.dataset.campo === "categoriaId") c.reg.subcategoriaId = "";
-        if (t.dataset.campo === "compromissoId") c.reg.parcelaId = "";
+      /* redesenha so quando algum outro campo depende deste */
+      if (Form.governa(c.tipo, campo, this.d)) {
+        if (campo === "origemTipo") c.reg.origemId = "";
+        if (campo === "destinoTipo") c.reg.destinoId = "";
+        if (campo === "categoriaId") c.reg.subcategoriaId = "";
+        if (campo === "compromissoId") c.reg.parcelaId = "";
         c.rerender();
       }
     }
@@ -3279,4 +3335,113 @@ const ICO = {
 const ico = (k) => `<svg class="mi" width="21" height="21" viewBox="0 0 24 24" fill="none"
   stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
   aria-hidden="true">${ICO[k]}</svg>`;
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  EXTRATO DE UMA CONTA, CARTAO OU INVESTIMENTO                         */
+/* ==================================================================== */
+const ROT_ENT = { CONTA: ["Conta", "contas", "Entrada", "Saída", "Saldo"],
+  CARTAO: ["Cartão", "cartoes", "Compra", "Pagamento", "Dívida"],
+  INVESTIMENTO: ["Investimento", "investimentos", "Entrou", "Saiu", "Saldo"] };
+
+Views.extrato = (v) => {
+  const sel = App.extratoSel || {};
+  const [rotEnt, rotaLista, rotEnt2, rotSai, rotSaldo] = ROT_ENT[sel.tipo] || ROT_ENT.CONTA;
+  const st = App.extratoStatus === "TODOS" ? new Set(["REALIZADO", "PROJETADO"])
+    : new Set([App.extratoStatus]);
+  const ex = Calc.extrato(v, sel.tipo, sel.id, st);
+  if (!ex) return `<div class="page-head"><div><h1>Extrato</h1>
+    <p>O registro não foi encontrado. Ele pode ter sido excluído.</p></div></div>
+    ${UI.card("", UI.vazio("Nada para mostrar", "Volte para a lista e escolha outro.",
+      `<button class="btn btn-pri" data-act="ir" data-rota="${rotaLista}">Voltar para ${rotEnt.toLowerCase()}s</button>`))}`;
+  const e = ex.ent;
+  const mes = App.extratoMes;
+  const linhas = mes ? ex.linhas.filter((l) => l.data.slice(0, 7) === mes) : ex.linhas;
+  const meses = Array.from(new Set(ex.linhas.map((l) => l.data.slice(0, 7)))).sort().reverse();
+
+  let kpis;
+  if (sel.tipo === "CONTA") kpis = [
+    UI.kpi("Saldo inicial", Fmt.gs(ex.inicial), "em " + Fmt.data(ex.dataIni)),
+    UI.kpi("Entradas", Fmt.gs(e.entradas)), UI.kpi("Saídas", Fmt.gs(e.saidas)),
+    UI.kpi("Saldo atual", Fmt.gs(e.saldo), "", "lead"),
+    UI.kpi("Reservado em metas", Fmt.gs(e.reservado)),
+    UI.kpi("Disponível", Fmt.gs(e.disponivel), "saldo menos reservas"),
+    UI.kpi("Entradas projetadas", Fmt.gs(e.entradasProj)),
+    UI.kpi("Saldo projetado", Fmt.gs(e.projetado), "com o que já está lançado"),
+  ]; else if (sel.tipo === "CARTAO") kpis = [
+    UI.kpi("Dívida inicial", Fmt.gs(ex.inicial), "em " + Fmt.data(ex.dataIni)),
+    UI.kpi("Compras", Fmt.gs(e.compras)), UI.kpi("Pagamentos", Fmt.gs(e.pagamentos)),
+    UI.kpi("Dívida atual", Fmt.gs(e.divida), "", e.pctLimite >= v.cfg.pctCartao ? "bad" : "lead"),
+    UI.kpi("Limite", Fmt.gs(e.limite)), UI.kpi("Disponível", Fmt.gs(e.disponivel)),
+    UI.kpi("Fatura do ciclo aberto", Fmt.gs(e.fatura),
+      Fmt.data(e.inicioCiclo) + " a " + Fmt.data(e.fechamento)),
+    UI.kpi("Vence em", Fmt.data(e.vencimento), e.diasParaVencer + " dia(s)",
+      e.diasParaVencer >= 0 && e.diasParaVencer <= v.cfg.diasAlerta ? "warn" : ""),
+  ]; else kpis = [
+    UI.kpi("Valor inicial", Fmt.gs(ex.inicial), "em " + Fmt.data(ex.dataIni)),
+    UI.kpi("Aportes", Fmt.gs(e.aportes)), UI.kpi("Resgates", Fmt.gs(e.resgates)),
+    UI.kpi("Saldo atual", Fmt.gs(e.saldo), "", "lead"),
+    UI.kpi("Principal", Fmt.gs(e.principal)),
+    UI.kpi("Rendimento realizado", Fmt.gs(e.rendimento), "", "good"),
+    UI.kpi("Rendimento projetado", Fmt.gs(e.rendProjetado), "estimativa"),
+    UI.kpi("Vencimento", e.vencimento ? Fmt.data(e.vencimento) : "sem prazo",
+      e.vencimento ? e.diasParaVencer + " dia(s)" : ""),
+  ];
+
+  const seg = ["REALIZADO", "TODOS"].map((k) => `<button data-act="extrato-status" data-st="${k}"
+    aria-pressed="${App.extratoStatus === k}">${k === "TODOS" ? "Com projetados" : "Só realizado"}</button>`).join("");
+  const filtro = `<div class="row" style="gap:8px">
+    <div class="seg">${seg}</div>
+    <select class="inp" style="width:150px" data-extrato="mes">
+      ${UI.opcoes(meses.map((m) => ({ v: m, t: Fmt.mesAno(m + "-01") })), mes, "Todo o período")}</select>
+    <button class="btn btn-sm" data-act="ir" data-rota="${rotaLista}">Voltar</button></div>`;
+
+  return `<div class="page-head">
+      <div><h1>${esc(e.nome)}</h1>
+        <p>${esc(rotEnt)} · ${esc(e.instituicaoNome || "sem instituição")}${e.tipo ? " · " + esc(e.tipo) : ""}.
+        Movimento em ordem de data, com o ${esc(rotSaldo.toLowerCase())} acumulado linha a linha.</p></div>
+      <div style="flex:1"></div>
+      <button class="btn btn-sm" data-act="editar" data-tipo="${sel.tipo === "CONTA" ? "conta"
+        : sel.tipo === "CARTAO" ? "cartao" : "investimento"}" data-id="${esc(e.id)}">Editar cadastro</button>
+      ${btnNovo("lancamento", "Novo lançamento")}</div>
+    <div class="grid g4">${kpis.join("")}</div>
+    ${ex.linhas.length > 1 ? UI.card(rotSaldo + " ao longo do tempo",
+      Chart.area(ex.linhas.slice(-40), (l) => l.saldo,
+        { rot: (l) => Fmt.dataCurta(l.data), altura: 200,
+          aria: rotSaldo + " acumulado de " + e.nome })) : ""}
+    ${UI.card("", UI.tabela([
+      { t: "Data", f: (l) => `<span class="mono">${esc(Fmt.data(l.data))}</span>` },
+      { t: "Descrição", f: (l) => `<b>${esc(l.descricao)}</b>
+        ${l.vinculos.length ? `<br><span class="hint">${esc(l.vinculos.join(" · "))}</span>` : ""}` },
+      { t: "Contraparte", f: (l) => `<span class="hint">${esc(l.contraparte)}</span>` },
+      { t: "Categoria", f: (l) => esc(l.categoriaNome || "—") },
+      { t: "Tipo", f: (l) => esc(ROTULO_OP[l.tipo] || l.tipo) },
+      { t: "Status", f: (l) => UI.tagStatus(l.status) },
+      { t: rotEnt2, num: true, f: (l) => l.entrada ? UI.moeda(l.entrada) : "—" },
+      { t: rotSai, num: true, f: (l) => l.saida ? UI.moeda(-l.saida) : "—" },
+      { t: rotSaldo, num: true, f: (l) => `<b>${UI.moeda(l.saldo)}</b>` },
+      { t: "", f: (l) => `<button class="btn btn-sm" data-act="editar" data-tipo="lancamento" data-id="${esc(l.id)}">Editar</button>` },
+    ], linhas, { vazioTitulo: "Nenhum movimento no período",
+      vazioMsg: mes ? "Escolha outro mês ou veja todo o período." : "Ainda não há lançamentos aqui." }),
+      filtro, true)}
+    <p class="hint">Saldo inicial ${esc(Fmt.gs(ex.inicial))} · ${ex.linhas.length} movimento(s) ·
+      ${esc(rotEnt2.toLowerCase())}s ${esc(Fmt.gs(ex.totalEntrada))} ·
+      ${esc(rotSai.toLowerCase())}s ${esc(Fmt.gs(ex.totalSaida))} ·
+      ${esc(rotSaldo.toLowerCase())} final ${esc(Fmt.gs(ex.saldoFinal))}.</p>`;
+};
+
+AJUDA.extrato = { t: "Extrato",
+  oque: `Todo o movimento de uma conta, cartão ou investimento em ordem de data, com o saldo acumulado
+    linha a linha — igual a um extrato bancário. Começa no saldo inicial que você cadastrou e vai somando
+    cada entrada e subtraindo cada saída. É aqui que você confere o sistema contra o extrato do banco.`,
+  ligacoes: [["contas", "Cada linha é um lançamento que tem esta conta na origem ou no destino"],
+    ["lancamentos", "Clicar em Editar leva ao lançamento que gerou a linha"],
+    ["fluxo", "As mesmas entradas e saídas, somadas por período"]],
+  problemas: [["O saldo final não bate com o banco",
+    "Percorra de cima para baixo comparando com o extrato: a primeira linha em que os dois divergem é o lançamento errado ou faltando."],
+    ["Faltam movimentos que eu sei que existem",
+    "Troque o filtro para “Com projetados”: o que ainda não aconteceu fica escondido no modo “Só realizado”."],
+    ["O saldo inicial está errado",
+    "Clique em Editar cadastro e corrija o saldo inicial e a data dele. Tudo depois disso se recalcula sozinho."]] };
 </script>

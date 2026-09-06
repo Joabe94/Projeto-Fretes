@@ -252,6 +252,112 @@ await page.waitForTimeout(250);
 await page.screenshot({ path: path.join(AQUI, "dist", "telefone-painel.png"), fullPage: false });
 
 await page.setViewportSize({ width: 1440, height: 1000 });
+
+console.log("\n[13b] Filtros de lançamentos");
+await page.evaluate(() => { App.rota = "lancamentos"; App.render(); });
+await page.waitForTimeout(200);
+conf("Barra de filtros aparece", 6, await page.locator("[data-filtro]").count(), 0);
+const todos = await page.locator(".tbl-wrap tbody tr").count();
+await page.selectOption('[data-filtro="status"]', "PROJETADO");
+await page.waitForTimeout(250);
+const soProj = await page.locator(".tbl-wrap tbody tr").count();
+conf("Filtrar por status reduz a lista", true, soProj > 0 && soProj < todos);
+await page.click('[data-act="limpar-filtros"]');
+await page.waitForTimeout(220);
+conf("Limpar filtros volta a lista inteira", todos, await page.locator(".tbl-wrap tbody tr").count(), 0);
+
+console.log("\n[14] Extrato de conta, cartão e investimento");
+await page.evaluate(() => { App.rota = "contas"; App.render(); });
+await page.waitForTimeout(150);
+await page.click('.btn-link[data-act="extrato"][data-tipo="CONTA"]');
+await page.waitForTimeout(250);
+conf("Clicar no nome da conta abre o extrato", "extrato", await page.evaluate(() => App.rota));
+const ex = await page.evaluate(() => {
+  const r = {};
+  for (const [t, lista] of [["CONTA", App.v.contas], ["CARTAO", App.v.cartoes],
+                            ["INVESTIMENTO", App.v.investimentos]]) {
+    r[t] = lista.map((e) => {
+      const x = Calc.extrato(App.v, t, e.id, new Set(["REALIZADO"]));
+      const oficial = t === "CONTA" ? e.saldo : t === "CARTAO" ? e.divida : e.saldo;
+      return { nome: e.nome, extrato: x.saldoFinal, oficial, movs: x.linhas.length };
+    });
+  }
+  return r;
+});
+for (const [t, itens] of Object.entries(ex))
+  for (const i of itens)
+    conf(`Saldo do extrato = saldo do cadastro (${i.nome})`, i.oficial, i.extrato);
+conf("Extrato da conta principal tem movimentos", true, ex.CONTA[0].movs > 50);
+const linhasVis = await page.locator(".tbl-wrap tbody tr").count();
+conf("Extrato lista as linhas", true, linhasVis > 20);
+await page.click('[data-act="extrato-status"][data-st="TODOS"]');
+await page.waitForTimeout(220);
+const comProj = await page.locator(".tbl-wrap tbody tr").count();
+conf("Filtro “com projetados” mostra mais linhas", true, comProj > linhasVis);
+const meses = await page.locator('[data-extrato="mes"] option').count();
+conf("Filtro de mês foi montado", true, meses > 5);
+await page.selectOption('[data-extrato="mes"]', { index: 1 });
+await page.waitForTimeout(220);
+const doMes = await page.locator(".tbl-wrap tbody tr").count();
+conf("Filtrar por mês reduz a lista", true, doMes > 0 && doMes < comProj);
+await page.click('[data-act="ajuda"]');
+await page.waitForSelector("#modal-form");
+conf("Extrato tem ajuda própria", true,
+  (await page.textContent(".modal-h h3")).includes("Extrato"));
+await page.click('[data-act="fechar-modal"]');
+await page.waitForTimeout(120);
+await page.evaluate(() => { App.rota = "cartoes"; App.render(); });
+await page.waitForTimeout(150);
+await page.click('.btn-link[data-act="extrato"][data-tipo="CARTAO"]');
+await page.waitForTimeout(250);
+const cab = await page.evaluate(() => Array.from(document.querySelectorAll(".tbl-wrap th")).map((x) => x.textContent.trim()));
+conf("No cartão as colunas viram Compra/Pagamento/Dívida", true,
+  cab.includes("Compra") && cab.includes("Pagamento") && cab.includes("Dívida"));
+
+console.log("\n[15] Cadastrar do zero cada tipo (regressão do bug do campo Tipo)");
+await page.evaluate(() => App.criarPerfil(false));
+await page.waitForSelector(".modal-h", { timeout: 8000 });
+for (let i = 0; i < 3; i++) { await page.click('[data-act="modal-ok"]'); await page.waitForTimeout(110); }
+const cadastros = [
+  ["instituicao", "instituicoes", { nome: "Ueno Bank" }, { tipo: "Banco" }],
+  ["conta", "contas", { nome: "Cuenta Ueno", saldoInicial: "7000000" }, { tipo: "Conta corrente" }],
+  ["cartao", "cartoes", { nome: "Visa Ueno", limite: "9000000", dividaInicial: "500000" }, {}],
+  ["investimento", "investimentos", { nome: "Fondo Atlas", valorInicial: "3000000" }, { tipo: "Fondo Mutuo" }],
+  ["categoria", "categorias", { nome: "Pets" }, { tipoPadrao: "DESPESA" }],
+  ["bem", "bens", { nome: "Moto", valor: "20000000" }, { tipo: "Veículo" }],
+  ["meta", "metas", { nome: "Viagem", objetivo: "15000000" }, {}],
+];
+for (const [tipo, lista, textos, selects] of cadastros) {
+  const antes = await page.evaluate((l) => App.d[l].length, lista);
+  await page.evaluate((t) => App.editar(t, null), tipo);
+  await page.waitForSelector("#modal-form", { timeout: 5000 });
+  for (const [k, val] of Object.entries(selects))
+    await page.selectOption(`[name="${k}"]`, val).catch(() => {});
+  for (const [k, val] of Object.entries(textos)) await page.fill(`[name="${k}"]`, val);
+  await page.click('[data-act="modal-ok"]');
+  await page.waitForTimeout(260);
+  const dep = await page.evaluate((l) => App.d[l].length, lista);
+  const fechou = (await page.locator("#modal-form").count()) === 0;
+  conf(`Criar ${tipo}`, antes + 1, dep, 0);
+  if (!fechou) { falhas.push(`Modal de ${tipo} não fechou`); await page.click('[data-act="fechar-modal"]'); }
+}
+const criados = await page.evaluate(() => ({
+  inst: App.d.instituicoes[0], conta: App.d.contas[0],
+  saldo: App.v.patrimonio.contas, falhas: App.v.testes.filter((t) => !t.ok).length,
+}));
+conf("Instituição guardou o tipo escolhido", "Banco", criados.inst.tipo);
+conf("Instituição recebeu ID automático", "INS-000001", criados.inst.id);
+conf("Conta guardou nome e saldo", "Cuenta Ueno", criados.conta.nome);
+conf("Saldo do perfil novo", 7000000, criados.saldo);
+conf("Perfil montado do zero passa na conferência", 0, criados.falhas, 0);
+await page.evaluate(() => { App.rota = "contas"; App.render(); });
+await page.waitForTimeout(200);
+await page.click('.btn-link[data-act="extrato"][data-tipo="CONTA"]');
+await page.waitForTimeout(250);
+conf("Extrato de conta recém-criada abre sem erro", "extrato", await page.evaluate(() => App.rota));
+await page.evaluate(() => App.abrirPerfil(App.perfis[0].id));
+await page.waitForTimeout(400);
+
 await page.click('[data-act="ir"][data-rota="painel"]');
 await page.waitForTimeout(300);
 await page.screenshot({ path: path.join(AQUI, "dist", "painel.png"), fullPage: false });
