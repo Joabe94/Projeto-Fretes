@@ -10,12 +10,25 @@ dados do próprio artefato (capacidade `db`) e cópia de segurança pela capacid
 | `index.html` | Fonte do app (11 blocos de script, sem framework nem CDN de código) |
 | `exportar_demo.py` | Exporta o dataset fictício de `gerador/dados.py` para JSON |
 | `build_app.py` | Embute o JSON em `index.html` e grava `dist/caja-guarani.html` |
-| `teste_app.mjs` | Abre o app no Chromium: confere os números contra o Excel, a ajuda das 20 telas, o guia e o layout de telefone |
+| `teste_app.mjs` | Abre o app no Chromium: números contra o Excel, ajuda das 21 telas, guia, extrato, telefone e falhas visíveis |
 
 ```bash
 python3 app/build_app.py --regerar   # gera dist/caja-guarani.html
 node app/teste_app.mjs               # teste de fumaça + conferência numérica
 ```
+
+## Versão e diagnóstico
+
+`build_app.py` carimba no arquivo uma versão `AAAA-MM-DD.hash` derivada do fonte
+mais o dataset. Ela aparece no rodapé do menu e em Configurações › Diagnóstico.
+É como se descobre em segundos que o navegador está servindo uma cópia em cache:
+basta comparar com a última publicada.
+
+Nada falha em silêncio: `window.error` e `unhandledrejection` são capturados,
+toda ação passa por `try/catch`, erros de gravação viram aviso, e salvar com um
+campo obrigatório vazio diz qual é o campo em vez de não fazer nada. O último
+erro fica guardado e o botão "Copiar diagnóstico" monta um texto com versão,
+modo de armazenamento, contagem de registros e a pilha do erro.
 
 ## Arquitetura
 
@@ -45,7 +58,7 @@ node app/teste_app.mjs               # teste de fumaça + conferência numérica
 
 ## Equivalência com o Excel
 
-`teste_app.mjs` faz 116 verificações. Compara os valores do app com os que a
+`teste_app.mjs` faz 125 verificações. Compara os valores do app com os que a
 auditoria do Excel apurou (saldos das 3 contas, dívida e fatura dos 2 cartões,
 saldo/principal/rendimento dos 2 investimentos, as 4 metas, a contagem dos 82
 status de parcela, o terreno em 44/60, patrimônio, fluxo e projeção); percorre as

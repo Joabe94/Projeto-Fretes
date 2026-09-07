@@ -636,8 +636,9 @@ const Store = {
       }
       App.setSync("ok");
     } catch (e) {
-      console.error(e); alvos.forEach((a) => this.dirty.add(a));
+      alvos.forEach((a) => this.dirty.add(a));
       App.setSync("erro", e && e.code);
+      App.registrarErro(e, "ao gravar os dados");
     } finally { this.salvando = false; }
   },
 };
@@ -2124,6 +2125,24 @@ Views.config = (v) => {
           + v.dRaw.categorias.length + v.dRaw.subcategorias.length))}
         ${UI.kpi("Movimentos de meta", Fmt.num(v.dRaw.movMetas.length))}
       </div>`)}
+    ${UI.card("Diagnóstico", `<p class="hint" style="max-width:66ch">Se alguma coisa não funcionar,
+        copie este bloco e mande para quem montou o sistema. A <b>versão</b> é o mais importante:
+        se ela não bater com a última publicada, seu navegador está com uma cópia antiga em cache —
+        recarregue com <b>Ctrl+Shift+R</b> (no celular, feche e abra a página de novo).</p>
+      <div class="grid g4" style="margin-top:12px">
+        ${UI.kpi("Versão", VERSAO)}
+        ${UI.kpi("Armazenamento", Store.online ? "Banco online" : "Só este navegador", "",
+          Store.online ? "good" : "warn")}
+        ${UI.kpi("Gravação pendente", Store.dirty.size ? "sim" : "não")}
+        ${UI.kpi("Último erro", App.ultimoErro ? "sim" : "nenhum", "", App.ultimoErro ? "bad" : "good")}
+      </div>
+      ${App.ultimoErro ? `<div class="aviso-box e" style="margin-top:12px">
+        <b>${esc(App.ultimoErro.contexto)}</b> — ${esc(App.ultimoErro.msg)}
+        <br><span class="hint">${esc(App.ultimoErro.quando)} · tela ${esc(App.ultimoErro.rota)}</span></div>` : ""}
+      <div class="row" style="margin-top:12px">
+        <button class="btn btn-sm btn-pri" data-act="copiar-diagnostico">Copiar diagnóstico</button>
+        ${App.ultimoErro ? `<button class="btn btn-sm" data-act="limpar-erro">Limpar erro</button>` : ""}
+      </div>`)}
     ${UI.card("Como o sistema funciona", `
       <p style="max-width:70ch">Existe um único livro de operações. Cada lançamento tem uma <b>origem</b> e um <b>destino</b>,
       e cada um deles é uma conta, um cartão, um investimento ou <i>externo</i> — o mundo fora do seu controle.
@@ -2311,6 +2330,7 @@ const Form = {
 /* ==================================================================== */
 /*  APLICACAO                                                            */
 /* ==================================================================== */
+const VERSAO = "/*__VERSAO__*/dev";
 const DEMO = /*__DEMO__*/ null;
 
 const NAV = [
@@ -2328,7 +2348,7 @@ const App = {
   d: null, v: null, perfis: [], perfilNome: "", rota: "painel", sync: "ok", pronto: false,
   filtros: { q: "", status: "", tipo: "", entidade: "", categoria: "", mes: "" },
   rel: { ano: 0, mes: 0 }, abertos: new Set(), fluxoModo: "mensal", modalCtx: null,
-  extratoSel: null, extratoMes: "", extratoStatus: "REALIZADO",
+  extratoSel: null, extratoMes: "", extratoStatus: "REALIZADO", ultimoErro: null,
 
   /* ------------------------------------------------------------ boot */
   async boot() {
@@ -2342,6 +2362,8 @@ const App = {
     document.addEventListener("change", (e) => this.onChange(e));
     document.addEventListener("input", (e) => this.onInput(e));
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") this.fecharModal(); });
+    window.addEventListener("error", (e) => this.registrarErro(e.error || e.message, "erro na página"));
+    window.addEventListener("unhandledrejection", (e) => this.registrarErro(e.reason, "operação não concluída"));
     window.addEventListener("beforeunload", () => { if (Store.dirty.size) Store.flush(); });
   },
   async abrirPerfil(pid) {
@@ -2385,6 +2407,8 @@ const App = {
         <div class="brand"><div class="brand-mark">Gs</div>
           <div><div class="brand-name">Caja Guaraní</div><div class="brand-sub">${esc(this.perfilNome)}</div></div></div>
         <nav class="nav">${nav}</nav>
+        <div style="padding:9px 16px;border-top:1px solid var(--line)">
+          <span class="hint" title="Versão desta cópia do sistema">v ${esc(VERSAO)}</span></div>
       </aside>
       <div class="main">
         <header class="topbar">
@@ -2397,6 +2421,7 @@ const App = {
           <button class="btn btn-sm no-mob" data-act="ir" data-rota="config">Perfis</button>
           <button class="btn btn-pri btn-sm no-mob" data-act="novo" data-tipo="lancamento">+ Lançamento</button>
         </header>
+        ${this.barraErro()}
         <main class="page">${view}</main>
       </div>
       ${this.barraMobile(graves, falhas)}
@@ -2508,6 +2533,53 @@ const App = {
     for (const x of lista) { const m = String(x.id || "").match(/-(\d+)$/); if (m) max = Math.max(max, +m[1]); }
     return pre + "-" + String(max + 1).padStart(6, "0");
   },
+  /** Nada pode falhar em silencio: todo erro vira aviso na tela e fica guardado
+   *  no diagnostico, com o texto pronto para ser copiado e enviado. */
+  registrarErro(e, contexto) {
+    const msg = (e && (e.message || e.code)) || String(e || "erro desconhecido");
+    this.ultimoErro = { quando: new Date().toISOString(), contexto, msg,
+      pilha: (e && e.stack ? String(e.stack).split("\n").slice(0, 5).join("\n") : ""),
+      rota: this.rota, versao: VERSAO };
+    console.error("[Caja Guaraní]", contexto, e);
+    this.toast(contexto + ": " + msg + " — veja Configurações › Diagnóstico", true);
+    const b = $("#erro-barra");
+    if (b) b.outerHTML = this.barraErro();
+    return this.ultimoErro;
+  },
+  barraErro() {
+    if (!this.ultimoErro) return `<div id="erro-barra" hidden></div>`;
+    const u = this.ultimoErro;
+    return `<div id="erro-barra" class="aviso-box e" style="margin:0 22px;display:flex;gap:10px;
+        align-items:center;flex-wrap:wrap">
+      <b>Algo não funcionou:</b> <span>${esc(u.contexto)} — ${esc(u.msg)}</span>
+      <div style="flex:1"></div>
+      <button class="btn btn-sm" data-act="ir" data-rota="config">Ver diagnóstico</button>
+      <button class="btn btn-sm" data-act="limpar-erro">Dispensar</button></div>`;
+  },
+  diagnosticoTexto() {
+    const d = this.d || {}, u = this.ultimoErro;
+    return ["Caja Guaraní — diagnóstico",
+      "versão: " + VERSAO,
+      "armazenamento: " + (Store.online ? "banco online" : "somente este navegador"),
+      "perfil: " + this.perfilNome + " (" + Store.pid + ")",
+      "tela: " + this.rota,
+      "data de referência: " + (d.config ? d.config.dataRef : "?"),
+      "registros: " + LISTAS.map((k) => k + "=" + ((d[k] || []).length)).join(", "),
+      "pendente de gravação: " + (Store.dirty.size ? Array.from(Store.dirty).join(",") : "nada"),
+      "conferência: " + (this.v ? this.v.testes.filter((t) => !t.ok).length + " falha(s)" : "?"),
+      "último erro: " + (u ? `${u.quando} · ${u.contexto} · ${u.msg}\n${u.pilha}` : "nenhum"),
+      "navegador: " + navigator.userAgent].join("\n");
+  },
+  /** Diz exatamente qual campo obrigatorio esta faltando, em vez de nao fazer nada. */
+  avisarInvalido(f) {
+    const el = f.querySelector(":invalid");
+    if (!el) { this.toast("Não foi possível salvar. Confira os campos.", true); return; }
+    const lab = (el.closest(".field") || {}).querySelector
+      ? (el.closest(".field").querySelector("label") || {}).textContent : null;
+    this.toast("Falta preencher: " + (lab || el.name || "um campo obrigatório"), true);
+    el.focus();
+    el.style.borderColor = "var(--grave)";
+  },
   toast(msg, err) {
     const t = document.createElement("div");
     t.className = "toast" + (err ? " err" : ""); t.textContent = msg;
@@ -2575,7 +2647,14 @@ Object.assign(App, {
       "guia-voltar": () => { this.fecharModal(); Guia.abrirBoasVindas(Number(i)); },
       "guia-boasvindas": () => Guia.abrirBoasVindas(0),
       "fechar-modal": () => this.fecharModal(),
-      "modal-ok": () => { const f = $("#modal-form"); if (f && f.reportValidity() && this.modalOk) this.modalOk(f); },
+      "modal-ok": () => {
+        const f = $("#modal-form"); if (!f) return;
+        if (!f.checkValidity()) { this.avisarInvalido(f); return; }
+        if (!this.modalOk) { this.toast("Este formulário não tem ação de salvar.", true); return; }
+        try { this.modalOk(f); } catch (x) { this.registrarErro(x, "ao salvar"); }
+      },
+      "limpar-erro": () => { this.ultimoErro = null; this.render(); },
+      "copiar-diagnostico": () => this.copiarDiagnostico(),
       novo: () => this.editar(tipo, null),
       editar: () => this.editar(tipo, id),
       excluir: () => this.excluir(tipo, id),
@@ -2600,7 +2679,12 @@ Object.assign(App, {
       importar: () => this.importar(),
       zerar: () => this.zerar(),
     };
-    if (acoes[act]) { e.preventDefault(); acoes[act](); }
+    if (acoes[act]) {
+      e.preventDefault();
+      try { const r = acoes[act]();
+        if (r && typeof r.catch === "function") r.catch((x) => this.registrarErro(x, "ação " + act));
+      } catch (x) { this.registrarErro(x, "ação " + act); }
+    }
   },
   onChange(e) {
     const t = e.target;
@@ -2965,6 +3049,18 @@ Object.assign(App, {
       else this.renderOnboarding("Perfil excluído. Crie outro para continuar.");
     } else this.render();
     this.toast("Perfil excluído.");
+  },
+
+  async copiarDiagnostico() {
+    const txt = this.diagnosticoTexto();
+    try {
+      await navigator.clipboard.writeText(txt);
+      this.toast("Diagnóstico copiado. Cole na conversa.");
+      return;
+    } catch (e) { /* area de transferencia bloqueada: mostra para copiar a mao */ }
+    this.modal({ titulo: "Diagnóstico", ok: "", largura: 720,
+      corpo: `<p class="hint">Selecione tudo e copie.</p>
+        <textarea class="inp mono" rows="14" readonly style="font-size:11.5px">${esc(txt)}</textarea>` });
   },
 
   /* ----------------------------------------------------------- dados */

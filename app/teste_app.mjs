@@ -20,7 +20,8 @@ function conf(nome, esperado, obtido, tol = 0.5) {
 const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 page.on("pageerror", (e) => erros.push("pageerror: " + e.message));
-page.on("console", (m) => { if (m.type() === "error") erros.push("console: " + m.text()); });
+page.on("console", (m) => { const t = m.text();
+  if (m.type() === "error" && !t.includes("[Caja Guaraní] teste")) erros.push("console: " + t); });
 
 console.log("=".repeat(104));
 console.log("TESTE DO APP NO NAVEGADOR");
@@ -357,6 +358,37 @@ await page.waitForTimeout(250);
 conf("Extrato de conta recém-criada abre sem erro", "extrato", await page.evaluate(() => App.rota));
 await page.evaluate(() => App.abrirPerfil(App.perfis[0].id));
 await page.waitForTimeout(400);
+
+console.log("\n[16] Nada falha em silêncio");
+await page.evaluate(() => { App.rota = "instituicoes"; App.render(); });
+await page.waitForTimeout(150);
+await page.click('[data-act="novo"][data-tipo="instituicao"]');
+await page.waitForSelector("#modal-form");
+await page.click('[data-act="modal-ok"]');            // sem preencher nada
+await page.waitForTimeout(250);
+const avisos = await page.$$eval(".toast", (els) => els.map((e) => e.textContent));
+conf("Salvar sem preencher avisa qual campo falta", true,
+  avisos.some((t) => t.includes("Falta preencher")));
+conf("Modal continua aberto para corrigir", 1, await page.locator("#modal-form").count(), 0);
+await page.fill('[name="nome"]', "Banco Teste");
+await page.click('[data-act="modal-ok"]');
+await page.waitForTimeout(300);
+conf("Depois de preencher, salva", 0, await page.locator("#modal-form").count(), 0);
+const errCap = await page.evaluate(() => {
+  App.registrarErro(new Error("falha simulada"), "teste");
+  return { temErro: !!App.ultimoErro, barra: !!document.querySelector("#erro-barra .btn"),
+    diag: App.diagnosticoTexto() };
+});
+conf("Erro fica registrado", true, errCap.temErro);
+conf("Barra de erro aparece na tela", true, errCap.barra);
+conf("Diagnóstico traz a versão", true, /versão: \d{4}-\d{2}-\d{2}\./.test(errCap.diag));
+conf("Diagnóstico traz o último erro", true, errCap.diag.includes("falha simulada"));
+await page.evaluate(() => { App.ultimoErro = null; App.rota = "config"; App.render(); });
+await page.waitForTimeout(200);
+conf("Configurações mostram a versão", true,
+  (await page.textContent(".page")).includes(await page.evaluate(() => VERSAO)));
+conf("Versão também no rodapé do menu", true,
+  (await page.textContent(".side")).includes("v "));
 
 await page.click('[data-act="ir"][data-rota="painel"]');
 await page.waitForTimeout(300);
