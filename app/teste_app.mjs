@@ -356,6 +356,78 @@ await page.waitForTimeout(200);
 await page.click('.btn-link[data-act="extrato"][data-tipo="CONTA"]');
 await page.waitForTimeout(250);
 conf("Extrato de conta recém-criada abre sem erro", "extrato", await page.evaluate(() => App.rota));
+
+console.log("\n[15b] Primeiro dia de uso, do zero ate o extrato");
+/* perfil recem-criado, ainda sem nenhuma conta: o compromisso precisa avisar */
+await page.evaluate(() => App.criarPerfil(false));
+await page.waitForSelector(".modal-h", { timeout: 8000 });
+for (let i = 0; i < 3; i++) { await page.click('[data-act="modal-ok"]'); await page.waitForTimeout(110); }
+await page.evaluate(() => { App.rota = "compromissos"; App.render(); });
+await page.waitForTimeout(150);
+const antesCmp = await page.evaluate(() => App.d.compromissos.length);
+await page.evaluate(() => App.editar("compromisso", null));
+await page.waitForSelector("#modal-form");
+conf("Compromisso sem conta avisa o que falta antes", true,
+  (await page.textContent("#modal-form")).includes("Antes de criar"));
+await page.click('[data-act="modal-ok"]');
+await page.waitForTimeout(250);
+const av = await page.$$eval(".toast", (e) => e.map((x) => x.textContent));
+conf("E recusa com mensagem em vez de não fazer nada", true,
+  av.some((t) => t.includes("Cadastre antes")));
+conf("Nada foi criado pela metade", antesCmp, await page.evaluate(() => App.d.compromissos.length), 0);
+await page.click('[data-act="fechar-modal"]');
+await page.waitForTimeout(120);
+/* cadastra a conta que faltava e repete */
+await page.evaluate(() => App.editar("conta", null));
+await page.waitForSelector("#modal-form");
+await page.fill('[name="nome"]', "Cuenta Ueno");
+await page.fill('[name="saldoInicial"]', "7000000");
+await page.click('[data-act="modal-ok"]');
+await page.waitForTimeout(300);
+conf("Conta criada no perfil vazio", 1, await page.evaluate(() => App.d.contas.length), 0);
+await page.evaluate(() => App.editar("compromisso", null));
+await page.waitForSelector("#modal-form");
+conf("Com conta cadastrada o aviso some", false,
+  (await page.textContent("#modal-form")).includes("Antes de criar"));
+await page.fill('[name="nome"]', "Terreno");
+await page.fill('[name="qtd"]', "6");
+await page.fill('[name="valorParcela"]', "1000000");
+await page.fill('[name="primeira"]', "2026-03-10");
+await page.click('[data-act="modal-ok"]');
+await page.waitForTimeout(350);
+const cmp = await page.evaluate(() => ({
+  qtd: App.d.compromissos.length, parcelas: App.d.parcelas.length,
+  atual: App.v.compromissos[0] && App.v.compromissos[0].atual,
+  devedor: App.v.compromissos[0] && App.v.compromissos[0].devedor }));
+conf("Compromisso criado", antesCmp + 1, cmp.qtd, 0);
+conf("Cronograma gerado sozinho", 6, cmp.parcelas, 0);
+conf("Saldo devedor calculado", 6000000, cmp.devedor);
+/* um lancamento de despesa na conta recem-criada */
+await page.evaluate(() => {
+  const c = App.d.contas[0], cat = App.d.categorias[0];
+  App.d.lancamentos.push({ id: App.proximoId("LAN", App.d.lancamentos), data: App.d.config.dataRef,
+    descricao: "Supermercado", tipo: "DESPESA", status: "REALIZADO", valor: 250000,
+    origemTipo: "CONTA", origemId: c.id, destinoTipo: "EXTERNO", destinoId: "",
+    categoriaId: cat.id });
+  App.salvar("lancamentos");
+});
+await page.waitForTimeout(300);
+const fim = await page.evaluate(() => ({
+  saldo: App.v.contas[0].saldo, valid: App.v.L.every((l) => l.validacao === "OK"),
+  falhas: App.v.testes.filter((t) => !t.ok).length }));
+conf("Saldo cai com a despesa", 7000000 - 250000, fim.saldo);
+conf("Todos os lançamentos válidos", true, fim.valid);
+conf("Conferência fecha no perfil montado do zero", 0, fim.falhas, 0);
+
+console.log("\n[15c] Autoteste embutido");
+const at = await page.evaluate(async () => {
+  const x = await Autoteste.rodar();
+  return { total: x.r.length, falhas: x.r.filter((y) => !y.ok).map((y) => y.grupo + "/" + y.nome + ": " + y.det) };
+});
+conf("Autoteste roda sem falha no perfil do usuário", 0, at.falhas.length, 0);
+at.falhas.forEach((f) => console.log("         FALHOU -> " + f));
+console.log(`         (${at.total} verificações do autoteste)`);
+
 await page.evaluate(() => App.abrirPerfil(App.perfis[0].id));
 await page.waitForTimeout(400);
 

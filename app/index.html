@@ -622,7 +622,7 @@ const Store = {
   marcar(...chaves) {
     for (const c of chaves) this.dirty.add(BLOCOS_GRANDES.includes(c) ? c : "cadastros");
     clearTimeout(this.timer);
-    this.timer = setTimeout(() => this.flush(), 700);
+    this.timer = setTimeout(() => this.flush(), 200);
   },
   async flush() {
     if (!this.pid || this.salvando || !this.dirty.size) return;
@@ -2140,7 +2140,8 @@ Views.config = (v) => {
         <b>${esc(App.ultimoErro.contexto)}</b> — ${esc(App.ultimoErro.msg)}
         <br><span class="hint">${esc(App.ultimoErro.quando)} · tela ${esc(App.ultimoErro.rota)}</span></div>` : ""}
       <div class="row" style="margin-top:12px">
-        <button class="btn btn-sm btn-pri" data-act="copiar-diagnostico">Copiar diagnóstico</button>
+        <button class="btn btn-pri" data-act="autoteste">Testar o sistema agora</button>
+        <button class="btn btn-sm" data-act="copiar-diagnostico">Copiar diagnóstico</button>
         ${App.ultimoErro ? `<button class="btn btn-sm" data-act="limpar-erro">Limpar erro</button>` : ""}
       </div>`)}
     ${UI.card("Como o sistema funciona", `
@@ -2206,7 +2207,8 @@ const FORMS = {
     { n: "nome", l: "Nome", t: "text", req: 1 },
     { n: "tipoPadrao", l: "Tipo padrão", t: "select", opts: ["DESPESA", "RECEITA", "NEUTRO"] }] },
   subcategoria: { rot: "Subcategoria", lista: "subcategorias", pre: "SUB", campos: (d) => [
-    { n: "categoriaId", l: "Categoria", t: "select", opts: optsDe(d.categorias), req: 1 },
+    { n: "categoriaId", l: "Categoria", t: "select", opts: optsDe(d.categorias), req: 1,
+      faltaMsg: "pelo menos uma categoria", faltaRota: "categorias" },
     { n: "nome", l: "Nome", t: "text", req: 1 }] },
   bem: { rot: "Bem", lista: "bens", pre: "BEM", campos: (d) => [
     { n: "nome", l: "Nome", t: "text", req: 1 },
@@ -2226,7 +2228,8 @@ const FORMS = {
     { n: "obs", l: "Observação", t: "text", full: 1 }] },
   compromisso: { rot: "Compromisso", lista: "compromissos", pre: "CMP", campos: (d) => [
     { n: "nome", l: "Nome", t: "text", req: 1, full: 1 },
-    { n: "categoriaId", l: "Categoria", t: "select", opts: optsDe(d.categorias), req: 1 },
+    { n: "categoriaId", l: "Categoria", t: "select", opts: optsDe(d.categorias), req: 1,
+      faltaMsg: "pelo menos uma categoria", faltaRota: "categorias" },
     { n: "subcategoriaId", l: "Subcategoria", t: "select", opts: optsDe(d.subcategorias), vazio: "—", dep: "categoriaId" },
     { n: "qtd", l: "Quantidade de parcelas", t: "int", req: 1, def: 12, min: 1, max: 600 },
     { n: "valorParcela", l: "Valor da parcela (Gs.)", t: "money", req: 1, def: 0 },
@@ -2235,7 +2238,9 @@ const FORMS = {
     { n: "periodicidade", l: "Periodicidade", t: "select", opts: PERIODICIDADES, def: "Mensal" },
     { n: "pagasAntes", l: "Parcelas já pagas antes do sistema", t: "int", def: 0, min: 0 },
     { n: "entidadeTipo", l: "Pago com", t: "select", opts: ["CONTA", "CARTAO"], def: "CONTA" },
-    { n: "entidadeId", l: "Conta ou cartão", t: "select", opts: [...optsDe(d.contas), ...optsDe(d.cartoes)], req: 1 },
+    { n: "entidadeId", l: "Conta ou cartão", t: "select", opts: [...optsDe(d.contas), ...optsDe(d.cartoes)],
+      req: 1, faltaMsg: "uma conta ou um cartão, para saber de onde sai o dinheiro da parcela",
+      faltaRota: "contas" },
     { n: "status", l: "Status", t: "select", opts: STATUS_CAD, def: "Ativo" },
     { n: "obs", l: "Observação", t: "text", full: 1 }] },
   recorrencia: { rot: "Recorrência", lista: "recorrencias", pre: "REC", campos: (d) => [
@@ -2280,6 +2285,17 @@ const Form = {
     if (tipo === "INVESTIMENTO") return optsDe(d.investimentos);
     return [];
   },
+  /** Campos obrigatorios do tipo "escolha da lista" que hoje nao tem nenhuma
+   *  opcao possivel. Sem isso o Salvar ficaria travado sem explicacao. */
+  faltando(tipo, d) {
+    const out = [];
+    for (const c of (FORMS[tipo] ? FORMS[tipo].campos(d) : [])) {
+      if (!c.req || c.t !== "select") continue;
+      const opts = c.entidade ? Form.entidadeOpts(d, "") : (c.opts || []);
+      if (!opts.length) out.push(c);
+    }
+    return out;
+  },
   html(tipo, reg, d) {
     const spec = FORMS[tipo];
     return `<div class="fgrid">` + spec.campos(d).map((c) => {
@@ -2295,8 +2311,13 @@ const Form = {
         opts = ps.map((p) => ({ v: p.id, t: `${p.num}/${c2 ? c2.qtd : "?"} — vence ${Fmt.data(p.vencimento)}` }));
       }
       const attr = `${c.req ? " required" : ""}${c.min !== undefined ? ` min="${c.min}"` : ""}${c.max !== undefined ? ` max="${c.max}"` : ""}`;
-      if (c.t === "select")
-        return UI.campo(c.l, `<select class="inp" name="${c.n}" data-campo="${c.n}"${attr}>${UI.opcoes(opts || [], val, c.vazio)}</select>`, c.full);
+      if (c.t === "select") {
+        const vazioDeVerdade = c.req && !(opts || []).length;
+        return UI.campo(c.l, `<select class="inp" name="${c.n}" data-campo="${c.n}"
+          ${vazioDeVerdade ? "disabled" : attr}>${vazioDeVerdade
+            ? `<option value="">— nada cadastrado ainda —</option>`
+            : UI.opcoes(opts || [], val, c.vazio)}</select>`, c.full);
+      }
       const tipoIn = c.t === "date" ? "date" : (c.t === "money" || c.t === "num" || c.t === "int") ? "number" : "text";
       const step = c.t === "num" ? "0.0001" : c.t === "money" ? "1" : c.t === "int" ? "1" : "";
       return UI.campo(c.l, `<input class="inp${c.t === "money" || c.t === "num" || c.t === "int" ? " num" : ""}"
@@ -2349,6 +2370,7 @@ const App = {
   filtros: { q: "", status: "", tipo: "", entidade: "", categoria: "", mes: "" },
   rel: { ano: 0, mes: 0 }, abertos: new Set(), fluxoModo: "mensal", modalCtx: null,
   extratoSel: null, extratoMes: "", extratoStatus: "REALIZADO", ultimoErro: null,
+  ultimoAutoteste: null,
 
   /* ------------------------------------------------------------ boot */
   async boot() {
@@ -2365,6 +2387,9 @@ const App = {
     window.addEventListener("error", (e) => this.registrarErro(e.error || e.message, "erro na página"));
     window.addEventListener("unhandledrejection", (e) => this.registrarErro(e.reason, "operação não concluída"));
     window.addEventListener("beforeunload", () => { if (Store.dirty.size) Store.flush(); });
+    window.addEventListener("pagehide", () => { if (Store.dirty.size) Store.flush(); });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden" && Store.dirty.size) Store.flush(); });
   },
   async abrirPerfil(pid) {
     this.d = await Store.carregar(pid);
@@ -2601,8 +2626,17 @@ const App = {
     document.body.appendChild(o);
     o.addEventListener("click", (e) => { if (e.target === o) this.fecharModal(); });
     const f = $("#modal-form", o);
-    f.addEventListener("submit", (e) => { e.preventDefault(); onOk && onOk(f); });
+    f.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const falt = (this.modalCtx && this.modalCtx.faltam) || [];
+      if (falt.length) {
+        this.toast("Cadastre antes: " + falt.map((c) => c.l.toLowerCase()).join(", "), true);
+        return;
+      }
+      if (onOk) { try { onOk(f); } catch (x) { this.registrarErro(x, "ao salvar"); } }
+    });
     this.modalOk = onOk;
+    this.modalCtx = null;
     const first = f.querySelector("input,select,textarea");
     if (first) setTimeout(() => first.focus(), 30);
   },
@@ -2632,6 +2666,7 @@ Object.assign(App, {
       "ir-ajuda": () => { this.fecharModal(); this.rota = rota; this.render();
         setTimeout(() => this.ajuda(rota), 60); },
       ajuda: () => this.ajuda(),
+      autoteste: () => this.rodarAutoteste(),
       extrato: () => { this.fecharFolha(); this.extratoSel = { tipo, id };
         this.extratoMes = ""; this.extratoStatus = "REALIZADO"; this.rota = "extrato"; this.render(); },
       "extrato-status": () => { this.extratoStatus = b.dataset.st; this.render(); },
@@ -2649,12 +2684,18 @@ Object.assign(App, {
       "fechar-modal": () => this.fecharModal(),
       "modal-ok": () => {
         const f = $("#modal-form"); if (!f) return;
+        const falt = (this.modalCtx && this.modalCtx.faltam) || [];
+        if (falt.length) {
+          this.toast("Cadastre antes: " + falt.map((c) => c.l.toLowerCase()).join(", "), true);
+          return;
+        }
         if (!f.checkValidity()) { this.avisarInvalido(f); return; }
         if (!this.modalOk) { this.toast("Este formulário não tem ação de salvar.", true); return; }
         try { this.modalOk(f); } catch (x) { this.registrarErro(x, "ao salvar"); }
       },
       "limpar-erro": () => { this.ultimoErro = null; this.render(); },
       "copiar-diagnostico": () => this.copiarDiagnostico(),
+      "copiar-autoteste": () => this.copiarAutoteste(),
       novo: () => this.editar(tipo, null),
       editar: () => this.editar(tipo, id),
       excluir: () => this.excluir(tipo, id),
@@ -2738,7 +2779,14 @@ Object.assign(App, {
       ? `<div class="aviso-box a">Este lançamento está vinculado a
          ${esc(this.v.L.find((l) => l.id === id).vinculos.join(", "))}. Alterar valor, data ou status pode
          mudar o estado de uma parcela ou de uma meta.</div>` : "";
-    const corpo = () => dica + avisoVinc + Form.html(tipo, reg, this.d);
+    const faltam = Form.faltando(tipo, this.d);
+    const avisoFalta = faltam.length
+      ? `<div class="aviso-box a"><b>Antes de criar ${spec.rot.toLowerCase()}, cadastre:</b>
+          ${esc(faltam.map((c) => c.faltaMsg || c.l.toLowerCase()).join("; "))}.
+          ${faltam.filter((c) => c.faltaRota).map((c) =>
+            `<button class="btn btn-sm" style="margin-left:8px" data-act="ir" data-rota="${c.faltaRota}">
+              Cadastrar ${esc(c.l.toLowerCase())}</button>`).join("")}</div>` : "";
+    const corpo = () => dica + avisoFalta + avisoVinc + Form.html(tipo, reg, this.d);
     this.modal({ titulo: (id ? "Editar " : "Novo ") + spec.rot.toLowerCase(), corpo: corpo(),
       largura: tipo === "lancamento" || tipo === "compromisso" || tipo === "recorrencia" ? 900 : 620,
       onOk: (f) => {
@@ -2754,7 +2802,7 @@ Object.assign(App, {
         this.salvar(spec.lista, "parcelas");
         this.toast(spec.rot + (orig ? " atualizado." : " criado."));
       } });
-    this.modalCtx = { tipo, reg, rerender: () => { $("#modal-form").innerHTML = corpo(); } };
+    this.modalCtx = { tipo, reg, faltam, rerender: () => { $("#modal-form").innerHTML = corpo(); } };
   },
   async excluir(tipo, id) {
     const mapa = { movMeta: "movMetas", subcategoria: "subcategorias" };
@@ -3049,6 +3097,52 @@ Object.assign(App, {
       else this.renderOnboarding("Perfil excluído. Crie outro para continuar.");
     } else this.render();
     this.toast("Perfil excluído.");
+  },
+
+  /** Roda o autoteste e mostra o resultado linha a linha, ao vivo. */
+  async rodarAutoteste() {
+    const pinta = (r, fim) => {
+      const falhas = r.filter((x) => !x.ok);
+      const grupos = Array.from(groupBy(r, (x) => x.grupo));
+      const corpo = `${fim ? (falhas.length
+          ? `<div class="aviso-box e"><b>${falhas.length} de ${r.length} verificações falharam.</b>
+             Toque em “Copiar resultado” e cole na conversa — com isso dá para corrigir sem adivinhar.</div>`
+          : `<div class="aviso-box i"><b>Tudo certo: ${r.length} verificações, nenhuma falha.</b>
+             Cadastro, gravação no banco, lançamento e todas as telas funcionaram neste navegador.</div>`)
+        : `<div class="aviso-box i">Testando… ${r.length} verificações até agora.</div>`}
+        ${grupos.map(([g, itens]) => `<div><p class="ajuda-sec">${esc(g)}</p>
+          <div class="list-lines">${itens.map((x) => `<div class="line-item">
+            ${UI.tag(x.ok ? "OK" : "FALHOU", x.ok ? "bom" : "grave")}
+            <div class="li-m"><b>${esc(x.nome)}</b>${x.det ? `<span>${esc(x.det)}</span>` : ""}</div>
+          </div>`).join("")}</div></div>`).join("")}`;
+      const alvo = $("#modal-form");
+      if (alvo) alvo.innerHTML = corpo;
+    };
+    this.modal({ titulo: "Teste do sistema", ok: "", largura: 760,
+      corpo: `<div class="aviso-box i">Rodando…</div>` });
+    let res;
+    try { res = await Autoteste.rodar((r) => pinta(r, false)); }
+    catch (e) { this.registrarErro(e, "durante o autoteste"); return; }
+    pinta(res.r, true);
+    const f = $(".modal-f");
+    if (f) f.insertAdjacentHTML("afterbegin",
+      `<button class="btn btn-pri" data-act="copiar-autoteste" style="margin-right:auto">Copiar resultado</button>`);
+    this.render();
+  },
+  async copiarAutoteste() {
+    const a = this.ultimoAutoteste;
+    if (!a) { this.toast("Rode o teste primeiro.", true); return; }
+    const txt = ["Caja Guaraní — resultado do teste", "versão: " + a.resumo.versao,
+      "quando: " + a.resumo.quando, "perfil: " + a.resumo.perfil,
+      "armazenamento: " + (a.resumo.online ? "banco online" : "só este navegador"),
+      "registros: " + a.resumo.registros, "navegador: " + a.resumo.navegador, "",
+      ...a.r.map((x) => `[${x.ok ? "OK   " : "FALHOU"}] ${x.grupo} / ${x.nome}${x.det ? " — " + x.det : ""}`),
+    ].join("\n");
+    try { await navigator.clipboard.writeText(txt); this.toast("Resultado copiado. Cole na conversa."); return; }
+    catch (e) { /* mostra para copiar a mao */ }
+    this.modal({ titulo: "Resultado do teste", ok: "", largura: 760,
+      corpo: `<p class="hint">Selecione tudo e copie.</p>
+        <textarea class="inp mono" rows="18" readonly style="font-size:11px">${esc(txt)}</textarea>` });
   },
 
   async copiarDiagnostico() {
@@ -3540,4 +3634,164 @@ AJUDA.extrato = { t: "Extrato",
     "Troque o filtro para “Com projetados”: o que ainda não aconteceu fica escondido no modo “Só realizado”."],
     ["O saldo inicial está errado",
     "Clique em Editar cadastro e corrija o saldo inicial e a data dele. Tudo depois disso se recalcula sozinho."]] };
+</script>
+<script>
+"use strict";
+/* ==================================================================== */
+/*  AUTOTESTE - roda no navegador do usuario e diz o que falha           */
+/* ==================================================================== */
+const Autoteste = {
+  exemplos: {
+    instituicao: { nome: "Teste banco", tipo: "Banco" },
+    conta: { nome: "Teste conta", tipo: "Conta corrente", saldoInicial: 1000000 },
+    cartao: { nome: "Teste cartão", limite: 5000000, diaFechamento: 25, diaVencimento: 5 },
+    investimento: { nome: "Teste aplicação", valorInicial: 1000000, taxa: 0.1, prazoMeses: 12 },
+    categoria: { nome: "Teste categoria", tipoPadrao: "DESPESA" },
+    subcategoria: { nome: "Teste subcategoria" },
+    bem: { nome: "Teste bem", valor: 1000000 },
+    meta: { nome: "Teste meta", objetivo: 1000000 },
+    compromisso: { nome: "Teste parcelamento", qtd: 6, valorParcela: 100000, dia: 10 },
+    recorrencia: { descricao: "Teste recorrência", tipo: "RECEITA", valor: 100000, dia: 5 },
+    lancamento: { descricao: "Teste lançamento", tipo: "DESPESA", valor: 50000 },
+  },
+
+  /** Preenche um formulario desacoplado com valores validos e devolve o registro. */
+  simularFormulario(tipo, dados) {
+    const form = document.createElement("form");
+    form.innerHTML = Form.html(tipo, {}, dados);
+    document.body.appendChild(form);
+    try {
+      for (const c of FORMS[tipo].campos(dados)) {
+        const el = form.elements[c.n];
+        if (!el) continue;
+        const ex = (this.exemplos[tipo] || {})[c.n];
+        if (ex !== undefined) { el.value = ex; continue; }
+        if (!c.req || el.value) continue;
+        if (c.t === "date") el.value = dados.config.dataRef;
+        else if (c.t === "select") el.value = (el.options[1] || el.options[0] || {}).value || "";
+        else if (c.t === "text") el.value = "Teste";
+        else el.value = "1000";
+      }
+      return { reg: Form.ler(form, tipo, dados), valido: form.checkValidity() };
+    } finally { form.remove(); }
+  },
+
+  async rodar(aoAndar) {
+    const r = [];
+    const ok = (grupo, nome, cond, det) => {
+      r.push({ grupo, nome, ok: !!cond, det: det || "" });
+      if (aoAndar) aoAndar(r);
+    };
+    const backup = JSON.stringify(App.d);
+
+    /* ---- 1. ambiente ---- */
+    ok("Ambiente", "Versão deste arquivo", true, VERSAO);
+    ok("Ambiente", "Onde os dados são gravados", true, Store.online
+      ? "banco online, na sua conta — voltam em qualquer aparelho"
+      : "só neste navegador — faça cópias em Configurações › Baixar cópia");
+    ok("Ambiente", "Perfil aberto", !!Store.pid, App.perfilNome + " · " + Store.pid);
+
+    /* ---- 2. gravar e ler de volta no banco (o teste que faltava) ---- */
+    if (Store.db) {
+      let det = "", passou = false;
+      try {
+        const marca = "t" + Date.now();
+        await Store.db.doc("diagnostico/autoteste").set(
+          { marca, versao: VERSAO, quando: new Date().toISOString(), perfil: App.perfilNome });
+        const lido = await Store.db.doc("diagnostico/autoteste").get();
+        passou = lido.exists && lido.data().marca === marca;
+        det = passou ? "gravou e leu de volta" : "gravou, mas leu diferente";
+      } catch (e) { det = "ERRO: " + ((e && (e.code || e.message)) || String(e)); }
+      ok("Banco", "Gravar e ler um documento", passou, det);
+    }
+
+    /* ---- 3. cada formulário produz um registro válido ---- */
+    for (const tipo of Object.keys(FORMS)) {
+      try {
+        const falta = Form.faltando(tipo, App.d);
+        if (falta.length) {
+          ok("Formulários", "Preencher " + FORMS[tipo].rot.toLowerCase(), true,
+            "depende de cadastrar antes: " + falta.map((c) => c.l.toLowerCase()).join(", "));
+          continue;
+        }
+        const { reg, valido } = this.simularFormulario(tipo, App.d);
+        const campos = Object.keys(reg).length;
+        ok("Formulários", "Preencher " + FORMS[tipo].rot.toLowerCase(),
+          campos > 0 && valido, campos + " campos" + (valido ? "" : " · faltou obrigatório"));
+      } catch (e) { ok("Formulários", "Preencher " + tipo, false, "ERRO: " + (e.message || e)); }
+    }
+
+    /* ---- 4. criar de verdade, conferir e desfazer ---- */
+    const criados = [];
+    for (const tipo of ["instituicao", "conta", "cartao", "investimento", "categoria", "bem", "meta"]) {
+      try {
+        const spec = FORMS[tipo], lista = App.d[spec.lista], antes = lista.length;
+        const { reg } = this.simularFormulario(tipo, App.d);
+        reg.id = App.proximoId(spec.pre, lista);
+        lista.push(reg);
+        App.recalc();
+        const entrou = App.d[spec.lista].length === antes + 1;
+        ok("Cadastrar", "Criar " + spec.rot.toLowerCase(), entrou, entrou ? reg.id : "não entrou na lista");
+        criados.push([spec.lista, reg.id]);
+      } catch (e) { ok("Cadastrar", "Criar " + tipo, false, "ERRO: " + (e.message || e)); }
+    }
+
+    /* ---- 5. um lançamento completo entre os cadastros de teste ---- */
+    try {
+      const conta = App.d.contas.at(-1), cat = App.d.categorias[0];
+      const sub = App.d.subcategorias.find((s) => s.categoriaId === cat.id);
+      const l = { id: App.proximoId("LAN", App.d.lancamentos), data: App.d.config.dataRef,
+        descricao: "Autoteste", tipo: "DESPESA", status: "REALIZADO", valor: 12345,
+        origemTipo: "CONTA", origemId: conta.id, destinoTipo: "EXTERNO", destinoId: "",
+        categoriaId: cat.id, subcategoriaId: sub ? sub.id : "" };
+      App.d.lancamentos.push(l);
+      App.recalc();
+      const c2 = App.v.contas.find((c) => c.id === conta.id);
+      ok("Lançar", "Lançamento entra e o saldo cai", c2 && c2.saldo === conta.saldoInicial - 12345,
+        c2 ? Fmt.gs(c2.saldo) : "conta não encontrada");
+      const val = App.v.L.find((x) => x.id === l.id);
+      ok("Lançar", "Lançamento passa na validação", val && val.validacao === "OK",
+        val ? val.validacao : "não encontrado");
+      criados.push(["lancamentos", l.id]);
+    } catch (e) { ok("Lançar", "Lançamento completo", false, "ERRO: " + (e.message || e)); }
+
+    /* ---- 6. todas as telas renderizam ---- */
+    const caixa = document.createElement("div");
+    caixa.style.cssText = "position:absolute;left:-99999px;width:1200px";
+    document.body.appendChild(caixa);
+    try {
+      for (const rota of Object.keys(Views)) {
+        try {
+          if (rota === "extrato") App.extratoSel = { tipo: "CONTA", id: App.d.contas.at(-1)?.id };
+          caixa.innerHTML = Views[rota](App.v);
+          ok("Telas", "Abrir " + (AJUDA[rota] ? AJUDA[rota].t : rota), caixa.innerHTML.length > 80);
+        } catch (e) { ok("Telas", "Abrir " + rota, false, "ERRO: " + (e.message || e)); }
+      }
+    } finally { caixa.remove(); App.extratoSel = null; }
+
+    /* ---- 7. a bateria de conferência ---- */
+    const falhas = App.v.testes.filter((t) => !t.ok);
+    ok("Conferência", "Contas fecham matematicamente", falhas.length === 0,
+      falhas.length ? falhas.slice(0, 3).map((f) => f.nome).join(" · ") : App.v.testes.length + " testes");
+
+    /* ---- 8. desfaz tudo e confirma que voltou ---- */
+    App.d = JSON.parse(backup);
+    App.recalc();
+    ok("Limpeza", "Dados de teste removidos",
+      App.d.instituicoes.length === JSON.parse(backup).instituicoes.length, "seus dados estão intactos");
+
+    /* ---- 9. guarda o resultado para eu poder ler ---- */
+    const resumo = { versao: VERSAO, quando: new Date().toISOString(),
+      perfil: App.perfilNome, online: Store.online, rota: App.rota,
+      navegador: navigator.userAgent,
+      falhas: r.filter((x) => !x.ok).map((x) => `${x.grupo}/${x.nome}: ${x.det}`),
+      total: r.length, ultimoErro: App.ultimoErro || null,
+      registros: LISTAS.map((k) => k + "=" + (App.d[k] || []).length).join(",") };
+    if (Store.db) {
+      try { await Store.db.doc("diagnostico/ultimo").set(resumo); } catch (e) { /* registrado abaixo */ }
+    }
+    App.ultimoAutoteste = { r, resumo };
+    return { r, resumo };
+  },
+};
 </script>
